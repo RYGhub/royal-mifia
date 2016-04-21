@@ -109,7 +109,7 @@ inprogress = list()
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
-    bot.sendMessage(update.message.chat.id, "Pong!")
+    bot.sendMessage(update.message.chat['id'], "Pong!")
 
 
 def newgame(bot, update):
