@@ -1,6 +1,10 @@
 from telegram.ext import Updater
 import filemanager
 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
 
@@ -99,10 +103,23 @@ class Game:
         # Inoltra il messaggio all'admin
         self.adminmessage(bot, text)
 
+# Partite in corso
+inprogress = list()
+
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
     bot.sendMessage(update.message.chat.id, "Pong!")
 
+
+def newgame(bot, update):
+    if update.message.chat['type'] != 'private':
+        g = Game(update.message.chat['id'], update.message.from_user['id'])
+        inprogress.append(g)
+        bot.sendMessage(update.message.chat.id, repr(inprogress))
+    else:
+        bot.sendMessage(update.message.chat.id, "Non puoi creare una partita in questo tipo di chat!")
+
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
+updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
 updater.start_polling()
