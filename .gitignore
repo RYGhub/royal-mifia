@@ -107,3 +107,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# La roba di Pycharm
+.pyc
+.idea/*
