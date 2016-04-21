@@ -61,6 +61,21 @@ class Investigatore(Role):
         self.poweruses = 1
 
 
+class Angelo(Role):
+    icon = ""  #TODO: Mettere un emoji per l'angelo
+    team = 'Good'
+    haspower = True
+    poweruses = 1
+
+    def power(self):
+        # Salva qualcuno dalla morte!
+        pass
+
+    def onendday(self):
+        # Ripristina il potere
+        self.poweruses = 1
+
+
 # Classi per i giocatori
 class Player:
     tid = int()
@@ -107,6 +122,13 @@ class Game:
 inprogress = list()
 
 
+# Trova una partita con un certo id
+def findgamebyid(gid) -> Game:
+    for game in inprogress:
+        if game.groupid == gid:
+            return game
+
+
 # Comandi a cui risponde il bot
 def ping(bot, update):
     bot.sendMessage(update.message.chat['id'], "Pong!")
@@ -116,10 +138,21 @@ def newgame(bot, update):
     if update.message.chat['type'] != 'private':
         g = Game(update.message.chat['id'], update.message.from_user['id'])
         inprogress.append(g)
-        bot.sendMessage(update.message.chat.id, repr(inprogress))
+        bot.sendMessage(update.message.chat['id'], "Partita creata: " + repr(g))
     else:
-        bot.sendMessage(update.message.chat.id, "Non puoi creare una partita in questo tipo di chat!")
+        bot.sendMessage(update.message.chat['id'], "Non puoi creare una partita in questo tipo di chat!")
+
+
+def join(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None:
+        if game.phase == 'Join':
+            p = Player(update.message.from_user['id'], update.message.from_user['username'])
+            game.players.append(p)
+            bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(g))
+
 
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
 updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
+updater.dispatcher.addTelegramCommandHandler('join', join)
 updater.start_polling()
