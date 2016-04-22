@@ -134,6 +134,33 @@ class Game:
         else:
             return None
 
+    def assignroles(self, mifia=2, investigatore=1):
+        import random
+        random.seed()
+        playersleft = self.players.copy()
+        random.shuffle(playersleft)
+        # Seleziona 2 mifiosi
+        while mifia > 0:
+            try:
+                selected = playersleft.pop()
+            except IndexError:
+                raise IndexError("Non ci sono abbastanza giocatori!")
+            else:
+                selected.role = Mifioso()
+                mifia -= 1
+        # Seleziona 1 detective
+        while investigatore > 0:
+            try:
+                selected = playersleft.pop()
+            except IndexError:
+                raise IndexError("Non ci sono abbastanza giocatori!")
+            else:
+                selected.role = Investigatore()
+                investigatore -= 1
+        # Assegna il ruolo di Royal a tutti gli altri
+        for player in playersleft:
+            player.role = Royal()
+
 # Partite in corso
 inprogress = list()
 
@@ -191,7 +218,8 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join':
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        # TODO: Aggiungere assegnazione ruoli
+        game.assignroles()
+        bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
 
 
 def vote(bot, update):
