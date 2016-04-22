@@ -203,7 +203,7 @@ class Game:
             player.role.onendday()
         lynched = self.mostvotedplayer()
         if lynched is not None:
-            self.message(bot, "{0} è stato ucciso.\n"
+            self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
                               "Era un {1} {2}.".format(lynched.tusername, lynched.role.icon, lynched.role.name))
             lynched.kill()
 
