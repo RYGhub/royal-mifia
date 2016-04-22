@@ -14,6 +14,7 @@ updater = Updater(token)
 class Role:
     icon = "-"
     team = 'None'  # Squadra: 'None', 'Good', 'Evil'
+    name = "UNDEFINED"
     haspower = False
     poweruses = 0
 
@@ -27,6 +28,7 @@ class Role:
 class Royal(Role):
     icon = "\U0001F610"
     team = 'Good'
+    name = "Royal"
 
 
 class Mifioso(Role):
@@ -35,6 +37,7 @@ class Mifioso(Role):
     haspower = True
     poweruses = 1
     target = None
+    name = "Mifioso"
 
     def power(self):
         # Imposta qualcuno come bersaglio
@@ -51,6 +54,7 @@ class Investigatore(Role):
     team = 'Good'
     haspower = True
     poweruses = 1
+    name = "Investigatore"
 
     def power(self):
         # Visualizza il ruolo di qualcuno
@@ -66,6 +70,7 @@ class Angelo(Role):
     team = 'Good'
     haspower = True
     poweruses = 1
+    name = "Angelo"
 
     def power(self):
         # Salva qualcuno dalla morte!
@@ -83,9 +88,13 @@ class Player:
     role = Role()  # Di base, ogni giocatore è un ruolo indefinito
     alive = True
     votingfor = None  # Diventa un player se ha votato
+    votes = 0  # Voti. Aggiornato da updatevotes()
 
     def message(self, bot, text):
         bot.sendMessage(self.tid, text)
+
+    def kill(self):
+        self.alive = False
 
     def __init__(self, tid, tusername):
         self.tid = tid
@@ -170,6 +179,34 @@ class Game:
         for player in playersleft:
             player.role = Royal()
 
+    def updatevotes(self):
+        for player in self.players:
+            player.votes = 0
+        for player in self.players:
+            player.votingfor.votes += 1
+
+    def mostvotedplayer(self) -> Player:
+        mostvoted = None
+        self.updatevotes()
+        for player in self.players:
+            if (mostvoted is None and player.votes >= 1) or (player.votes > mostvoted.votes):
+                mostvoted = player
+            elif player.votes == mostvoted.votes:
+                # Non sono sicuro che questo algoritmo sia effettivamente il più equo. Ma vabbè, non succederà mai
+                import random
+                mostvoted = random.choice([player, mostvoted])
+        return mostvoted
+
+    def endday(self, bot):
+        # Se ce n'è bisogno, si potrebbe rendere casuale l'ordine nelle abilità
+        for player in self.players:
+            player.role.onendday()
+        lynched = self.mostvotedplayer()
+        if lynched is not None:
+            self.message(bot, "{0} è stato ucciso.\n"
+                              "Era un {1} {2}.".format(lynched.tusername, lynched.role.icon, lynched.role.name))
+            lynched.kill()
+
 # Partite in corso
 inprogress = list()
 
@@ -252,11 +289,18 @@ def vote(bot, update):
         bot.sendMessage(update.message.chat['id'], "Nessuna partita in corso trovata.")
 
 
+def endday(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None and game.phase is 'Voting' and update.message.from_user['id'] == game.adminid:
+        game.endday(bot)
+
+
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
 updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
 updater.dispatcher.addTelegramCommandHandler('join', join)
 updater.dispatcher.addTelegramCommandHandler('status', status)
 updater.dispatcher.addTelegramCommandHandler('endjoin', endjoin)
 updater.dispatcher.addTelegramCommandHandler('vote', vote)
+updater.dispatcher.addTelegramCommandHandler('endday', endday)
 updater.start_polling()
 updater.idle()
