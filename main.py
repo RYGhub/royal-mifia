@@ -62,7 +62,7 @@ class Investigatore(Role):
 
 
 class Angelo(Role):
-    icon = ""  # TODO: Mettere un emoji per l'angelo
+    icon = "\U0001F607"
     team = 'Good'
     haspower = True
     poweruses = 1
@@ -190,9 +190,13 @@ def join(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
         if game.phase == 'Join':
-            p = Player(update.message.from_user['id'], update.message.from_user['username'])
-            game.players.append(p)
-            bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(game))
+            p = game.findplayerbyid(update.message.from_user['id'])
+            if p is None:
+                p = Player(update.message.from_user['id'], update.message.from_user['username'])
+                game.players.append(p)
+                bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(p))
+            else:
+                bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
 
 
 def status(bot, update):
@@ -218,7 +222,7 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join':
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles()
+        game.assignroles(1, 1)
         bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
 
 
