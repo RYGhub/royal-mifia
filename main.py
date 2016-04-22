@@ -12,7 +12,7 @@ updater = Updater(token)
 # Ruoli possibili per i giocatori
 # Base di un ruolo
 class Role:
-    icon = str()
+    icon = "-"
     team = 'None'  # Squadra: 'None', 'Good', 'Evil'
     haspower = False
     poweruses = 0
@@ -62,7 +62,7 @@ class Investigatore(Role):
 
 
 class Angelo(Role):
-    icon = ""  #TODO: Mettere un emoji per l'angelo
+    icon = ""  # TODO: Mettere un emoji per l'angelo
     team = 'Good'
     haspower = True
     poweruses = 1
@@ -82,7 +82,7 @@ class Player:
     tusername = str()
     role = Role()  # Di base, ogni giocatore è un ruolo indefinito
     alive = True
-    votingfor = str()
+    votingfor = None  # Diventa un player se ha votato
 
     def message(self, bot, text):
         bot.sendMessage(self.tid, text)
@@ -118,6 +118,22 @@ class Game:
         # Inoltra il messaggio all'admin
         self.adminmessage(bot, text)
 
+    def findplayerbyid(self, tid) -> Player:
+        # Trova tutti i giocatori con un certo id
+        for player in self.players:
+            if player.tid == tid:
+                return player
+        else:
+            return None
+
+    def findplayerbyusername(self, tusername) -> Player:
+        # Trova tutti i giocatori con un certo username
+        for player in self.players:
+            if player.tusername == tusername:
+                return player
+        else:
+            return None
+
 # Partite in corso
 inprogress = list()
 
@@ -149,10 +165,57 @@ def join(bot, update):
         if game.phase == 'Join':
             p = Player(update.message.from_user['id'], update.message.from_user['username'])
             game.players.append(p)
-            bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(g))
+            bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(game))
+
+
+def status(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is None:
+        bot.sendMessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
+    else:
+        text = "Gruppo: {0}\n" \
+               "Creatore: {1}\n" \
+               "Stato: {2}\n" \
+               "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
+        # Aggiungi l'elenco dei giocatori
+        for player in game.players:
+            if player.votingfor is not None:
+                text += "{0} {1} ({2})\n".format(player.role.icon, player.tusername, player.votingfor.tusername)
+            else:
+                text += "{0} {1}\n".format(player.role.icon, player.tusername)
+        bot.sendMessage(update.message.chat['id'], text)
+
+
+def endjoin(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None and game.phase is 'Join':
+        game.phase = 'Voting'
+        bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
+        # TODO: Aggiungere assegnazione ruoli
+
+
+def vote(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None and game.phase is 'Voting':
+        player = game.findplayerbyid(update.message.from_user['id'])
+        if player is not None:
+            target = game.findplayerbyusername(update.message.text.split(' ')[1])
+            if target is not None:
+                player.votingfor = target
+                bot.sendMessage(update.message.chat['id'], "Hai votato per uccidere {0}.".format(target.tusername))
+            else:
+                bot.sendMessage(update.message.chat['id'], "Il nome utente specificato non esiste.")
+        else:
+            bot.sendMessage(update.message.chat['id'], "Non sei nella partita.")
+    else:
+        bot.sendMessage(update.message.chat['id'], "Nessuna partita in corso trovata.")
 
 
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
 updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
 updater.dispatcher.addTelegramCommandHandler('join', join)
+updater.dispatcher.addTelegramCommandHandler('status', status)
+updater.dispatcher.addTelegramCommandHandler('endjoin', endjoin)
+updater.dispatcher.addTelegramCommandHandler('vote', vote)
 updater.start_polling()
+updater.idle()
