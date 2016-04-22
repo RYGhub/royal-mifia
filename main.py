@@ -158,7 +158,7 @@ class Game:
                 selected.role = Investigatore()
                 investigatore -= 1
         # Seleziona 1 angelo
-        while investigatore > 0:
+        while angelo > 0:
             try:
                 selected = playersleft.pop()
             except IndexError:
