@@ -268,7 +268,7 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(1, 1, 1)
+        game.assignroles(1, 0, 0)
         bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
 
 
