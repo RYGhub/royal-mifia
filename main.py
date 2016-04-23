@@ -3,7 +3,7 @@ import filemanager
 
 import logging
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
@@ -18,10 +18,10 @@ class Role:
     haspower = False
     poweruses = 0
 
-    def power(self):
+    def power(self, bot, game, player, arg):
         pass
 
-    def onendday(self):
+    def onendday(self, bot, game):
         pass
 
 
@@ -34,33 +34,34 @@ class Royal(Role):
 class Mifioso(Role):
     icon = "\U0001F47F"
     team = 'Evil'
-    haspower = True
-    poweruses = 1
     target = None
     name = "Mifioso"
 
-    def power(self):
+    def power(self, bot, game, player, arg):
         # Imposta qualcuno come bersaglio
-        pass
+        self.target = game.findplayerbyusername(arg)
+        player.message(bot, "Hai selezionato come bersaglio {0}.".format(self.target.tusername))
 
-    def onendday(self):
-        # Ripristina il potere
-        self.poweruses = 1
+    def onendday(self, bot, game):
         # Uccidi il bersaglio
+        if self.target is not None:
+            self.target.kill()
+            game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
+                              "Era un {1} {2}."
+                              .format(self.target.tusername, self.target.role.icon, self.target.role.name))
 
 
 class Investigatore(Role):
     icon = "\U0001F575"
     team = 'Good'
-    haspower = True
     poweruses = 1
     name = "Investigatore"
 
-    def power(self):
+    def power(self, bot, game, player, arg):
         # Visualizza il ruolo di qualcuno
         pass
 
-    def onendday(self):
+    def onendday(self, bot, game):
         # Ripristina il potere
         self.poweruses = 1
 
@@ -68,15 +69,13 @@ class Investigatore(Role):
 class Angelo(Role):
     icon = "\U0001F607"
     team = 'Good'
-    haspower = True
-    poweruses = 1
     name = "Angelo"
 
-    def power(self):
+    def power(self, bot, game, player, arg):
         # Salva qualcuno dalla morte!
         pass
 
-    def onendday(self):
+    def onendday(self, bot, game):
         # Ripristina il potere
         self.poweruses = 1
 
@@ -138,7 +137,7 @@ class Game:
     def findplayerbyusername(self, tusername) -> Player:
         # Trova tutti i giocatori con un certo username
         for player in self.players:
-            if player.tusername == tusername:
+            if player.tusername.lower() == tusername.lower():
                 return player
         else:
             return None
@@ -198,9 +197,9 @@ class Game:
         return mostvoted
 
     def endday(self, bot):
-        # Se ce n'è bisogno, si potrebbe rendere casuale l'ordine nelle abilità
+        # TODO: Per mettere l'angelo bisogna dare una priorità a ogni ruolo.
         for player in self.players:
-            player.role.onendday()
+            player.role.onendday(bot, self)
         lynched = self.mostvotedplayer()
         if lynched is not None:
             self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
@@ -256,7 +255,9 @@ def status(bot, update):
                "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
-            if player.votingfor is not None:
+            if not player.alive:
+                text += "\U0001F480 {0}".format(player.tusername)
+            elif player.votingfor is not None:
                 text += "{0} {1} ({2})\n".format(player.role.icon, player.tusername, player.votingfor.tusername)
             else:
                 text += "{0} {1}\n".format(player.role.icon, player.tusername)
@@ -276,7 +277,7 @@ def vote(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Voting':
         player = game.findplayerbyid(update.message.from_user['id'])
-        if player is not None:
+        if player is not None and player.alive:
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 player.votingfor = target
@@ -284,7 +285,7 @@ def vote(bot, update):
             else:
                 bot.sendMessage(update.message.chat['id'], "Il nome utente specificato non esiste.")
         else:
-            bot.sendMessage(update.message.chat['id'], "Non sei nella partita.")
+            bot.sendMessage(update.message.chat['id'], "Non puoi votare. Non sei nella partita o sei morto.")
     else:
         bot.sendMessage(update.message.chat['id'], "Nessuna partita in corso trovata.")
 
@@ -295,6 +296,22 @@ def endday(bot, update):
         game.endday(bot)
 
 
+def power(bot, update):
+    if update.message.chat['type'] == 'private':
+        # Ho un'idea su come farlo meglio. Forse.
+        cmd = update.message.text.split(' ', 2)
+        game = findgamebyid(int(cmd[1]))
+        if game is not None:
+            player = game.findplayerbyid(update.message.from_user['id'])
+            if player.alive:
+                player.role.power(bot, game, player, cmd[2])
+            else:
+                bot.sendMessage(update.message.chat['id'], "Sei morto e non puoi usare poteri.")
+        else:
+            bot.sendMessage(update.message.chat['id'], "Partita non trovata.")
+    else:
+        bot.sendMessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
+
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
 updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
 updater.dispatcher.addTelegramCommandHandler('join', join)
@@ -302,5 +319,6 @@ updater.dispatcher.addTelegramCommandHandler('status', status)
 updater.dispatcher.addTelegramCommandHandler('endjoin', endjoin)
 updater.dispatcher.addTelegramCommandHandler('vote', vote)
 updater.dispatcher.addTelegramCommandHandler('endday', endday)
+updater.dispatcher.addTelegramCommandHandler('power', power)
 updater.start_polling()
 updater.idle()
