@@ -58,22 +58,17 @@ class Investigatore(Role):
     name = "Investigatore"
 
     def power(self, bot, game, player, arg):
-        # Visualizza il ruolo di qualcuno
-        pass
-
-    def onendday(self, bot, game):
-        # Ripristina il potere
-        self.poweruses = 1
-
-
-class Angelo(Role):
-    icon = "\U0001F607"
-    team = 'Good'
-    name = "Angelo"
-
-    def power(self, bot, game, player, arg):
-        # Salva qualcuno dalla morte!
-        pass
+        if self.poweruses > 0:
+            target = game.findplayerbyusername(arg)
+            if target is not None:
+                self.poweruses -= 1
+                player.message(bot, "{0} è un {1} {2}.\n"
+                                    "Puoi usare il tuo potere ancora {3} volte oggi."
+                                    .format(target.tusername, target.role.icon, target.role.name, self.poweruses))
+            else:
+                player.message(bot, "Il nome utente specificato non esiste.")
+        else:
+            player.message(bot, "Non puoi più usare il tuo potere oggi.")
 
     def onendday(self, bot, game):
         # Ripristina il potere
@@ -269,7 +264,7 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(1, 0, 0)
+        game.assignroles(0, 1, 0)
         bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
 
 
