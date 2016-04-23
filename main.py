@@ -177,15 +177,19 @@ class Game:
         for player in self.players:
             player.votes = 0
         for player in self.players:
-            player.votingfor.votes += 1
+            if player.votingfor is not None:
+                player.votingfor.votes += 1
 
     def mostvotedplayer(self) -> Player:
         mostvoted = None
         self.updatevotes()
         for player in self.players:
-            if (mostvoted is None and player.votes >= 1) or (player.votes > mostvoted.votes):
+            # Temo di aver fatto un disastro. Ma finchè va...
+            if mostvoted is None and player.votes == 0:
+                pass
+            elif (mostvoted is None and player.votes >= 1) or (player.votes > mostvoted.votes):
                 mostvoted = player
-            elif player.votes == mostvoted.votes:
+            elif mostvoted is not None and player.votes == mostvoted.votes:
                 # Non sono sicuro che questo algoritmo sia effettivamente il più equo. Ma vabbè, non succederà mai
                 import random
                 mostvoted = random.choice([player, mostvoted])
@@ -200,6 +204,10 @@ class Game:
             self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
                               "Era un {1} {2}.".format(lynched.tusername, lynched.role.icon, lynched.role.name))
             lynched.kill()
+        else:
+            self.message(bot, "La Royal Games non è giunta a una decisione in questo giorno e non ha ucciso nessuno.")
+        for player in self.players:
+            player.votingfor = None
 
 # Partite in corso
 inprogress = list()
@@ -239,6 +247,29 @@ def join(bot, update):
                 bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
 
 
+def debug(bot, update):
+    game = findgamebyid(update.message.chat['id'])
+    if game is None:
+        bot.sendMessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
+    else:
+        if game.adminid == update.message.from_user['id']:
+            text = "Gruppo: {0}\n" \
+                   "Creatore: {1}\n" \
+                   "Stato: {2}\n" \
+                   "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
+            game.updatevotes()
+            # Aggiungi l'elenco dei giocatori
+            for player in game.players:
+                if not player.alive:
+                    text += "\U0001F480 {0}\n".format(player.tusername)
+                elif player.votingfor is not None:
+                    text += "{0} {1} ({2}) vota per {3}\n"\
+                            .format(player.role.icon, player.tusername, player.votes, player.votingfor.tusername)
+                else:
+                    text += "{0} {1} ({2})\n".format(player.role.icon, player.tusername, player.votes)
+            bot.sendMessage(update.message.from_user['id'], text)
+
+
 def status(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is None:
@@ -248,15 +279,17 @@ def status(bot, update):
                "Creatore: {1}\n" \
                "Stato: {2}\n" \
                "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
+        game.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
             if not player.alive:
-                text += "\U0001F480 {0}".format(player.tusername)
+                text += "\U0001F480 {0}\n".format(player.tusername)
             elif player.votingfor is not None:
-                text += "{0} {1} ({2})\n".format(player.role.icon, player.tusername, player.votingfor.tusername)
+                text += "\U0001F610 {1} ({2}) vota per {3}\n"\
+                        .format(player.role.icon, player.tusername, player.votes, player.votingfor.tusername)
             else:
-                text += "{0} {1}\n".format(player.role.icon, player.tusername)
-        bot.sendMessage(update.message.chat['id'], text)
+                text += "\U0001F610 {1} ({2})\n".format(player.role.icon, player.tusername, player.votes)
+        bot.sendMessage(update.message.from_user['id'], text)
 
 
 def endjoin(bot, update):
@@ -264,7 +297,7 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(0, 1, 0)
+        game.assignroles(1, 1, 0)
         bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
 
 
@@ -310,10 +343,11 @@ def power(bot, update):
 updater.dispatcher.addTelegramCommandHandler('ping', ping)
 updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
 updater.dispatcher.addTelegramCommandHandler('join', join)
-updater.dispatcher.addTelegramCommandHandler('status', status)
+updater.dispatcher.addTelegramCommandHandler('debug', debug)
 updater.dispatcher.addTelegramCommandHandler('endjoin', endjoin)
 updater.dispatcher.addTelegramCommandHandler('vote', vote)
 updater.dispatcher.addTelegramCommandHandler('endday', endday)
 updater.dispatcher.addTelegramCommandHandler('power', power)
+updater.dispatcher.addTelegramCommandHandler('status', status)
 updater.start_polling()
 updater.idle()
