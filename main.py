@@ -137,12 +137,12 @@ class Game:
         else:
             return None
 
-    def assignroles(self, mifia=2, investigatore=1, angelo=0):
+    def assignroles(self, bot, mifia=0, investigatore=0):
         import random
         random.seed()
         playersleft = self.players.copy()
         random.shuffle(playersleft)
-        # Seleziona 2 mifiosi
+        # Seleziona mifiosi
         while mifia > 0:
             try:
                 selected = playersleft.pop()
@@ -151,7 +151,7 @@ class Game:
             else:
                 selected.role = Mifioso()
                 mifia -= 1
-        # Seleziona 1 detective
+        # Seleziona detective
         while investigatore > 0:
             try:
                 selected = playersleft.pop()
@@ -160,18 +160,12 @@ class Game:
             else:
                 selected.role = Investigatore()
                 investigatore -= 1
-        # Seleziona 1 angelo
-        while angelo > 0:
-            try:
-                selected = playersleft.pop()
-            except IndexError:
-                raise IndexError("Non ci sono abbastanza giocatori!")
-            else:
-                selected.role = Angelo()
-                investigatore -= 1
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
             player.role = Royal()
+        # Manda i ruoli assegnati a tutti
+        for player in self.players:
+            player.message(bot, "Ti è stato assegnato il ruolo di {0} {1}.".format(player.role.icon, player.role.name))
 
     def updatevotes(self):
         for player in self.players:
@@ -208,6 +202,25 @@ class Game:
             self.message(bot, "La Royal Games non è giunta a una decisione in questo giorno e non ha ucciso nessuno.")
         for player in self.players:
             player.votingfor = None
+        # Condizioni di vittoria
+        royal = 0
+        mifiosi = 0
+        for player in self.players:
+            if player.alive and isinstance(player.role, Mifioso):
+                mifiosi += 1
+            elif player.alive and (isinstance(player.role, Royal) or isinstance(player.role, Investigatore)):
+                royal += 1
+        if mifiosi >= royal:
+            self.message(bot, "I Mifiosi rimasti sono più dei Royal.\n"
+                              "La Mifia vince!")
+            self.endgame()
+        elif mifiosi == 0:
+            self.message(bot, "Tutti i Mifiosi sono stati eliminati.\n"
+                              "La Royal Games vince!")
+            self.endgame()
+
+    def endgame(self):
+        inprogress.remove(self)
 
 # Partite in corso
 inprogress = list()
@@ -255,7 +268,7 @@ def debug(bot, update):
         if game.adminid == update.message.from_user['id']:
             text = "Gruppo: {0}\n" \
                    "Creatore: {1}\n" \
-                   "Stato: {2}\n" \
+                   "Fase: {2}\n" \
                    "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
             game.updatevotes()
             # Aggiungi l'elenco dei giocatori
@@ -277,7 +290,7 @@ def status(bot, update):
     else:
         text = "Gruppo: {0}\n" \
                "Creatore: {1}\n" \
-               "Stato: {2}\n" \
+               "Fase: {2}\n" \
                "Giocatori partecipanti:\n".format(game.groupid, game.adminid, game.phase)
         game.updatevotes()
         # Aggiungi l'elenco dei giocatori
@@ -285,11 +298,11 @@ def status(bot, update):
             if not player.alive:
                 text += "\U0001F480 {0}\n".format(player.tusername)
             elif player.votingfor is not None:
-                text += "\U0001F610 {1} ({2}) vota per {3}\n"\
-                        .format(player.role.icon, player.tusername, player.votes, player.votingfor.tusername)
+                text += "\U0001F610 {0} ({1}) vota per {2}\n"\
+                        .format(player.tusername, player.votes, player.votingfor.tusername)
             else:
-                text += "\U0001F610 {1} ({2})\n".format(player.role.icon, player.tusername, player.votes)
-        bot.sendMessage(update.message.from_user['id'], text)
+                text += "\U0001F610 {0} ({1})\n".format(player.tusername, player.votes)
+        bot.sendMessage(update.message.chat['id'], text)
 
 
 def endjoin(bot, update):
@@ -297,8 +310,9 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(1, 1, 0)
-        bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.")
+        game.assignroles(bot, mifia=2, investigatore=1)
+        bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
+                                                   "Controlla la chat con @mifiabot.")
 
 
 def vote(bot, update):
