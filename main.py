@@ -87,7 +87,7 @@ class Player:
     votes = 0  # Voti. Aggiornato da updatevotes()
 
     def message(self, bot, text):
-        bot.sendMessage(self.tid, text)
+        bot.sendmessage(self.tid, text)
 
     def kill(self):
         self.alive = False
@@ -110,10 +110,10 @@ class Game:
         self.adminid = adminid
 
     def message(self, bot, text):
-        bot.sendMessage(self.groupid, text)
+        bot.sendmessage(self.groupid, text)
 
     def adminmessage(self, bot, text):
-        bot.sendMessage(self.adminid, text)
+        bot.sendmessage(self.adminid, text)
 
     def mifiamessage(self, bot, text):
         # Trova tutti i mifiosi nell'elenco dei giocatori
@@ -237,16 +237,16 @@ def findgamebyid(gid) -> Game:
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
-    bot.sendMessage(update.message.chat['id'], "Pong!")
+    bot.sendmessage(update.message.chat['id'], "Pong!")
 
 
 def newgame(bot, update):
     if update.message.chat['type'] != 'private':
         g = Game(update.message.chat['id'], update.message.from_user['id'])
         inprogress.append(g)
-        bot.sendMessage(update.message.chat['id'], "Partita creata: " + repr(g))
+        bot.sendmessage(update.message.chat['id'], "Partita creata: " + repr(g))
     else:
-        bot.sendMessage(update.message.chat['id'], "Non puoi creare una partita in questo tipo di chat!")
+        bot.sendmessage(update.message.chat['id'], "Non puoi creare una partita in questo tipo di chat!")
 
 
 def join(bot, update):
@@ -257,15 +257,15 @@ def join(bot, update):
             if p is None:
                 p = Player(update.message.from_user['id'], update.message.from_user['username'])
                 game.players.append(p)
-                bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(p))
+                bot.sendmessage(update.message.chat['id'], "Unito alla partita: " + repr(p))
             else:
-                bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
+                bot.sendmessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
 
 
 def debug(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is None:
-        bot.sendMessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
+        bot.sendmessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
     else:
         if game.adminid == update.message.from_user['id']:
             text = "Gruppo: {0}\n" \
@@ -282,13 +282,13 @@ def debug(bot, update):
                             .format(player.role.icon, player.tusername, player.votes, player.votingfor.tusername)
                 else:
                     text += "{0} {1} ({2})\n".format(player.role.icon, player.tusername, player.votes)
-            bot.sendMessage(update.message.from_user['id'], text)
+            bot.sendmessage(update.message.from_user['id'], text)
 
 
 def status(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is None:
-        bot.sendMessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
+        bot.sendmessage(update.message.chat['id'], "In questo gruppo non ci sono partite in corso.")
     else:
         text = "Gruppo: {0}\n" \
                "Creatore: {1}\n" \
@@ -304,16 +304,16 @@ def status(bot, update):
                         .format(player.tusername, player.votes, player.votingfor.tusername)
             else:
                 text += "\U0001F610 {0} ({1})\n".format(player.tusername, player.votes)
-        bot.sendMessage(update.message.chat['id'], text)
+        bot.sendmessage(update.message.chat['id'], text)
 
 
 def endjoin(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
-        bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
+        bot.sendmessage(update.message.chat['id'], "La fase di join è terminata.")
         game.assignroles(bot, mifia=2, investigatore=1)
-        bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
+        bot.sendmessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
                                                    "Controlla la chat con @mifiabot.")
 
 
@@ -325,13 +325,13 @@ def vote(bot, update):
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 player.votingfor = target
-                bot.sendMessage(update.message.chat['id'], "Hai votato per uccidere {0}.".format(target.tusername))
+                bot.sendmessage(update.message.chat['id'], "Hai votato per uccidere {0}.".format(target.tusername))
             else:
-                bot.sendMessage(update.message.chat['id'], "Il nome utente specificato non esiste.")
+                bot.sendmessage(update.message.chat['id'], "Il nome utente specificato non esiste.")
         else:
-            bot.sendMessage(update.message.chat['id'], "Non puoi votare. Non sei nella partita o sei morto.")
+            bot.sendmessage(update.message.chat['id'], "Non puoi votare. Non sei nella partita o sei morto.")
     else:
-        bot.sendMessage(update.message.chat['id'], "Nessuna partita in corso trovata.")
+        bot.sendmessage(update.message.chat['id'], "Nessuna partita in corso trovata.")
 
 
 def endday(bot, update):
@@ -350,11 +350,11 @@ def power(bot, update):
             if player.alive:
                 player.role.power(bot, game, player, cmd[2])
             else:
-                bot.sendMessage(update.message.chat['id'], "Sei morto e non puoi usare poteri.")
+                bot.sendmessage(update.message.chat['id'], "Sei morto e non puoi usare poteri.")
         else:
-            bot.sendMessage(update.message.chat['id'], "Partita non trovata.")
+            bot.sendmessage(update.message.chat['id'], "Partita non trovata.")
     else:
-        bot.sendMessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
+        bot.sendmessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
