@@ -360,6 +360,9 @@ def power(bot, update):
         bot.sendMessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
 
 
+def debuggameslist(bot, update):
+    bot.sendMessage(repr(inprogress))
+
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
 updater.dispatcher.addHandler(CommandHandler('join', join))
@@ -369,5 +372,6 @@ updater.dispatcher.addHandler(CommandHandler('vote', vote))
 updater.dispatcher.addHandler(CommandHandler('endday', endday))
 updater.dispatcher.addHandler(CommandHandler('power', power))
 updater.dispatcher.addHandler(CommandHandler('status', status))
+updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.start_polling()
 updater.idle()
