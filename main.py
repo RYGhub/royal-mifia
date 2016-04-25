@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler
 import filemanager
 
 import logging
@@ -356,14 +356,14 @@ def power(bot, update):
     else:
         bot.sendMessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
 
-updater.dispatcher.addTelegramCommandHandler('ping', ping)
-updater.dispatcher.addTelegramCommandHandler('newgame', newgame)
-updater.dispatcher.addTelegramCommandHandler('join', join)
-updater.dispatcher.addTelegramCommandHandler('debug', debug)
-updater.dispatcher.addTelegramCommandHandler('endjoin', endjoin)
-updater.dispatcher.addTelegramCommandHandler('vote', vote)
-updater.dispatcher.addTelegramCommandHandler('endday', endday)
-updater.dispatcher.addTelegramCommandHandler('power', power)
-updater.dispatcher.addTelegramCommandHandler('status', status)
+updater.dispatcher.addHandler(CommandHandler('ping', ping))
+updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
+updater.dispatcher.addHandler(CommandHandler('join', join))
+updater.dispatcher.addHandler(CommandHandler('debug', debug))
+updater.dispatcher.addHandler(CommandHandler('endjoin', endjoin))
+updater.dispatcher.addHandler(CommandHandler('vote', vote))
+updater.dispatcher.addHandler(CommandHandler('endday', endday))
+updater.dispatcher.addHandler(CommandHandler('power', power))
+updater.dispatcher.addHandler(CommandHandler('status', status))
 updater.start_polling()
 updater.idle()
