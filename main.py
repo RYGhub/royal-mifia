@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
 import filemanager
+import random
 
 import logging
 logger = logging.getLogger()
@@ -140,7 +141,6 @@ class Game:
             return None
 
     def assignroles(self, bot, mifia=0, investigatore=0):
-        import random
         random.seed()
         playersleft = self.players.copy()
         random.shuffle(playersleft)
@@ -187,7 +187,6 @@ class Game:
                 mostvoted = player
             elif mostvoted is not None and player.votes == mostvoted.votes:
                 # Non sono sicuro che questo algoritmo sia effettivamente il più equo. Ma vabbè, non succederà mai
-                import random
                 mostvoted = random.choice([player, mostvoted])
         return mostvoted
 
@@ -242,9 +241,13 @@ def ping(bot, update):
 
 def newgame(bot, update):
     if update.message.chat['type'] != 'private':
-        g = Game(update.message.chat['id'], update.message.from_user['id'])
-        inprogress.append(g)
-        bot.sendMessage(update.message.chat['id'], "Partita creata: " + repr(g))
+        g = findgamebyid(update.message.chat['id'])
+        if g is None:
+            g = Game(update.message.chat['id'], update.message.from_user['id'])
+            inprogress.append(g)
+            bot.sendMessage(update.message.chat['id'], "Partita creata: " + repr(g))
+        else:
+            bot.sendMessage(update.message.chat['id'], "In questo gruppo è già in corso una partita.")
     else:
         bot.sendMessage(update.message.chat['id'], "Non puoi creare una partita in questo tipo di chat!")
 
@@ -355,6 +358,7 @@ def power(bot, update):
             bot.sendMessage(update.message.chat['id'], "Partita non trovata.")
     else:
         bot.sendMessage(update.message.chat['id'], "Per usare /power, scrivimi in chat privata a @mifiabot!")
+
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
