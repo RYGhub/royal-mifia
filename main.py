@@ -20,6 +20,7 @@ class Role:
     name = "UNDEFINED"
     haspower = False
     poweruses = 0
+    protectedby = None  # Protettore
 
     def power(self, bot, game, player, arg):
         pass
@@ -43,15 +44,21 @@ class Mifioso(Role):
     def power(self, bot, game, player, arg):
         # Imposta qualcuno come bersaglio
         self.target = game.findplayerbyusername(arg)
-        player.message(bot, "Hai selezionato come bersaglio {0}.".format(self.target.tusername))
+        if self.target is not None:
+            player.message(bot, "Hai selezionato come bersaglio {0}.".format(self.target.tusername))
 
     def onendday(self, bot, game):
         # Uccidi il bersaglio
         if self.target is not None:
-            self.target.kill()
-            game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
-                              "Era un {1} {2}."
-                              .format(self.target.tusername, self.target.role.icon, self.target.role.name))
+            if self.target.protectedby is None:
+                self.target.kill()
+                game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
+                                  "Era un {1} {2}."
+                                  .format(self.target.tusername, self.target.role.icon, self.target.role.name))
+            else:
+                game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
+                                  .format(self.target.tusername, self.target.protectedby.icon, self.target.protectedby.icon))
+            self.target = None
 
 
 class Investigatore(Role):
@@ -78,6 +85,24 @@ class Investigatore(Role):
         self.poweruses = 1
 
 
+class Angelo(Role):
+    icon = "\U00128519"
+    team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
+    name = "Angelo"
+    protecting = None  # Protetto
+    
+    def power(self, bot, game, player, arg):
+        # Imposta qualcuno come bersaglio
+        selected = game.findplayerbyusername(arg)
+        if player is not selected and selected is not None:
+            self.protecting.protectedby = player
+            player.message(bot, "Hai selezionato come protetto {0}.".format(self.protecting.tusername))
+            
+    def onendday(self, bot, game):
+        # Resetta la protezione
+        self.protecting.protectedby = None
+        self.protecting = None
+    
 # Classi per i giocatori
 class Player:
     tid = int()
@@ -197,11 +222,15 @@ class Game:
         # Mifiosi
         for player in self.players:
             if isinstance(player.role, Mifioso):
-                player.role.onendday(bot, self)
+                player.role.onendday(self, bot)
         # Investigatori
         for player in self.players:
             if isinstance(player.role, Investigatore):
-                player.role.onendday(bot, self)
+                player.role.onendday(self, bot)
+        # Angeli
+        for player in self.players:
+            if isinstance(player.role, Angelo):
+                player.role.onendday(self, bot)
         lynched = self.mostvotedplayer()
         if lynched is not None:
             self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
