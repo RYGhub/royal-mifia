@@ -188,7 +188,7 @@ class Game:
                 selected.role = Investigatore()
                 investigatore -= 1
         # Seleziona angelo
-        while investigatore > 0:
+        while angelo > 0:
             try:
                 selected = playersleft.pop()
             except IndexError:
@@ -255,7 +255,7 @@ class Game:
         for player in self.players:
             if player.alive and isinstance(player.role, Mifioso):
                 mifiosi += 1
-            elif player.alive and (isinstance(player.role, Royal) or isinstance(player.role, Investigatore)):
+            elif player.alive and player.role.team == 'Good':
                 royal += 1
         if mifiosi >= royal:
             self.message(bot, "I Mifiosi rimasti sono più dei Royal.\n"
