@@ -191,9 +191,17 @@ class Game:
         return mostvoted
 
     def endday(self, bot):
-        # TODO: Per mettere l'angelo bisogna dare una priorità a ogni ruolo.
+        # Fai gli endday in un certo ordine.
+        # Si potrebbe fare più velocemente, credo.
+        # Ma non sto a ottimizzare senza poter eseguire il programma, quindi vado sul sicuro.
+        # Mifiosi
         for player in self.players:
-            player.role.onendday(bot, self)
+            if isinstance(player.role, Mifioso):
+                player.role.onendday(bot, self)
+        # Investigatori
+        for player in self.players:
+            if isinstance(player.role, Investigatore):
+                player.role.onendday(bot, self)
         lynched = self.mostvotedplayer()
         if lynched is not None:
             self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
