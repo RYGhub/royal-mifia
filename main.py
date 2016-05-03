@@ -87,7 +87,7 @@ class Investigatore(Role):
 
 
 class Angelo(Role):
-    icon = "\U00128519"
+    icon = "\U0001F607"
     team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
     name = "Angelo"
     protecting = None  # Protetto
@@ -363,7 +363,7 @@ def endjoin(bot, update):
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
         bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(bot, mifia=3, investigatore=2, angelo=1)
+        game.assignroles(bot, mifia=1, investigatore=0, angelo=1)
         bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
                                                    "Controlla la chat con @mifiabot.")
 
@@ -417,9 +417,11 @@ updater.dispatcher.addHandler(CommandHandler('join', join))
 updater.dispatcher.addHandler(CommandHandler('debug', debug))
 updater.dispatcher.addHandler(CommandHandler('endjoin', endjoin))
 updater.dispatcher.addHandler(CommandHandler('vote', vote))
+updater.dispatcher.addHandler(CommandHandler('v', vote))
 updater.dispatcher.addHandler(CommandHandler('endday', endday))
 updater.dispatcher.addHandler(CommandHandler('power', power))
 updater.dispatcher.addHandler(CommandHandler('status', status))
+updater.dispatcher.addHandler(CommandHandler('s', status))
 updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.start_polling()
 updater.idle()
