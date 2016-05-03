@@ -57,7 +57,8 @@ class Mifioso(Role):
                                   .format(self.target.tusername, self.target.role.icon, self.target.role.name))
             else:
                 game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
-                                  .format(self.target.tusername, self.target.protectedby.icon, self.target.protectedby.icon))
+                                  .format(self.target.tusername, self.target.protectedby.icon,
+                                          self.target.protectedby.icon))
             self.target = None
 
 
@@ -102,7 +103,8 @@ class Angelo(Role):
         # Resetta la protezione
         self.protecting.protectedby = None
         self.protecting = None
-    
+
+
 # Classi per i giocatori
 class Player:
     tid = int()
