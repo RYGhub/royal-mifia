@@ -50,15 +50,15 @@ class Mifioso(Role):
     def onendday(self, bot, game):
         # Uccidi il bersaglio
         if self.target is not None:
-            if self.target.protectedby is None:
+            if self.target.role.protectedby is None:
                 self.target.kill()
                 game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
                                   "Era un {1} {2}."
                                   .format(self.target.tusername, self.target.role.icon, self.target.role.name))
             else:
                 game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
-                                  .format(self.target.tusername, self.target.protectedby.icon,
-                                          self.target.protectedby.icon))
+                                  .format(self.target.tusername, self.target.role.protectedby.icon,
+                                          self.target.role.protectedby.tusername))
             self.target = None
 
 
@@ -96,12 +96,13 @@ class Angelo(Role):
         # Imposta qualcuno come bersaglio
         selected = game.findplayerbyusername(arg)
         if player is not selected and selected is not None:
-            self.protecting.protectedby = player
+            selected.role.protectedby = player
+            self.protecting = selected
             player.message(bot, "Hai selezionato come protetto {0}.".format(self.protecting.tusername))
             
     def onendday(self, bot, game):
         # Resetta la protezione
-        self.protecting.protectedby = None
+        self.protecting.role.protectedby = None
         self.protecting = None
 
 
