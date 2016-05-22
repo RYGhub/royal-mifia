@@ -53,18 +53,18 @@ class Mifioso(Role):
         # Imposta qualcuno come bersaglio
         self.target = game.findplayerbyusername(arg)
         if self.target is not None:
-            player.message(bot, "Hai selezionato come bersaglio {0}.".format(self.target.tusername))
+            player.message(bot, "Hai selezionato come bersaglio @{0}.".format(self.target.tusername))
 
     def onendday(self, bot, game):
         # Uccidi il bersaglio
         if self.target is not None:
             if self.target.role.protectedby is None:
                 self.target.kill()
-                game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
+                game.message(bot, "@{0} è stato ucciso dalla Mifia.\n"
                                   "Era un {1} {2}."
                                   .format(self.target.tusername, self.target.role.icon, self.target.role.name))
             else:
-                game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
+                game.message(bot, "@{0} è stato protetto dalla Mifia da {1} @{2}!\n"
                                   .format(self.target.tusername, self.target.role.protectedby.role.icon,
                                           self.target.role.protectedby.tusername))
             self.target = None
@@ -83,7 +83,7 @@ class Investigatore(Role):
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                player.message(bot, "{0} è un {1} {2}.\n"
+                player.message(bot, " @{0} è un {1} {2}.\n"
                                     "Puoi usare il tuo potere ancora {3} volte oggi."
                                     .format(target.tusername, target.role.icon, target.role.name, self.poweruses))
             else:
@@ -110,7 +110,7 @@ class Angelo(Role):
         if player is not selected and selected is not None:
             selected.role.protectedby = player
             self.protecting = selected
-            player.message(bot, "Hai selezionato come protetto {0}.".format(self.protecting.tusername))
+            player.message(bot, "Hai selezionato come protetto @{0}.".format(self.protecting.tusername))
             
     def onendday(self, bot, game):
         # Resetta la protezione
@@ -251,7 +251,7 @@ class Game:
                 player.role.onendday(bot, self)
         lynched = self.mostvotedplayer()
         if lynched is not None:
-            self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
+            self.message(bot, "@{0} era il più votato ed è stato ucciso dai Royal.\n"
                               "Era un {1} {2}.".format(lynched.tusername, lynched.role.icon, lynched.role.name))
             lynched.kill()
         else:
@@ -315,9 +315,9 @@ def join(bot, update):
             if p is None:
                 p = Player(update.message.from_user['id'], update.message.from_user['username'])
                 game.players.append(p)
-                bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + str(p.tid))
+                bot.sendMessage(update.message.chat['id'], "Unito alla partita: @" + p.tusername)
             else:
-                bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
+                bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita!")
 
 
 def debug(bot, update):
@@ -356,12 +356,12 @@ def status(bot, update):
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
             if not player.alive:
-                text += "\U0001F480 {0}\n".format(player.tusername)
+                text += "\U0001F480 @{0}\n".format(player.tusername)
             elif player.votingfor is not None:
-                text += "\U0001F610 {0} ({1}) vota per {2}\n"\
+                text += "\U0001F610 @{0} ({1}) vota per @{2}\n"\
                         .format(player.tusername, player.votes, player.votingfor.tusername)
             else:
-                text += "\U0001F610 {0} ({1})\n".format(player.tusername, player.votes)
+                text += "\U0001F610 @{0} ({1})\n".format(player.tusername, player.votes)
         bot.sendMessage(update.message.chat['id'], text)
 
 
@@ -389,7 +389,7 @@ def vote(bot, update):
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 player.votingfor = target
-                bot.sendMessage(update.message.chat['id'], "Hai votato per uccidere {0}.".format(target.tusername))
+                bot.sendMessage(update.message.chat['id'], "Hai votato per uccidere @{0}.".format(target.tusername))
             else:
                 bot.sendMessage(update.message.chat['id'], "Il nome utente specificato non esiste.")
         else:
@@ -422,7 +422,7 @@ def power(bot, update):
 
 
 def debuggameslist(bot, update):
-    bot.sendMessage(repr(inprogress))
+    bot.sendMessage(25167391, repr(inprogress))
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
