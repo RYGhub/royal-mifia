@@ -6,7 +6,10 @@ import random
 
 import logging
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARN)
+
+logging.basicConfig(level=logging.WARN,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
@@ -15,12 +18,13 @@ updater = Updater(token)
 # Ruoli possibili per i giocatori
 # Base di un ruolo
 class Role:
-    icon = "-"
-    team = 'None'  # Squadra: 'None', 'Good', 'Evil'
-    name = "UNDEFINED"
-    haspower = False
-    poweruses = 0
-    protectedby = None  # Protettore
+    def __init__(self):
+        self.icon = "-"
+        self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
+        self.name = "UNDEFINED"
+        self.haspower = False
+        self.poweruses = 0
+        self.protectedby = None  # Protettore
 
     def power(self, bot, game, player, arg):
         pass
@@ -30,16 +34,20 @@ class Role:
 
 
 class Royal(Role):
-    icon = "\U0001F610"
-    team = 'Good'
-    name = "Royal"
+    def __init__(self):
+        super().__init__()
+        self.icon = "\U0001F610"
+        self.team = 'Good'
+        self.name = "Royal"
 
 
 class Mifioso(Role):
-    icon = "\U0001F47F"
-    team = 'Evil'
-    target = None
-    name = "Mifioso"
+    def __init__(self):
+        super().__init__()
+        self.icon = "\U0001F47F"
+        self.team = 'Evil'
+        self.target = None
+        self.name = "Mifioso"
 
     def power(self, bot, game, player, arg):
         # Imposta qualcuno come bersaglio
@@ -57,16 +65,18 @@ class Mifioso(Role):
                                   .format(self.target.tusername, self.target.role.icon, self.target.role.name))
             else:
                 game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
-                                  .format(self.target.tusername, self.target.role.protectedby.icon,
+                                  .format(self.target.tusername, self.target.role.protectedby.role.icon,
                                           self.target.role.protectedby.tusername))
             self.target = None
 
 
 class Investigatore(Role):
-    icon = "\U0001F575"
-    team = 'Good'
-    poweruses = 1
-    name = "Investigatore"
+    def __init__(self):
+        super().__init__()
+        self.icon = "\U0001F575"
+        self.team = 'Good'
+        self.poweruses = 1
+        self.name = "Investigatore"
 
     def power(self, bot, game, player, arg):
         if self.poweruses > 0:
@@ -87,10 +97,12 @@ class Investigatore(Role):
 
 
 class Angelo(Role):
-    icon = "\U0001F607"
-    team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
-    name = "Angelo"
-    protecting = None  # Protetto
+    def __init__(self):
+        super().__init__()
+        self.icon = "\U0001F607"
+        self.team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
+        self.name = "Angelo"
+        self.protecting = None  # Protetto
     
     def power(self, bot, game, player, arg):
         # Imposta qualcuno come bersaglio
@@ -108,13 +120,6 @@ class Angelo(Role):
 
 # Classi per i giocatori
 class Player:
-    tid = int()
-    tusername = str()
-    role = Role()  # Di base, ogni giocatore è un ruolo indefinito
-    alive = True
-    votingfor = None  # Diventa un player se ha votato
-    votes = 0  # Voti. Aggiornato da updatevotes()
-
     def message(self, bot, text):
         bot.sendMessage(self.tid, text)
 
@@ -124,19 +129,20 @@ class Player:
     def __init__(self, tid, tusername):
         self.tid = tid
         self.tusername = tusername
+        self.role = Role()  # Di base, ogni giocatore è un ruolo indefinito
+        self.alive = True
+        self.votingfor = None  # Diventa un player se ha votato
+        self.votes = 0  # Voti. Aggiornato da updatevotes()
 
 
 # Classe di ogni partita
 class Game:
-    adminid = int()
-    groupid = int()
-    players = list()
-    tokill = list()  # Giocatori che verranno uccisi all'endday
-    phase = 'Join'  # Fase di gioco: 'Join', 'Voting', 'Ended'
-
     def __init__(self, groupid, adminid):
         self.groupid = groupid
         self.adminid = adminid
+        self.players = list()
+        self.tokill = list()  # Giocatori che verranno uccisi all'endday
+        self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting', 'Ended'
 
     def message(self, bot, text):
         bot.sendMessage(self.groupid, text)
@@ -234,15 +240,15 @@ class Game:
         # Mifiosi
         for player in self.players:
             if isinstance(player.role, Mifioso):
-                player.role.onendday(self, bot)
+                player.role.onendday(bot, self)
         # Investigatori
         for player in self.players:
             if isinstance(player.role, Investigatore):
-                player.role.onendday(self, bot)
+                player.role.onendday(bot, self)
         # Angeli
         for player in self.players:
             if isinstance(player.role, Angelo):
-                player.role.onendday(self, bot)
+                player.role.onendday(bot, self)
         lynched = self.mostvotedplayer()
         if lynched is not None:
             self.message(bot, "{0} era il più votato ed è stato ucciso dai Royal.\n"
@@ -309,7 +315,7 @@ def join(bot, update):
             if p is None:
                 p = Player(update.message.from_user['id'], update.message.from_user['username'])
                 game.players.append(p)
-                bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + repr(p))
+                bot.sendMessage(update.message.chat['id'], "Unito alla partita: " + str(p.tid))
             else:
                 bot.sendMessage(update.message.chat['id'], "Ti sei già unito alla partita: " + repr(p))
 
@@ -363,10 +369,16 @@ def endjoin(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Join' and update.message.from_user['id'] == game.adminid:
         game.phase = 'Voting'
-        bot.sendMessage(update.message.chat['id'], "La fase di join è terminata.")
-        game.assignroles(bot, mifia=1, investigatore=0, angelo=1)
-        bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
-                                                   "Controlla la chat con @mifiabot.")
+        game.message(bot, "La fase di join è terminata.")
+        try:
+            game.assignroles(bot, mifia=1, investigatore=0, angelo=1)
+        except IndexError:
+            game.message(bot, "Non ci sono abbastanza giocatori per avviare la partita.\n"
+                              "La partita è annullata.")
+            game.endgame()
+        else:
+            bot.sendMessage(update.message.chat['id'], "I ruoli sono stati assegnati.\n"
+                                                       "Controlla la chat con @mifiabot.")
 
 
 def vote(bot, update):
