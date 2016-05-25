@@ -114,7 +114,8 @@ class Angelo(Role):
             
     def onendday(self, bot, game):
         # Resetta la protezione
-        self.protecting.role.protectedby = None
+        if self.protecting is not None:
+            self.protecting.role.protectedby = None
         self.protecting = None
 
 
@@ -133,7 +134,6 @@ class Player:
         self.alive = True
         self.votingfor = None  # Diventa un player se ha votato
         self.votes = 0  # Voti. Aggiornato da updatevotes()
-
 
 # Classe di ogni partita
 class Game:
