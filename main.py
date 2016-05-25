@@ -18,13 +18,13 @@ updater = Updater(token)
 # Ruoli possibili per i giocatori
 # Base di un ruolo
 class Role:
+    """Classe base di un ruolo. Da qui si sviluppano tutti gli altri ruoli."""
     def __init__(self):
         self.icon = "-"
         self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
         self.name = "UNDEFINED"
         self.haspower = False
         self.poweruses = 0
-        self.protectedby = None  # Protettore
 
     def power(self, bot, game, player, arg):
         pass
@@ -58,15 +58,15 @@ class Mifioso(Role):
     def onendday(self, bot, game):
         # Uccidi il bersaglio
         if self.target is not None:
-            if self.target.role.protectedby is None:
+            if self.target.protectedby is None:
                 self.target.kill()
                 game.message(bot, "{0} è stato ucciso dalla Mifia.\n"
                                   "Era un {1} {2}."
                                   .format(self.target.tusername, self.target.role.icon, self.target.role.name))
             else:
                 game.message(bot, "{0} è stato protetto dalla Mifia da {1} {2}!\n"
-                                  .format(self.target.tusername, self.target.role.protectedby.role.icon,
-                                          self.target.role.protectedby.tusername))
+                                  .format(self.target.tusername, self.target.protectedby.role.icon,
+                                          self.target.protectedby.tusername))
             self.target = None
 
 
@@ -108,14 +108,14 @@ class Angelo(Role):
         # Imposta qualcuno come bersaglio
         selected = game.findplayerbyusername(arg)
         if player is not selected and selected is not None:
-            selected.role.protectedby = player
+            selected.protectedby = player
             self.protecting = selected
             player.message(bot, "Hai selezionato come protetto {0}.".format(self.protecting.tusername))
             
     def onendday(self, bot, game):
         # Resetta la protezione
         if self.protecting is not None:
-            self.protecting.role.protectedby = None
+            self.protecting.protectedby = None
         self.protecting = None
 
 
@@ -134,6 +134,7 @@ class Player:
         self.alive = True
         self.votingfor = None  # Diventa un player se ha votato
         self.votes = 0  # Voti. Aggiornato da updatevotes()
+        self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
 
 # Classe di ogni partita
 class Game:
@@ -229,7 +230,7 @@ class Game:
             elif (mostvoted is None and player.votes >= 1) or (player.votes > mostvoted.votes):
                 mostvoted = player
             elif mostvoted is not None and player.votes == mostvoted.votes:
-                # Non sono sicuro che questo algoritmo sia effettivamente il più equo. Ma vabbè, non succederà mai
+                # Questo algoritmo non è equo per un pareggio a tre. Riscriverlo se c'è qualche problema
                 mostvoted = random.choice([player, mostvoted])
         return mostvoted
 
@@ -262,7 +263,7 @@ class Game:
         royal = 0
         mifiosi = 0
         for player in self.players:
-            if player.alive and isinstance(player.role, Mifioso):
+            if player.alive and player.role.team == 'Evil':
                 mifiosi += 1
             elif player.alive and player.role.team == 'Good':
                 royal += 1
