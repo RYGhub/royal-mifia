@@ -25,11 +25,11 @@ class Role:
         self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
         self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione dei ruoli
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game: Game, player: Player, arg: str):
         """Il potere del ruolo. Si attiva quando il bot riceve un /power in chat privata."""
         pass
 
-    def onendday(self, bot, game):
+    def onendday(self, bot, game: Game):
         """Metodo chiamato alla fine di ogni giorno, per attivare o ripristinare allo stato iniziale il potere."""
         pass
 
@@ -52,13 +52,13 @@ class Mifioso(Role):
         self.target = None
         self.name = s.mifia_name
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game: Game, player: Player, arg: str):
         # Imposta una persona come bersaglio da uccidere.
         self.target = game.findplayerbyusername(arg)
         if self.target is not None:
             player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
 
-    def onendday(self, bot, game):
+    def onendday(self, bot, game: Game):
         # Uccidi il bersaglio se non è protetto da un Angelo.
         if self.target is not None:
             if self.target.protectedby is None:
@@ -79,7 +79,7 @@ class Investigatore(Role):
         self.poweruses = 1
         self.name = s.detective_name
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game: Game, player: Player, arg: str):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses > 0:
             target = game.findplayerbyusername(arg)
@@ -92,7 +92,7 @@ class Investigatore(Role):
         else:
             player.message(bot, s.error_no_uses)
 
-    def onendday(self, bot, game):
+    def onendday(self, bot, game: Game):
         # Ripristina il potere
         self.poweruses = 1
 
@@ -106,7 +106,7 @@ class Angelo(Role):
         self.name = s.angel_name
         self.protecting = None  # La persona che questo angelo sta proteggendo
     
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game: Game, player: Player, arg: str):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if player is not selected and selected is not None:
@@ -114,7 +114,7 @@ class Angelo(Role):
             self.protecting = selected
             player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
             
-    def onendday(self, bot, game):
+    def onendday(self, bot, game: Game):
         # Resetta la protezione
         if self.protecting is not None:
             self.protecting.protectedby = None
@@ -123,7 +123,7 @@ class Angelo(Role):
 
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo, e i dati riguardanti telegram, come ID e username.""" 
-    def message(self, bot, text):
+    def message(self, bot, text: str):
         """Manda un messaggio privato al giocatore."""
         bot.sendMessage(self.tid, text)
 
@@ -132,7 +132,7 @@ class Player:
         # Perchè questo esiste?
         self.alive = False
 
-    def __init__(self, tid, tusername):
+    def __init__(self, tid: int, tusername: str):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
         self.role = Role()  # Di base, ogni giocatore è un ruolo indefinito
@@ -144,22 +144,22 @@ class Player:
 
 class Game:
     """Classe di una partita, contenente parametri riguardanti stato della partita e informazioni sul gruppo di Telegram."""
-    def __init__(self, groupid, adminid):
+    def __init__(self, groupid: int, adminid: int):
         self.groupid = groupid  # ID del gruppo in cui si sta svolgendo una partita
         self.adminid = adminid  # ID telegram dell'utente che ha creato la partita con /newgame
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
         self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting', 'Ended'
 
-    def message(self, bot, text):
+    def message(self, bot, text: str):
         """Manda un messaggio nel gruppo."""
         bot.sendMessage(self.groupid, text)
 
-    def adminmessage(self, bot, text):
+    def adminmessage(self, bot, text: str):
         """Manda un messaggio privato al creatore della partita."""
         bot.sendMessage(self.adminid, text)
 
-    def mifiamessage(self, bot, text):
+    def mifiamessage(self, bot, text: str):
         """Manda un messaggio privato a tutti i Mifiosi nella partita."""
         # Trova tutti i mifiosi nell'elenco dei giocatori
         for player in self.players:
@@ -168,7 +168,7 @@ class Game:
         # Inoltra il messaggio all'admin
         self.adminmessage(bot, text)
 
-    def findplayerbyid(self, tid) -> Player:
+    def findplayerbyid(self, tid: int) -> Player:
         """Trova il giocatore con un certo id."""
         for player in self.players:
             if player.tid == tid:
@@ -176,7 +176,7 @@ class Game:
         else:
             return None
 
-    def findplayerbyusername(self, tusername) -> Player:
+    def findplayerbyusername(self, tusername: str) -> Player:
         """Trova il giocatore con un certo username."""
         for player in self.players:
             if player.tusername.lower() == tusername.lower():
@@ -184,7 +184,7 @@ class Game:
         else:
             return None
 
-    def assignroles(self, bot, mifia=0, investigatore=0, angelo=0):
+    def assignroles(self, bot, mifia=0: int, investigatore=0: int, angelo=0: int):
         """Assegna ruoli casuali a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
@@ -293,7 +293,7 @@ class Game:
 inprogress = list()
 
 
-def findgamebyid(gid) -> Game:
+def findgamebyid(gid: int) -> Game:
     """Trova una partita con un certo id."""
     for game in inprogress:
         if game.groupid == gid:
