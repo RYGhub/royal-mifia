@@ -228,47 +228,49 @@ class Game:
         for player in self.players:
             player.votes = 0
         for player in self.players:
-            if player.votingfor is not None:
+            if player.votingfor is not None and player.alive:
                 player.votingfor.votes += 1
 
-    def mostvotedplayer(self) -> Player:
+    def mostvotedplayer(self) -> list:
         """Trova il giocatore più votato."""
-        mostvoted = None
+        mostvoted = list()
+        currenttop = 0
         self.updatevotes()
         for player in self.players:
-            # Temo di aver fatto un disastro. Ma finchè va...
-            if mostvoted is None and player.votes == 0:
-                pass
-            elif (mostvoted is None and player.votes >= 1) or (player.votes > mostvoted.votes):
-                mostvoted = player
-            elif mostvoted is not None and player.votes == mostvoted.votes:
-                # Questo algoritmo non è equo per un pareggio a tre. Riscriverlo se c'è qualche problema
-                mostvoted = random.choice([player, mostvoted])
+            if player.votes > currenttop:
+                mostvoted = [player]
+            elif player.votes == currenttop:
+                mostvoted.append(player)
         return mostvoted
 
     def endday(self, bot):
-        """Finisci la giornata, esegui gli endday di tutti i giocatori e uccidi il più votato del giorno."""
-        # Fai gli endday in un certo ordine.
-        # Si potrebbe fare più velocemente, credo.
-        # Ma non sto a ottimizzare senza poter eseguire il programma, quindi vado sul sicuro.
-        # Mifiosi
-        for player in self.players:
-            if isinstance(player.role, Mifioso):
-                player.role.onendday(bot, self)
-        # Investigatori
-        for player in self.players:
-            if isinstance(player.role, Investigatore):
-                player.role.onendday(bot, self)
-        # Angeli
-        for player in self.players:
-            if isinstance(player.role, Angelo):
-                player.role.onendday(bot, self)
-        lynched = self.mostvotedplayer()
-        if lynched is not None:
+        """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
+        # Conta i voti ed elimina il più votato.
+        topvotes = self.mostvotedplayer()
+        if len(topvotes) > 0:
+            # In caso di pareggio, elimina un giocatore casuale.
+            random.seed()
+            random.shuffle(topvotes)
+            lynched = topvotes.pop()
             self.message(bot, s.player_lynched.format(name=lynched.tusername, icon=lynched.role.icon, role=lynched.role.name))
             lynched.kill()
         else:
             self.message(bot, s.no_players_lynched)
+        # Fai gli endday in un certo ordine.
+        # Si potrebbe fare più velocemente, credo.
+        # Ma non sto ho voglia di ottimizzare ora.
+        # Mifiosi
+        for player in self.players:
+            if isinstance(player.role, Mifioso) and player.alive:
+                player.role.onendday(bot, self)
+        # Investigatori
+        for player in self.players:
+            if isinstance(player.role, Investigatore) and player.alive:
+                player.role.onendday(bot, self)
+        # Angeli
+        for player in self.players:
+            if isinstance(player.role, Angelo) and player.alive:
+                player.role.onendday(bot, self)
         for player in self.players:
             player.votingfor = None
         # Condizioni di vittoria
@@ -287,6 +289,7 @@ class Game:
             self.endgame()
 
     def endgame(self):
+        self.message(bot, s.game_ended)
         inprogress.remove(self)
 
 # Partite in corso
