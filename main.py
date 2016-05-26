@@ -587,14 +587,24 @@ def kill(bot, update):
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 target.kill()
-                bot.sendMessage(update.message.chat['id'], s.admin_killed.format(name=target.tusername, icon=target.role.icon, role=target.role.name))
+                game.message(bot, s.admin_killed.format(name=target.tusername, icon=target.role.icon, role=target.role.name))
             else:
-                bot.sendMessage(update.message.chat['id'], s.error_username)
+                game.message(bot, s.error_username)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_not_admin)
+            game.message(bot, s.error_not_admin)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
+
+def fakerole(bot, update):
+    """Manda un finto messaggio di ruolo."""
+    if update.message.chat['type'] == 'private':
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name))
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name))
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name))
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name))        
+    else:
+        bot.sendMessage(update.message.chat['id'], s.error_private_required)
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
