@@ -331,7 +331,6 @@ class Game:
             self.endgame()
 
     def endgame(self):
-        self.message(bot, s.game_ended)
         inprogress.remove(self)
 
 # Partite in corso
