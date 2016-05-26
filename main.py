@@ -416,7 +416,7 @@ def status(bot, update):
     """Visualizza lo stato della partita."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
-        text = s.status_header.format(name=game.groupid, admin=game.adminid, phase=game.phase)
+        text = s.status_header.format(name=game.name, admin=game.adminid, phase=game.phase)
         game.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
@@ -489,7 +489,7 @@ def power(bot, update):
         if game is None:
             game = findgamebyid(int(cmd[1]))
         if game is not None:
-            player = game.findplayerbyid(int(update.message.from_user['id'])
+            player = game.findplayerbyid(int(update.message.from_user['id']))
             if player is not None:
                 if player.alive:
                     player.role.power(bot, game, player, cmd[2])
