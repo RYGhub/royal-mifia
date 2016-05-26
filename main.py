@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+ #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
 import filemanager
@@ -185,9 +185,10 @@ class Game:
         self.adminid = adminid  # ID telegram dell'utente che ha creato la partita con /newgame
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
-        self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting', 'Ended'
+        self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting'
         # Trova un nome per la partita
         if len(freenames) > 0:
+            random.shuffle(freenames)
             self.name = freenames.pop()
         else:
             self.name = str(groupid)
@@ -196,12 +197,11 @@ class Game:
         # Rimetti il nome che si è liberato in disponibili.
         try:
             int(self.name)
-        # Qual è quello giusto dei due? Non ho un interprete qui
         except ValueError:
             freenames.append(self.name)
 
     def __repr__(self):
-        r = "< Game in group {groupid} with {nplayers} players in phase {phase} >".format(groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
+        r = "< Game {name} in group {groupid} with {nplayers} players in phase {phase} >".format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
         return r
 
     def message(self, bot, text):
@@ -508,7 +508,7 @@ def role(bot, update):
         player = game.findplayerbyid(update.message.from_user['id'])
         if player is not None:
             if player.alive:
-                player.message(bot, s.display_role.format(icon=player.role.icon, name=player.role.name))
+                player.message(bot, s.display_role.format(icon=player.role.icon, role=player.role.name))
                 game.message(bot, s.check_private)
             else:
                 game.message(bot, s.error_dead)
@@ -524,7 +524,7 @@ def debuggameslist(bot, update):
     bot.sendMessage(update.message.from_user['id'], repr(inprogress))
 
 
-def debugkill(bot, update):
+def kill(bot, update):
     """Uccidi un giocatore in partita."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Voting':
@@ -551,6 +551,6 @@ updater.dispatcher.addHandler(CommandHandler('status', status))
 updater.dispatcher.addHandler(CommandHandler('role', role))
 updater.dispatcher.addHandler(CommandHandler('debug', debug))
 updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
-updater.dispatcher.addHandler(CommandHandler('debugkill', debugkill))
+updater.dispatcher.addHandler(CommandHandler('kill', kill))
 updater.start_polling()
 updater.idle()
