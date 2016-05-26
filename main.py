@@ -235,7 +235,7 @@ class Game:
         else:
             return None
 
-    def assignroles(self, bot, mifia=0: int, investigatore=0: int, angelo=0: int):
+    def assignroles(self, bot, mifia=0, investigatore=0, angelo=0):
         """Assegna ruoli casuali a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
