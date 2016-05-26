@@ -28,8 +28,8 @@ class Role:
         self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
     def __repr__(self):
-    	r = "< undefined Role >"
-    	return r
+        r = "< undefined Role >"
+        return r
 
     def power(self, bot, game: Game, player: Player, arg: str):
         """Il potere del ruolo. Si attiva quando il bot riceve un /power in chat privata."""
@@ -49,8 +49,8 @@ class Royal(Role):
         self.name = s.royal_name
 
     def __repr__(self):
-    	r = "< Role: Royal >"
-    	return r
+        r = "< Role: Royal >"
+        return r
 
 
 class Mifioso(Role):
@@ -64,11 +64,11 @@ class Mifioso(Role):
         self.powerdesc = s.mifia_power_description
 
     def __repr__(self):
-    	if self.target is None:
-    		r = "< Role: Mifioso >"
-    	else:
-    		r = "< Role: Mifioso, targeting {target} >".format(target=target.tusername)
-    	return r
+        if self.target is None:
+            r = "< Role: Mifioso >"
+        else:
+            r = "< Role: Mifioso, targeting {target} >".format(target=target.tusername)
+        return r
 
     def power(self, bot, game: Game, player: Player, arg: str):
         # Imposta una persona come bersaglio da uccidere.
@@ -99,8 +99,8 @@ class Investigatore(Role):
         self.powerdesc = s.detective_power_description.format(maxuses=self.poweruses)
 
     def __repr__(self):
-    	r = "< Role: Investigatore, {uses} uses left >".format(uses=self.poweruses)
-    	return r
+        r = "< Role: Investigatore, {uses} uses left >".format(uses=self.poweruses)
+        return r
 
     def power(self, bot, game: Game, player: Player, arg: str):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
@@ -131,19 +131,19 @@ class Angelo(Role):
         self.powerdesc = s.angel_power_description
 
     def __repr__(self):
-    	if protecting is None:
-    		r = "< Role: Angelo >"
-    	else:
-    		r = "< Role: Angelo, protecting {target}".format(target=self.protecting.tusername)
-    	return r
+        if protecting is None:
+            r = "< Role: Angelo >"
+        else:
+            r = "< Role: Angelo, protecting {target}".format(target=self.protecting.tusername)
+        return r
     
     def power(self, bot, game: Game, player: Player, arg: str):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if player is not selected and selected is not None:
-        	# Togli la protezione a quello che stavi proteggendo prima
-        	if self.protecting is not None:
-        		self.protecting.protectedby = None
+            # Togli la protezione a quello che stavi proteggendo prima
+            if self.protecting is not None:
+                self.protecting.protectedby = None
             selected.protectedby = player
             self.protecting = selected
             player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
@@ -167,7 +167,7 @@ class Player:
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
 
     def __repr__(self):
-    	r = "< Player {username} >".format(username=self.tusername)
+        r = "< Player {username} >".format(username=self.tusername)
 
     def message(self, bot, text: str):
         """Manda un messaggio privato al giocatore."""
@@ -188,21 +188,21 @@ class Game:
         self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting', 'Ended'
         # Trova un nome per la partita
         if len(freenames) > 0:
-        	self.name = freenames.pop()
+            self.name = freenames.pop()
         else:
-        	self.name = str(groupid)
+            self.name = str(groupid)
 
     def __del__(self):
-    	# Rimetti il nome che si è liberato in disponibili.
-    	try:
-    		int(self.name)
-    	# Qual è quello giusto dei due? Non ho un interprete qui
-    	except TypeError, ValueError:
-    		freenames.append(self.name)
+        # Rimetti il nome che si è liberato in disponibili.
+        try:
+            int(self.name)
+        # Qual è quello giusto dei due? Non ho un interprete qui
+        except TypeError, ValueError:
+            freenames.append(self.name)
 
-   	def __repr__(self):
-   		r = "< Game in group {groupid} with {nplayers} players in phase {phase} >".format(groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
-   		return r
+    def __repr__(self):
+        r = "< Game in group {groupid} with {nplayers} players in phase {phase} >".format(groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
+        return r
 
     def message(self, bot, text: str):
         """Manda un messaggio nel gruppo."""
@@ -242,19 +242,19 @@ class Game:
         random.shuffle(playersleft)
         # Seleziona mifiosi
         while mifia > 0:
-	        selected = playersleft.pop()
-	        selected.role = Mifioso()
-	        mifia -= 1
+            selected = playersleft.pop()
+            selected.role = Mifioso()
+            mifia -= 1
         # Seleziona detective
         while investigatore > 0:
-	        selected = playersleft.pop()
-	        selected.role = Investigatore()
-	        investigatore -= 1
+            selected = playersleft.pop()
+            selected.role = Investigatore()
+            investigatore -= 1
         # Seleziona angeli
         while angelo > 0:
-	        selected = playersleft.pop()
-	        selected.role = Angelo()
-	        angelo -= 1
+            selected = playersleft.pop()
+            selected.role = Angelo()
+            angelo -= 1
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
             player.role = Royal()
@@ -344,10 +344,10 @@ def findgamebyid(gid: int) -> Game:
 
 
 def findgamebyname(name: str) -> Game:
-	"""Trova una partita con un certo nome."""
-	for game in inprogress:
-		if game.name.lower() == name.lower():
-			return name
+    """Trova una partita con un certo nome."""
+    for game in inprogress:
+        if game.name.lower() == name.lower():
+            return name
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
@@ -382,9 +382,9 @@ def join(bot, update):
             else:
                 game.message(bot, s.error_player_already_joined)
         else:
-        	game.message(bot, s.error_join_phase_ended)
+            game.message(bot, s.error_join_phase_ended)
     else:
-    	bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
 
 def debug(bot, update):
@@ -405,9 +405,9 @@ def debug(bot, update):
             game.adminmessage(bot, text)
             game.message(bot, s.check_private)
         else:
-        	game.message(bot, s.error_not_admin)
+            game.message(bot, s.error_not_admin)
     else:
-    	bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
 
 def status(bot, update):
@@ -433,20 +433,20 @@ def endjoin(bot, update):
     """Termina la fase di join e inizia quella di votazione."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Join':
-    	if update.message.from_user['id'] == game.adminid:
-	        game.phase = 'Voting'
-	        game.message(bot, s.join_phase_ended)
-	        try:
-	            game.assignroles(bot, mifia=0, investigatore=0, angelo=0)
-	        except IndexError:
-	            game.message(bot, s.error_not_enough_players)
-	            game.endgame()
-	        else:
-	            game.message(bot, s.roles_assigned_successfully)
-	    else:
-	    	game.message(bot, s.error_not_admin)
-	else:
-		bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        if update.message.from_user['id'] == game.adminid:
+            game.phase = 'Voting'
+            game.message(bot, s.join_phase_ended)
+            try:
+                game.assignroles(bot, mifia=0, investigatore=0, angelo=0)
+            except IndexError:
+                game.message(bot, s.error_not_enough_players)
+                game.endgame()
+            else:
+                game.message(bot, s.roles_assigned_successfully)
+        else:
+            game.message(bot, s.error_not_admin)
+    else:
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
 
 
@@ -456,17 +456,17 @@ def vote(bot, update):
     if game is not None and game.phase is 'Voting':
         player = game.findplayerbyid(update.message.from_user['id'])
         if player is not None 
-          	if player.alive:
-	            target = game.findplayerbyusername(update.message.text.split(' ')[1])
-	            if target is not None:
-	                player.votingfor = target
-	                game.message(bot, s.vote.format(voted=target.tusername))
-	            else:
-	                game.message(bot, s.error_username)
-	        else:
-	            game.message(bot, s.error_dead)
-	    else:
-	    	game.message(bot, s.error_not_in_game)
+            if player.alive:
+                target = game.findplayerbyusername(update.message.text.split(' ')[1])
+                if target is not None:
+                    player.votingfor = target
+                    game.message(bot, s.vote.format(voted=target.tusername))
+                else:
+                    game.message(bot, s.error_username)
+            else:
+                game.message(bot, s.error_dead)
+        else:
+            game.message(bot, s.error_not_in_game)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
@@ -485,36 +485,36 @@ def power(bot, update):
         game = findgamebyname(cmd[1])
         # Se non lo trovi con il nome, prova con l'id
         if game is None:
-        	game = findgamebyid(int(cmd[1]))
+            game = findgamebyid(int(cmd[1]))
         if game is not None:
             player = game.findplayerbyid(update.message.from_user['id'])
             if player is not None:
-	            if player.alive:
-	                player.role.power(bot, game, player, cmd[2])
-	            else:
-	                player.message(bot, s.error_dead)
-	        else:
-	        	bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
+                if player.alive:
+                    player.role.power(bot, game, player, cmd[2])
+                else:
+                    player.message(bot, s.error_dead)
+            else:
+                bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
         else:
             bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required)
 
 def role(bot, update):
-	"""Visualizza il tuo ruolo."""
-	game = findgamebyid(update.message.chat['id'])
+    """Visualizza il tuo ruolo."""
+    game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Voting':
         player = game.findplayerbyid(update.message.from_user['id'])
         if player is not None:
-        	if player.alive:
-        		player.message(bot, s.display_role.format(icon=player.role.icon, name=player.role.name))
-        		game.message(bot, s.check_private)
-        	else:
-        		game.message(bot, s.error_dead)
+            if player.alive:
+                player.message(bot, s.display_role.format(icon=player.role.icon, name=player.role.name))
+                game.message(bot, s.check_private)
+            else:
+                game.message(bot, s.error_dead)
         else:
-        	bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
+            bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
     else:
-    	bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
 
 
@@ -524,18 +524,18 @@ def debuggameslist(bot, update):
 
 
 def debugkill(bot, update):
-	"""Uccidi un giocatore in partita."""
-	game = findgamebyid(update.message.chat['id'])
+    """Uccidi un giocatore in partita."""
+    game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Voting':
-    	if update.message.from_user['id'] == game.adminid:
-	        target = game.findplayerbyusername(update.message.text.split(' ')[1])
-	        if target is not None:
-	            target.kill()
-	            bot.sendMessage(update.message.chat['id'], s.admin_killed.format(name=target.name, icon=target.role.icon, role=target.role.name))
-	        else:
-	            bot.sendMessage(update.message.chat['id'], s.error_username)
-	    else:
-	    	bot.sendMessage(update.message.chat['id'], s.error_not_admin)
+        if update.message.from_user['id'] == game.adminid:
+            target = game.findplayerbyusername(update.message.text.split(' ')[1])
+            if target is not None:
+                target.kill()
+                bot.sendMessage(update.message.chat['id'], s.admin_killed.format(name=target.name, icon=target.role.icon, role=target.role.name))
+            else:
+                bot.sendMessage(update.message.chat['id'], s.error_username)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_not_admin)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
