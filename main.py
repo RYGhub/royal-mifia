@@ -1,4 +1,4 @@
- #!/usr/bin/env python3.5
+#!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
 import filemanager
@@ -420,7 +420,7 @@ def status(bot, update):
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
             if not player.alive:
-                text += s.status_dead_player.format(player.tusername)
+                text += s.status_dead_player.format(name=player.tusername)
             elif player.votingfor is not None:
                 text += s.status_voting_player.format(icon="\U0001F610", name=player.tusername, votes=str(player.votes), voting=player.votingfor.tusername)
             else:
@@ -532,7 +532,7 @@ def kill(bot, update):
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 target.kill()
-                bot.sendMessage(update.message.chat['id'], s.admin_killed.format(name=target.name, icon=target.role.icon, role=target.role.name))
+                bot.sendMessage(update.message.chat['id'], s.admin_killed.format(name=target.tusername, icon=target.role.icon, role=target.role.name))
             else:
                 bot.sendMessage(update.message.chat['id'], s.error_username)
         else:
