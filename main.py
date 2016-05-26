@@ -293,8 +293,9 @@ class Game:
             random.seed()
             random.shuffle(topvotes)
             lynched = topvotes.pop()
-            self.message(bot, s.player_lynched.format(name=lynched.tusername, icon=lynched.role.icon, role=lynched.role.name))
-            lynched.kill()
+            if lynched.alive:
+                self.message(bot, s.player_lynched.format(name=lynched.tusername, icon=lynched.role.icon, role=lynched.role.name))
+                lynched.kill()
         else:
             self.message(bot, s.no_players_lynched)
         # Fai gli endday in un certo ordine.
@@ -438,7 +439,7 @@ def endjoin(bot, update):
             game.phase = 'Voting'
             game.message(bot, s.join_phase_ended)
             try:
-                game.assignroles(bot, mifia=0, investigatore=0, angelo=0)
+                game.assignroles(bot, mifia=1, investigatore=0, angelo=1)
             except IndexError:
                 game.message(bot, s.error_not_enough_players)
                 game.endgame()
