@@ -120,7 +120,7 @@ status_idle_player =  "{icon} @{name} ({votes})\n"
 status_voting_player = "{icon} @{name} ({votes}) vota per @{voting}\n"
 
 # Status: giocatore morto (deve terminare con \n)
-status_dead_player = "\U0001F480 {name}\n"
+status_dead_player = "\U0001F480 @{name}\n"
 
 # Ping!
 pong = "Pong!"
