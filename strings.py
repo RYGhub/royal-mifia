@@ -24,6 +24,12 @@ mifia_target_killed = "@{target} è stato ucciso dalla Mifia.\n"
 # Mifioso: bersaglio protetto da un angelo
 mifia_target_protected = "@{target} è stato protetto dalla Mifia da {icon} @{protectedby}!"
 
+# Mifioso: descrizione del potere
+mifia_power_description = "Puoi uccidere una persona una volta al giorno.\n"
+                          "Per selezionare un bersaglio, scrivi in questa chat:\n"
+                          "`/power {gamename} nomeutentebersaglio`\n"
+                          "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!"
+
 # Investigatore: icona
 detective_icon = "\U0001F575"
 
@@ -34,6 +40,11 @@ detective_name = "Investigatore"
 detective_discovery = "@{target} è un {icon} {role}.\n"
                       "Puoi usare il tuo potere ancora {left} volte oggi."
 
+# Investigatore: descrizione del potere
+detective_power_description = "Puoi indagare sul vero ruolo di una persona {maxuses} volte al giorno.\n"
+                              "Per indagare su qualcuno, scrivi in questa chat:\n"
+                              "`/power {gamename} nomeutentebersaglio`\n"
+
 # Angelo: icona
 angel_icon = "\U0001F607"
 
@@ -42,6 +53,12 @@ angel_name = "Angelo"
 
 # Angelo: bersaglio selezionato
 angel_target_selected = "Hai selezionato come protetto @{target}."
+
+# Angelo: descrizione del potere
+angel_power_description = "Puoi proteggere una persona dalla Mifia ogni notte.\n"
+                          "Se questa persona verrà attaccata, rimarrà viva, e il tuo ruolo sarà scoperto.\n"
+                          "Per proteggere una persona, scrivi in questa chat:\n"
+                          "`/power {gamename} nomeutentebersaglio`\n"
 
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di {icon} {name}."
@@ -55,6 +72,7 @@ no_players_lynched = "La Royal Games non è giunta a una decisione in questo gio
 
 # Generale: partita creata
 new_game = "E' stata creata una nuova partita in questo gruppo.\n"
+           "ID: {groupid}"
            "Nome: {name}"
 
 # Generale: un giocatore si è unito
@@ -69,6 +87,17 @@ roles_assigned_successfully = "I ruoli sono stati assegnati.\n"
 
 # Generale: votazione completata
 vote = "Hai votato per uccidere @{voted}."
+
+# Generale: un admin ha ucciso un giocatore con /kill
+admin_killed = "{name} è morto di infarto.\n"
+               "Era un {icon} {role}."
+
+# Generale: richiesta la visualizzazione del proprio ruolo
+display_role = "Il tuo ruolo è {icon} {role}."
+
+# Generale: inviato messaggio in chat privata
+check_private = "Messaggio inviato in chat privata.\n"
+                "@mifiabot"
 
 # Vittoria: team Mifia
 victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n"
@@ -123,3 +152,19 @@ error_no_games_found = "In questo gruppo non ci sono partite in corso."
 
 # Errore: sei morto
 error_dead = "Sei morto."
+
+# Errore: azione riservata agli admin
+error_not_admin = "Questa azione è riservata al creatore della partita."
+
+# Errore: non sei nella partita
+error_not_in_game = "Non fai parte della partita in corso."
+
+# Errore: fase di join finita
+error_join_phase_ended = "La fase di unione è finita."
+
+# Lista dei possibili nomi di una partita
+names_list = ["Modena",
+              "Bologna",
+              "Castelfranco",
+              "Formigine",
+              "Sicilia"]
