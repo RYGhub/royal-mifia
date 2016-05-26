@@ -185,7 +185,7 @@ class Player:
 
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
-        bot.sendMessage(self.tid, text)
+        bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
 
     def kill(self):
         """Uccidi il giocatore."""
@@ -232,11 +232,11 @@ class Game:
 
     def message(self, bot, text):
         """Manda un messaggio nel gruppo."""
-        bot.sendMessage(self.groupid, text)
+        bot.sendMessage(self.groupid, text, parse_mode=ParseMode.MARKDOWN)
 
     def adminmessage(self, bot, text):
         """Manda un messaggio privato al creatore della partita."""
-        bot.sendMessage(self.adminid, text)
+        bot.sendMessage(self.adminid, text, parse_mode=ParseMode.MARKDOWN)
 
     def mifiamessage(self, bot, text):
         """Manda un messaggio privato a tutti i Mifiosi nella partita."""
@@ -421,7 +421,7 @@ def findgamebyname(name) -> Game:
 # Comandi a cui risponde il bot
 def ping(bot, update):
     """Ping!"""
-    bot.sendMessage(update.message.chat['id'], s.pong)
+    bot.sendMessage(update.message.chat['id'], s.pong, parse_mode=ParseMode.MARKDOWN)
 
 
 def newgame(bot, update):
@@ -433,9 +433,9 @@ def newgame(bot, update):
             inprogress.append(game)
             game.message(bot, s.new_game.format(groupid=game.groupid, name=game.name))
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_game_in_progress)
+            bot.sendMessage(update.message.chat['id'], s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_chat_type)
+        bot.sendMessage(update.message.chat['id'], s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
 
 
 def join(bot, update):
@@ -453,7 +453,7 @@ def join(bot, update):
         else:
             game.message(bot, s.error_join_phase_ended)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def debug(bot, update):
@@ -476,7 +476,7 @@ def debug(bot, update):
         else:
             game.message(bot, s.error_not_admin)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def status(bot, update):
@@ -495,7 +495,7 @@ def status(bot, update):
                 text += s.status_idle_player.format(icon="\U0001F610", name=player.tusername, votes=str(player.votes))
         game.message(bot, text)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def endjoin(bot, update):
@@ -510,7 +510,7 @@ def endjoin(bot, update):
         else:
             game.message(bot, s.error_not_admin)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 def config(bot, update):
     """Configura il parametro richiesto."""
@@ -584,7 +584,7 @@ def vote(bot, update):
         else:
             game.message(bot, s.error_not_in_game)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def endday(bot, update):
@@ -610,11 +610,11 @@ def power(bot, update):
                 else:
                     player.message(bot, s.error_dead)
             else:
-                bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
+                bot.sendMessage(update.message.chat['id'], s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_private_required)
+        bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
 def role(bot, update):
     """Visualizza il tuo ruolo."""
@@ -628,15 +628,15 @@ def role(bot, update):
             else:
                 game.message(bot, s.error_dead)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_not_in_game)
+            bot.sendMessage(update.message.chat['id'], s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 
 def debuggameslist(bot, update):
     """Visualizza l'elenco delle partite in corso."""
-    bot.sendMessage(update.message.from_user['id'], repr(inprogress))
+    bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
 def kill(bot, update):
@@ -653,18 +653,18 @@ def kill(bot, update):
         else:
             game.message(bot, s.error_not_admin)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
     if update.message.chat['type'] == 'private':
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name))
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name))
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name))
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name))        
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name), parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name), parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name), parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name), parse_mode=ParseMode.MARKDOWN)        
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_private_required)
+        bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
