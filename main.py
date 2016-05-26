@@ -207,6 +207,11 @@ class Game:
         self.totalangels = 0  # Numero di angeli da inserire
         self.votingmifia = False  # Seguire le regole originali della mifia che vota?
 
+        # Liste di ruoli in gioco, per velocizzare gli endday
+        self.mifiosiingame = list()
+        self.detectivesingame = list()
+        self.angelsingame = list()
+
         # Trova un nome per la partita
         if len(freenames) > 0:
             random.shuffle(freenames)
@@ -264,17 +269,19 @@ class Game:
         # Seleziona mifiosi
         while self.totalmifiosi > 0:
             selected = playersleft.pop()
-
+            self.mifiosiingame.append(selected)
             selected.role = Mifioso()
             self.totalmifiosi -= 1
         # Seleziona detective
         while self.totaldetectives > 0:
             selected = playersleft.pop()
+            self.detectivesingame.append(selected)
             selected.role = Investigatore()
             self.totaldetectives -= 1
         # Seleziona angeli
         while self.totalangels > 0:
             selected = playersleft.pop()
+            self.angelsingame.append(selected)
             selected.role = Angelo()
             self.totalangels -= 1
         # Assegna il ruolo di Royal a tutti gli altri
@@ -362,17 +369,18 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     self.message(bot, s.mifia_target_killed.format(name=killed.tusername, icon=killed.role.icon, role=killed.role.name))
-        for player in self.players:
+        for player in self.mifiosiingame:
             if isinstance(player.role, Mifioso) and player.alive:
                 player.role.onendday(bot, self)
         # Investigatori
-        for player in self.players:
+        for player in self.detectivesingame:
             if isinstance(player.role, Investigatore) and player.alive:
                 player.role.onendday(bot, self)
         # Angeli
-        for player in self.players:
+        for player in self.angelsingame:
             if isinstance(player.role, Angelo) and player.alive:
                 player.role.onendday(bot, self)
+        # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
         # Condizioni di vittoria
