@@ -455,7 +455,7 @@ def vote(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Voting':
         player = game.findplayerbyid(update.message.from_user['id'])
-        if player is not None 
+        if player is not None:
             if player.alive:
                 target = game.findplayerbyusername(update.message.text.split(' ')[1])
                 if target is not None:
