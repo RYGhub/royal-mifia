@@ -261,7 +261,8 @@ class Game:
         # Manda i ruoli assegnati a tutti
         for player in self.players:
             player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
-            player.message(bot, player.role.powerdesc.format(gamename=self.name))
+            if player.role.powerdesc is not None:
+                player.message(bot, player.role.powerdesc.format(gamename=self.name))
 
     def updatevotes(self):
         """Aggiorna il conteggio dei voti di tutti i giocatori."""
@@ -547,6 +548,7 @@ updater.dispatcher.addHandler(CommandHandler('vote', vote))
 updater.dispatcher.addHandler(CommandHandler('endday', endday))
 updater.dispatcher.addHandler(CommandHandler('power', power))
 updater.dispatcher.addHandler(CommandHandler('status', status))
+updater.dispatcher.addHandler(CommandHandler('role', role))
 updater.dispatcher.addHandler(CommandHandler('debug', debug))
 updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.addHandler(CommandHandler('debugkill', debugkill))
