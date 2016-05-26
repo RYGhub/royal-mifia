@@ -500,6 +500,10 @@ def config(bot, update):
                             game.message(bot, s.roles_assigned_successfully)
             else:
                 game.message(bot, s.config_list[game.configstep])
+        else:
+            game.message(bot, s.error_not_admin)
+    else:
+        game.message(bot, s.error_no_games_found)
 
 
 def vote(bot, update):
@@ -592,8 +596,6 @@ def kill(bot, update):
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
 
-def config(bot, update)
-
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
 updater.dispatcher.addHandler(CommandHandler('join', join))
@@ -606,5 +608,6 @@ updater.dispatcher.addHandler(CommandHandler('role', role))
 updater.dispatcher.addHandler(CommandHandler('debug', debug))
 updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.addHandler(CommandHandler('kill', kill))
+updater.dispatcher.addHandler(CommandHandler('config', config))
 updater.start_polling()
 updater.idle()
