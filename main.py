@@ -81,14 +81,17 @@ class Mifioso(Role):
             player.message(bot, s.error_username)
 
     def onendday(self, bot, game):
-        # Uccidi il bersaglio se non è protetto da un Angelo.
-        if self.target is not None:
-            if self.target.protectedby is None:
-                self.target.kill()
-                game.message(bot, s.mifia_target_killed.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
-            else:
-                game.message(bot, s.mifia_target_protected.format(target=self.target.tusername, icon=self.target.protectedby.role.icon,
-                                          protectedby=self.target.protectedby.tusername))
+        if not game.votingmifia:
+            # Uccidi il bersaglio se non è protetto da un Angelo.
+            if self.target is not None:
+                if self.target.protectedby is None:
+                    self.target.kill()
+                    game.message(bot, s.mifia_target_killed.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
+                else:
+                    game.message(bot, s.mifia_target_protected.format(target=self.target.tusername, icon=self.target.protectedby.role.icon,
+                                              protectedby=self.target.protectedby.tusername))
+                self.target = None
+        else:
             self.target = None
 
 
@@ -175,6 +178,7 @@ class Player:
         self.votingfor = None  # Diventa un player se ha votato
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
+        self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
 
     def __repr__(self):
         r = "< Player {username} >".format(username=self.tusername)
@@ -201,6 +205,7 @@ class Game:
         self.totalmifiosi = 0  # Numero di mifiosi da inserire
         self.totaldetectives = 0  # Numero di detective da inserire
         self.totalangels = 0  # Numero di angeli da inserire
+        self.votingmifia = False  # Seguire le regole originali della mifia che vota?
 
         # Trova un nome per la partita
         if len(freenames) > 0:
@@ -259,6 +264,7 @@ class Game:
         # Seleziona mifiosi
         while self.totalmifiosi > 0:
             selected = playersleft.pop()
+
             selected.role = Mifioso()
             self.totalmifiosi -= 1
         # Seleziona detective
@@ -288,6 +294,15 @@ class Game:
             if player.votingfor is not None and player.alive:
                 player.votingfor.votes += 1
 
+    def updatevotes(self):
+        """Aggiorna il conteggio dei voti mifiosi di tutti i giocatori."""
+        for player in self.players:
+            player.mifiavotes = 0
+        for player in self.players:
+            if isinstance(player.role, Mifioso) and player.alive:
+                if player.role.target is not None:
+                    player.role.target.mifiavotes += 1
+
     def mostvotedplayer(self) -> list:
         """Trova il giocatore più votato."""
         mostvoted = list()
@@ -298,7 +313,26 @@ class Game:
                 mostvoted = [player]
             elif player.votes == currenttop:
                 mostvoted.append(player)
-        return mostvoted
+        if currenttop > 0:
+            return mostvoted
+        else:
+            return None
+
+    def mostvotedmifia(self) -> list:
+        """Trova il giocatore più votato dalla mifia."""
+        mostvoted = list()
+        currenttop = 0
+        self.updatevotes()
+        for player in self.players:
+                if player.mifiavotes > currenttop:
+                    mostvoted = [player]
+                elif player.votes == currenttop:
+                    mostvoted.append(player)
+        if currenttop > 0:
+            return mostvoted
+        else:
+            return None
+
 
     def endday(self, bot):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
@@ -318,6 +352,16 @@ class Game:
         # Si potrebbe fare più velocemente, credo.
         # Ma non sto ho voglia di ottimizzare ora.
         # Mifiosi
+        if self.votingmifia:
+            # Trova il più votato dai mifiosi e uccidilo
+            killlist = mostvotedmifia()
+            if len(killlist) > 0:
+                # In caso di pareggio, elimina un giocatore casuale.
+                random.seed()
+                random.shuffle(killlist)
+                killed = killlist.pop()
+                if killed.alive:
+                    self.message(bot, s.mifia_target_killed.format(name=killed.tusername, icon=killed.role.icon, role=killed.role.name))
         for player in self.players:
             if isinstance(player.role, Mifioso) and player.alive:
                 player.role.onendday(bot, self)
@@ -486,6 +530,14 @@ def config(bot, update):
                 elif game.configstep == 2:
                     try:
                         game.totalangels = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 3:
+                    try:
+                        game.votingmifia = bool(cmd[1])
                     except ValueError:
                         game.message(bot, s.error_invalid_config)
                     else:
