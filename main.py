@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
 import filemanager
 import random
 import strings as s
@@ -72,9 +73,12 @@ class Mifioso(Role):
 
     def power(self, bot, game, player, arg):
         # Imposta una persona come bersaglio da uccidere.
-        self.target = game.findplayerbyusername(arg)
+        selected = game.findplayerbyusername(arg)
         if self.target is not None:
+            self.target = selected
             player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
+        else:
+            player.message(bot, s.error_username)
 
     def onendday(self, bot, game):
         # Uccidi il bersaglio se non è protetto da un Angelo.
@@ -140,15 +144,21 @@ class Angelo(Role):
     def power(self, bot, game, player, arg):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
-        if player is not selected and selected is not None:
-            # Togli la protezione a quello che stavi proteggendo prima
-            if self.protecting is not None:
-                self.protecting.protectedby = None
-            selected.protectedby = player
-            self.protecting = selected
-            player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
+        if selected is not None:
+            if selected is not Player:
+                # Togli la protezione a quello che stavi proteggendo prima
+                if self.protecting is not None:
+                    self.protecting.protectedby = None
+                selected.protectedby = player
+                self.protecting = selected
+                player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
+            else:
+                player.message(bot, error_angel_no_selfprotect)
+        else:
+            player.message(bot, error_username)
             
     def onendday(self, bot, game):
+
         # Resetta la protezione
         if self.protecting is not None:
             self.protecting.protectedby = None
@@ -185,7 +195,13 @@ class Game:
         self.adminid = adminid  # ID telegram dell'utente che ha creato la partita con /newgame
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
-        self.phase = 'Join'  # Fase di gioco: 'Join', 'Voting'
+        self.phase = 'Join'  # Fase di gioco: 'Join', 'Config', 'Voting'
+
+        self.configstep = 0  # Passo attuale di configurazione
+        self.totalmifiosi = 0  # Numero di mifiosi da inserire
+        self.totaldetectives = 0  # Numero di detective da inserire
+        self.totalangels = 0  # Numero di angeli da inserire
+
         # Trova un nome per la partita
         if len(freenames) > 0:
             random.shuffle(freenames)
@@ -235,26 +251,26 @@ class Game:
         else:
             return None
 
-    def assignroles(self, bot, mifia=0, investigatore=0, angelo=0):
+    def assignroles(self, bot):
         """Assegna ruoli casuali a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
         random.shuffle(playersleft)
         # Seleziona mifiosi
-        while mifia > 0:
+        while self.totalmifiosi > 0:
             selected = playersleft.pop()
             selected.role = Mifioso()
-            mifia -= 1
+            self.totalmifiosi -= 1
         # Seleziona detective
-        while investigatore > 0:
+        while self.totaldetectives > 0:
             selected = playersleft.pop()
             selected.role = Investigatore()
-            investigatore -= 1
+            self.totaldetectives -= 1
         # Seleziona angeli
-        while angelo > 0:
+        while self.totalangels > 0:
             selected = playersleft.pop()
             selected.role = Angelo()
-            angelo -= 1
+            self.totalangels -= 1
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
             player.role = Royal()
@@ -435,20 +451,55 @@ def endjoin(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Join':
         if update.message.from_user['id'] == game.adminid:
-            game.phase = 'Voting'
+            # Inizio fase di configurazione
+            game.phase = 'Config'
             game.message(bot, s.join_phase_ended)
-            try:
-                game.assignroles(bot, mifia=1, investigatore=0, angelo=1)
-            except IndexError:
-                game.message(bot, s.error_not_enough_players)
-                game.endgame()
-            else:
-                game.message(bot, s.roles_assigned_successfully)
+            game.message(bot, s.config_list[0])
         else:
             game.message(bot, s.error_not_admin)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
 
+def config(bot, update):
+    """Configura il parametro richiesto."""
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None and game.phase is 'Config':
+        if update.message.from_user['id'] == game.adminid:
+            cmd = update.message.text.split(' ', 1)
+            if len(cmd) >= 1:
+                if game.configstep == 0:
+                    try:
+                        game.totalmifiosi = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 1:
+                    try:
+                        game.totaldetectives = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 2:
+                    try:
+                        game.totalangels = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        # Fine del config, inizio assegnazione ruoli
+                        game.phase = 'Voting'
+                        try:
+                            game.assignroles(bot)
+                        except IndexError:
+                            game.message(bot, s.error_not_enough_players)
+                            game.endgame()
+                        else:
+                            game.message(bot, s.roles_assigned_successfully)
+            else:
+                game.message(bot, s.config_list[game.configstep])
 
 
 def vote(bot, update):
@@ -539,6 +590,9 @@ def kill(bot, update):
             bot.sendMessage(update.message.chat['id'], s.error_not_admin)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found)
+
+
+def config(bot, update)
 
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
