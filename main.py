@@ -197,7 +197,7 @@ class Game:
         try:
             int(self.name)
         # Qual è quello giusto dei due? Non ho un interprete qui
-        except TypeError, ValueError:
+        except ValueError:
             freenames.append(self.name)
 
     def __repr__(self):
