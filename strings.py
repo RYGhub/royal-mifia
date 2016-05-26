@@ -162,9 +162,20 @@ error_not_in_game = "Non fai parte della partita in corso."
 # Errore: fase di join finita
 error_join_phase_ended = "La fase di unione è finita."
 
+# Errore: angelo non può proteggere sè stesso
+error_angel_no_selfprotect = "Non puoi proteggere te stesso."
+
+# Errore: parametro della configurazione non valido
+error_invalid_config = "Configurazione non valida."
+
 # Lista dei possibili nomi di una partita
 names_list = ["Modena",
               "Bologna",
               "Castelfranco",
               "Formigine",
               "Sicilia"]
+
+# Lista dei passi di configurazione da eseguire
+config_list = ["Quanti Mifiosi devono essere nella partita?",
+               "Quanti Investigatori devono essere nella partita?",
+               "Quanti Angeli devono essere nella partita?"]
