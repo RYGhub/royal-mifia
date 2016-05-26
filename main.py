@@ -349,7 +349,7 @@ def findgamebyname(name) -> Game:
     """Trova una partita con un certo nome."""
     for game in inprogress:
         if game.name.lower() == name.lower():
-            return name
+            return game
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
@@ -489,7 +489,7 @@ def power(bot, update):
         if game is None:
             game = findgamebyid(int(cmd[1]))
         if game is not None:
-            player = game.findplayerbyid(update.message.from_user['id'])
+            player = game.findplayerbyid(int(update.message.from_user['id'])
             if player is not None:
                 if player.alive:
                     player.role.power(bot, game, player, cmd[2])
