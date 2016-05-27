@@ -318,7 +318,9 @@ class Game:
         self.updatevotes()
         for player in self.players:
             if player.votes > currenttop:
-                mostvoted = [player]
+                mostvoted = list()
+                mostvoted.append(player)
+                currenttop = player.votes
             elif player.votes == currenttop:
                 mostvoted.append(player)
         if currenttop > 0:
@@ -332,9 +334,11 @@ class Game:
         currenttop = 0
         self.updatemifiavotes()
         for player in self.players:
-                if player.mifiavotes > currenttop:
-                    mostvoted = [player]
-                elif player.votes == currenttop:
+            if player.mifiavotes > currenttop:
+                mostvoted = list()
+                mostvoted.append(player)
+                currenttop = player.mifiavotes                
+            elif player.votes == currenttop:
                     mostvoted.append(player)
         if currenttop > 0:
             return mostvoted
