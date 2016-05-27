@@ -418,6 +418,17 @@ class Game:
             self.message(bot, s.victory_royal)
             self.endgame()
 
+    def endconfig(self):
+        """Fine della fase di config, inizio assegnazione ruoli"""
+        game.phase = 'Voting'
+        try:
+            game.assignroles(bot)
+        except IndexError:
+            game.message(bot, s.error_not_enough_players)
+            game.endgame()
+        else:
+            game.message(bot, s.roles_assigned_successfully)
+
     def endgame(self):
         inprogress.remove(self)
 
@@ -574,18 +585,12 @@ def config(bot, update):
                 elif game.configstep == 3:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
+                        game.endconfig()
                     elif cmd[1].lower() == 'unica':
                         game.votingmifia = True
+                        game.endconfig()
                     else:
-                        # Fine del config, inizio assegnazione ruoli
-                        game.phase = 'Voting'
-                        try:
-                            game.assignroles(bot)
-                        except IndexError:
-                            game.message(bot, s.error_not_enough_players)
-                            game.endgame()
-                        else:
-                            game.message(bot, s.roles_assigned_successfully)
+                        game.message(bot, s.error_invalid_config)
             else:
                 game.message(bot, s.config_list[game.configstep])
         else:
