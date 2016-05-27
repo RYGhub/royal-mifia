@@ -418,7 +418,7 @@ class Game:
             self.message(bot, s.victory_royal)
             self.endgame()
 
-    def endconfig(self):
+    def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
         self.phase = 'Voting'
         try:
@@ -585,10 +585,10 @@ def config(bot, update):
                 elif game.configstep == 3:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
-                        game.endconfig()
+                        game.endconfig(bot)
                     elif cmd[1].lower() == 'unica':
                         game.votingmifia = True
-                        game.endconfig()
+                        game.endconfig(bot)
                     else:
                         game.message(bot, s.error_invalid_config)
             else:
