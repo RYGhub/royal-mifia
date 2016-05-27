@@ -681,4 +681,6 @@ updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.addHandler(CommandHandler('kill', kill))
 updater.dispatcher.addHandler(CommandHandler('config', config))
 updater.start_polling()
-updater.idle()
+print("Bot avviato!")
+if __name__ == "__main__":
+    updater.idle()
