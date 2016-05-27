@@ -41,7 +41,7 @@ detective_discovery = "@{target} è un *{icon} {role}*.\n" \
                       "Puoi usare il tuo potere ancora *{left}* volte oggi."
 
 # Investigatore: descrizione del potere
-detective_power_description = "Puoi indagare sul vero ruolo di una persona *{maxuses}* volte al giorno.\n" \
+detective_power_description = "Puoi indagare sul vero ruolo di una persona una volta al giorno.\n" \
                               "Per indagare su qualcuno, scrivi in questa chat:\n" \
                               "`/power {gamename} nomeutentebersaglio`\n"
 
