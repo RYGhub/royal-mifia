@@ -361,7 +361,7 @@ class Game:
         # Mifiosi
         if self.votingmifia:
             # Trova il più votato dai mifiosi e uccidilo
-            killlist = mostvotedmifia()
+            killlist = self.mostvotedmifia()
             if len(killlist) > 0:
                 # In caso di pareggio, elimina un giocatore casuale.
                 random.seed()
@@ -369,6 +369,7 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     self.message(bot, s.mifia_target_killed.format(name=killed.tusername, icon=killed.role.icon, role=killed.role.name))
+        # Attiva il onendday dei mifiosi
         for player in self.mifiosiingame:
             if isinstance(player.role, Mifioso) and player.alive:
                 player.role.onendday(bot, self)
