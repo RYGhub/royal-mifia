@@ -301,7 +301,7 @@ class Game:
             if player.votingfor is not None and player.alive:
                 player.votingfor.votes += 1
 
-    def updatevotes(self):
+    def updatemifiavotes(self):
         """Aggiorna il conteggio dei voti mifiosi di tutti i giocatori."""
         for player in self.players:
             player.mifiavotes = 0
@@ -323,13 +323,13 @@ class Game:
         if currenttop > 0:
             return mostvoted
         else:
-            return None
+            return list()
 
     def mostvotedmifia(self) -> list:
         """Trova il giocatore più votato dalla mifia."""
         mostvoted = list()
         currenttop = 0
-        self.updatevotes()
+        self.updatemifiavotes()
         for player in self.players:
                 if player.mifiavotes > currenttop:
                     mostvoted = [player]
@@ -338,7 +338,7 @@ class Game:
         if currenttop > 0:
             return mostvoted
         else:
-            return None
+            return list()
 
 
     def endday(self, bot):
