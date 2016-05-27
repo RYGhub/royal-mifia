@@ -28,7 +28,7 @@ class Role:
         self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione dei ruoli
         self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         r = "< undefined Role >"
         return r
 
@@ -49,7 +49,7 @@ class Royal(Role):
         self.team = 'Good'
         self.name = s.royal_name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         r = "< Role: Royal >"
         return r
 
@@ -64,11 +64,11 @@ class Mifioso(Role):
         self.name = s.mifia_name
         self.powerdesc = s.mifia_power_description
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.target is None:
             r = "< Role: Mifioso >"
         else:
-            r = "< Role: Mifioso, targeting {target} >".format(target=target.tusername)
+            r = "< Role: Mifioso, targeting {target} >".format(target=self.target.tusername)
         return r
 
     def power(self, bot, game, player, arg):
@@ -105,7 +105,7 @@ class Investigatore(Role):
         self.name = s.detective_name
         self.powerdesc = s.detective_power_description.format(maxuses=self.poweruses)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         r = "< Role: Investigatore, {uses} uses left >".format(uses=self.poweruses)
         return r
 
@@ -137,7 +137,7 @@ class Angelo(Role):
         self.protecting = None  # La persona che questo angelo sta proteggendo
         self.powerdesc = s.angel_power_description
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if protecting is None:
             r = "< Role: Angelo >"
         else:
@@ -180,8 +180,9 @@ class Player:
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         r = "< Player {username} >".format(username=self.tusername)
+        return r
 
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
@@ -519,7 +520,7 @@ def config(bot, update):
     if game is not None and game.phase is 'Config':
         if update.message.from_user['id'] == game.adminid:
             cmd = update.message.text.split(' ', 1)
-            if len(cmd) >= 1:
+            if len(cmd) >= 2:
                 if game.configstep == 0:
                     try:
                         game.totalmifiosi = int(cmd[1])
