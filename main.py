@@ -315,8 +315,8 @@ class Game:
         """Aggiorna il conteggio dei voti mifiosi di tutti i giocatori."""
         for player in self.players:
             player.mifiavotes = 0
-        for player in self.players:
-            if isinstance(player.role, Mifioso) and player.alive:
+        for player in self.mifiosiingame:
+            if player.alive:
                 if player.role.target is not None:
                     player.role.target.mifiavotes += 1
 
@@ -387,6 +387,7 @@ class Game:
                     self.message(bot, s.mifia_target_killed.format(name=killed.tusername, 
                                                                    icon=killed.role.icon, 
                                                                    role=killed.role.name))
+                    killed.kill()
         # Attiva il onendday dei mifiosi
         for player in self.mifiosiingame:
             if isinstance(player.role, Mifioso) and player.alive:
