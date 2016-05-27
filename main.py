@@ -420,14 +420,14 @@ class Game:
 
     def endconfig(self):
         """Fine della fase di config, inizio assegnazione ruoli"""
-        game.phase = 'Voting'
+        self.phase = 'Voting'
         try:
-            game.assignroles(bot)
+            self.assignroles(bot)
         except IndexError:
-            game.message(bot, s.error_not_enough_players)
-            game.endgame()
+            self.message(bot, s.error_not_enough_players)
+            self.endgame()
         else:
-            game.message(bot, s.roles_assigned_successfully)
+            self.message(bot, s.roles_assigned_successfully)
 
     def endgame(self):
         inprogress.remove(self)
