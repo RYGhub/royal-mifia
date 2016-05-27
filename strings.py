@@ -25,7 +25,7 @@ mifia_target_killed = "@{target} è stato ucciso dalla Mifia.\n" \
 mifia_target_protected = "@{target} è stato protetto dalla Mifia da {icon} @{protectedby}!"
 
 # Mifioso: descrizione del potere
-mifia_power_description = "Puoi uccidere una persona una volta al giorno.\n" \
+mifia_power_description = "Puoi selezionare come bersaglio di un'assassinio una personas.\n" \
                           "Per selezionare un bersaglio, scrivi in questa chat:\n" \
                           "`/power {gamename} nomeutentebersaglio`\n" \
                           "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!"
@@ -41,7 +41,7 @@ detective_discovery = "@{target} è un *{icon} {role}*.\n" \
                       "Puoi usare il tuo potere ancora *{left}* volte oggi."
 
 # Investigatore: descrizione del potere
-detective_power_description = "Puoi indagare sul vero ruolo di una persona *{maxuses}* volte al giorno.\n" \
+detective_power_description = "Puoi indagare sul vero ruolo di una persona una volta al giorno.\n" \
                               "Per indagare su qualcuno, scrivi in questa chat:\n" \
                               "`/power {gamename} nomeutentebersaglio`\n"
 
@@ -101,11 +101,11 @@ check_private = "Messaggio inviato in chat privata.\n" \
 
 # Vittoria: team Mifia
 victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n" \
-                "*_La Mifia vince!_*"
+                "*La Mifia vince!*"
 
 # Vittoria: team Royal
 victory_royal = "Tutti i Mifiosi sono stati eliminati.\n" \
-                "*_La Royal Games vince!_*"
+                "*La Royal Games vince!*"
 
 # Status: parte aggiunta prima dell'elenco dei giocatori (deve terminare con \n)
 status_header = "*ID:* {name}\n" \
@@ -140,15 +140,15 @@ error_game_in_progress = "\U000026A0 In questo gruppo è già in corso una parti
 # Errore: tipo di chat non supportato
 error_chat_type = "\U000026A0 Non puoi creare una partita in questo tipo di chat."
 
-# Errore: per usare power, devi scrivere in chat privata
-error_private_required = "\U000026A0 Non puoi usare /power in un gruppo.\n" \
+# Errore: per usare questo comando, devi scrivere in chat privata
+error_private_required = "\U000026A0 Non puoi usare questo comando in un gruppo.\n" \
                          "Scrivimi in chat privata a @mifiabot."
 
 # Errore: giocatore già presente nella partita.
 error_player_already_joined = "\U000026A0 Ti sei già unito alla partita."
 
-# Errore: nessuna partita in corso
-error_no_games_found = "\U000026A0 In questo gruppo non ci sono partite in corso."
+# Errore: nessuna partita trovata
+error_no_games_found = "\U000026A0 Non è stata trovata una partita su cui usare il comando."
 
 # Errore: sei morto
 error_dead = "\U000026A0 Sei morto." 
@@ -170,11 +170,36 @@ error_invalid_config = "\U000026A0 Configurazione non valida."
 
 # Lista dei possibili nomi di una partita
 names_list = ["Modena",
-              "Bologna",
-              "Castelfranco"]
+              "Nonantola",
+              "Sassuolo",
+              "Vignola",
+              "Carpi",
+              "Formigine",
+              "Mirandola",
+              "Castelfranco",
+              "Pavullo",
+              "Maranello",
+              "Fiorano",
+              "Finale",
+              "Soliera",
+              "Castelnuovo",
+              "Spilamberto",
+              "Castelvetro",
+              "Novi",
+              "Bomporto",
+              "Savignano",
+              "Campogalliano",
+              "Concordia",
+              "Serramazzoni",
+              "Cavezzo",
+              "Medolla",
+              "Ravarino",
+              "Marano",
+              "Zocca",
+              "Guiglia"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti Mifiosi devono essere nella partita?",
                "Quanti Investigatori devono essere nella partita?",
                "Quanti Angeli devono essere nella partita?",
-               "Le uccisioni della Mifia sono come nel gioco classico (True) o ogni Mifioso può uccidere un giocatore come nella versione di Steffo (False) ?"]
+               "I mifiosi possono uccidere una persona a `testa` al giorno o votano e decidono un'`unica` persona da uccidere per tutta la squadra?"]
