@@ -18,6 +18,7 @@ updater = Updater(token)
 
 freenames = s.names_list.copy()
 
+
 # Ruoli possibili per i giocatori
 # Base di un ruolo
 class Role:
@@ -144,7 +145,7 @@ class Angelo(Role):
         self.powerdesc = s.angel_power_description
 
     def __repr__(self) -> str:
-        if protecting is None:
+        if self.protecting is None:
             r = "<Role: Angelo>"
         else:
             r = "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
@@ -162,9 +163,9 @@ class Angelo(Role):
                 self.protecting = selected
                 player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
             else:
-                player.message(bot, error_angel_no_selfprotect)
+                player.message(bot, s.error_angel_no_selfprotect)
         else:
-            player.message(bot, error_username)
+            player.message(bot, s.error_username)
             
     def onendday(self, bot, game):
 
@@ -199,6 +200,7 @@ class Player:
         """Uccidi il giocatore."""
         # Perchè questo esiste?
         self.alive = False
+
 
 class Game:
     """Classe di una partita, contenente parametri riguardanti stato della partita 
@@ -354,7 +356,6 @@ class Game:
         else:
             return list()
 
-
     def endday(self, bot):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
         # Conta i voti ed elimina il più votato.
@@ -448,6 +449,7 @@ def findgamebyname(name) -> Game:
     for game in inprogress:
         if game.name.lower() == name.lower():
             return game
+
 
 # Comandi a cui risponde il bot
 def ping(bot, update):
@@ -551,6 +553,7 @@ def endjoin(bot, update):
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
+
 def config(bot, update):
     """Configura il parametro richiesto."""
     game = findgamebyid(update.message.chat['id'])
@@ -649,6 +652,7 @@ def power(bot, update):
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
+
 def role(bot, update):
     """Visualizza il tuo ruolo."""
     game = findgamebyid(update.message.chat['id'])
@@ -664,7 +668,6 @@ def role(bot, update):
             bot.sendMessage(update.message.chat['id'], s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
-
 
 
 def debuggameslist(bot, update):
