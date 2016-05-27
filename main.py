@@ -385,10 +385,15 @@ class Game:
                 random.shuffle(killlist)
                 killed = killlist.pop()
                 if killed.alive:
-                    self.message(bot, s.mifia_target_killed.format(target=killed.tusername, 
-                                                                   icon=killed.role.icon, 
-                                                                   role=killed.role.name))
-                    killed.kill()
+                    if killed.protectedby is None:
+                        killed.kill()
+                        self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
+                                                                       icon=killed.role.icon,
+                                                                       role=killed.role.name))
+                    else:
+                        self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
+                                                                          icon=killed.protectedby.role.icon,
+                                                                          protectedby=killed.protectedby.tusername))
         # Attiva il onendday dei mifiosi
         for player in self.mifiosiingame:
             if isinstance(player.role, Mifioso) and player.alive:
