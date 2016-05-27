@@ -74,7 +74,7 @@ class Mifioso(Role):
     def power(self, bot, game, player, arg):
         # Imposta una persona come bersaglio da uccidere.
         selected = game.findplayerbyusername(arg)
-        if self.target is not None:
+        if selected is not None:
             self.target = selected
             player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
         else:
