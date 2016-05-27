@@ -202,4 +202,4 @@ names_list = ["Modena",
 config_list = ["Quanti Mifiosi devono essere nella partita?",
                "Quanti Investigatori devono essere nella partita?",
                "Quanti Angeli devono essere nella partita?",
-               "Le uccisioni della Mifia sono come nel gioco classico (True) o ogni Mifioso può uccidere un giocatore come nella versione di Steffo (False) ?"]
+               "I mifiosi possono uccidere una persona a `testa` al giorno o votano e decidono un'`unica` persona da uccidere per tutta la squadra?"]
