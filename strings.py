@@ -140,15 +140,15 @@ error_game_in_progress = "\U000026A0 In questo gruppo è già in corso una parti
 # Errore: tipo di chat non supportato
 error_chat_type = "\U000026A0 Non puoi creare una partita in questo tipo di chat."
 
-# Errore: per usare power, devi scrivere in chat privata
-error_private_required = "\U000026A0 Non puoi usare /power in un gruppo.\n" \
+# Errore: per usare questo comando, devi scrivere in chat privata
+error_private_required = "\U000026A0 Non puoi usare questo comando in un gruppo.\n" \
                          "Scrivimi in chat privata a @mifiabot."
 
 # Errore: giocatore già presente nella partita.
 error_player_already_joined = "\U000026A0 Ti sei già unito alla partita."
 
-# Errore: nessuna partita in corso
-error_no_games_found = "\U000026A0 In questo gruppo non ci sono partite in corso."
+# Errore: nessuna partita trovata
+error_no_games_found = "\U000026A0 Non è stata trovata una partita su cui usare il comando."
 
 # Errore: sei morto
 error_dead = "\U000026A0 Sei morto." 
