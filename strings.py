@@ -101,11 +101,11 @@ check_private = "Messaggio inviato in chat privata.\n" \
 
 # Vittoria: team Mifia
 victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n" \
-                "*_La Mifia vince!_*"
+                "*La Mifia vince!*"
 
 # Vittoria: team Royal
 victory_royal = "Tutti i Mifiosi sono stati eliminati.\n" \
-                "*_La Royal Games vince!_*"
+                "*La Royal Games vince!*"
 
 # Status: parte aggiunta prima dell'elenco dei giocatori (deve terminare con \n)
 status_header = "*ID:* {name}\n" \
@@ -170,8 +170,33 @@ error_invalid_config = "\U000026A0 Configurazione non valida."
 
 # Lista dei possibili nomi di una partita
 names_list = ["Modena",
-              "Bologna",
-              "Castelfranco"]
+              "Nonantola",
+              "Sassuolo",
+              "Vignola",
+              "Carpi",
+              "Formigine",
+              "Mirandola",
+              "Castelfranco",
+              "Pavullo",
+              "Maranello",
+              "Fiorano",
+              "Finale",
+              "Soliera",
+              "Castelnuovo",
+              "Spilamberto",
+              "Castelvetro",
+              "Novi",
+              "Bomporto",
+              "Savignano",
+              "Campogalliano",
+              "Concordia",
+              "Serramazzoni",
+              "Cavezzo",
+              "Medolla",
+              "Ravarino",
+              "Marano",
+              "Zocca",
+              "Guiglia"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti Mifiosi devono essere nella partita?",
