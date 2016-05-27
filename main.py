@@ -384,7 +384,7 @@ class Game:
                 random.shuffle(killlist)
                 killed = killlist.pop()
                 if killed.alive:
-                    self.message(bot, s.mifia_target_killed.format(name=killed.tusername, 
+                    self.message(bot, s.mifia_target_killed.format(target=killed.tusername, 
                                                                    icon=killed.role.icon, 
                                                                    role=killed.role.name))
                     killed.kill()
