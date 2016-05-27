@@ -572,10 +572,10 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 3:
-                    try:
-                        game.votingmifia = bool(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
+                    if cmd[1].lower() == 'testa':
+                        game.votingmifia = False
+                    elif cmd[1].lower() == 'unica':
+                        game.votingmifia = True
                     else:
                         # Fine del config, inizio assegnazione ruoli
                         game.phase = 'Voting'
