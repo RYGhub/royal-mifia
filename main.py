@@ -106,7 +106,7 @@ class Investigatore(Role):
         self.team = 'Good'
         self.poweruses = 1
         self.name = s.detective_name
-        self.powerdesc = s.detective_power_description.format(maxuses=self.poweruses)
+        self.powerdesc = s.detective_power_description
 
     def __repr__(self) -> str:
         r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
