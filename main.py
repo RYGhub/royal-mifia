@@ -25,11 +25,11 @@ class Role:
     def __init__(self):
         self.icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
         self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
-        self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione dei ruoli
+        self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
         self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
     def __repr__(self) -> str:
-        r = "< undefined Role >"
+        r = "<undefined Role>"
         return r
 
     def power(self, bot, game, player, arg):
@@ -50,7 +50,7 @@ class Royal(Role):
         self.name = s.royal_name
 
     def __repr__(self) -> str:
-        r = "< Role: Royal >"
+        r = "<Role: Royal>"
         return r
 
 
@@ -66,9 +66,9 @@ class Mifioso(Role):
 
     def __repr__(self) -> str:
         if self.target is None:
-            r = "< Role: Mifioso >"
+            r = "<Role: Mifioso>"
         else:
-            r = "< Role: Mifioso, targeting {target} >".format(target=self.target.tusername)
+            r = "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
         return r
 
     def power(self, bot, game, player, arg):
@@ -86,10 +86,13 @@ class Mifioso(Role):
             if self.target is not None:
                 if self.target.protectedby is None:
                     self.target.kill()
-                    game.message(bot, s.mifia_target_killed.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
+                    game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
+                                                                   icon=self.target.role.icon,
+                                                                   role=self.target.role.name))
                 else:
-                    game.message(bot, s.mifia_target_protected.format(target=self.target.tusername, icon=self.target.protectedby.role.icon,
-                                              protectedby=self.target.protectedby.tusername))
+                    game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
+                                                                      icon=self.target.protectedby.role.icon,
+                                                                      protectedby=self.target.protectedby.tusername))
                 self.target = None
         else:
             self.target = None
@@ -106,7 +109,7 @@ class Investigatore(Role):
         self.powerdesc = s.detective_power_description.format(maxuses=self.poweruses)
 
     def __repr__(self) -> str:
-        r = "< Role: Investigatore, {uses} uses left >".format(uses=self.poweruses)
+        r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
         return r
 
     def power(self, bot, game, player, arg):
@@ -115,8 +118,10 @@ class Investigatore(Role):
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                player.message(bot, s.detective_discovery
-                                    .format(target=target.tusername, icon=target.role.icon, role=target.role.name, left=self.poweruses))
+                player.message(bot, s.detective_discovery.format(target=target.tusername,
+                                                                 icon=target.role.icon,
+                                                                 role=target.role.name,
+                                                                 left=self.poweruses))
             else:
                 player.message(bot, s.error_username)
         else:
@@ -128,7 +133,8 @@ class Investigatore(Role):
 
 
 class Angelo(Role):
-    """L'angelo può proteggere una persona al giorno dalla Mifia. Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
+    """L'angelo può proteggere una persona al giorno dalla Mifia.
+       Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
     def __init__(self):
         super().__init__()
         self.icon = s.angel_icon
@@ -139,9 +145,9 @@ class Angelo(Role):
 
     def __repr__(self) -> str:
         if protecting is None:
-            r = "< Role: Angelo >"
+            r = "<Role: Angelo>"
         else:
-            r = "< Role: Angelo, protecting {target}".format(target=self.protecting.tusername)
+            r = "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
         return r
     
     def power(self, bot, game, player, arg):
@@ -169,7 +175,8 @@ class Angelo(Role):
 
 
 class Player:
-    """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo, e i dati riguardanti telegram, come ID e username.""" 
+    """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
+       e i dati riguardanti telegram, come ID e username.""" 
     def __init__(self, tid, tusername):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
@@ -181,7 +188,7 @@ class Player:
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
 
     def __repr__(self) -> str:
-        r = "< Player {username} >".format(username=self.tusername)
+        r = "<Player {username}>".format(username=self.tusername)
         return r
 
     def message(self, bot, text):
@@ -194,7 +201,8 @@ class Player:
         self.alive = False
 
 class Game:
-    """Classe di una partita, contenente parametri riguardanti stato della partita e informazioni sul gruppo di Telegram."""
+    """Classe di una partita, contenente parametri riguardanti stato della partita 
+       e informazioni sul gruppo di Telegram."""
     def __init__(self, groupid, adminid):
         self.groupid = groupid  # ID del gruppo in cui si sta svolgendo una partita
         self.adminid = adminid  # ID telegram dell'utente che ha creato la partita con /newgame
@@ -228,7 +236,8 @@ class Game:
             freenames.append(self.name)
 
     def __repr__(self):
-        r = "< Game {name} in group {groupid} with {nplayers} players in phase {phase} >".format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
+        r = "<Game {name} in group {groupid} with {nplayers} players in phase {phase}>" \
+                .format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
         return r
 
     def message(self, bot, text):
@@ -356,7 +365,9 @@ class Game:
             random.shuffle(topvotes)
             lynched = topvotes.pop()
             if lynched.alive:
-                self.message(bot, s.player_lynched.format(name=lynched.tusername, icon=lynched.role.icon, role=lynched.role.name))
+                self.message(bot, s.player_lynched.format(name=lynched.tusername,
+                                                          icon=lynched.role.icon,
+                                                          role=lynched.role.name))
                 lynched.kill()
         else:
             self.message(bot, s.no_players_lynched)
@@ -373,7 +384,9 @@ class Game:
                 random.shuffle(killlist)
                 killed = killlist.pop()
                 if killed.alive:
-                    self.message(bot, s.mifia_target_killed.format(name=killed.tusername, icon=killed.role.icon, role=killed.role.name))
+                    self.message(bot, s.mifia_target_killed.format(name=killed.tusername, 
+                                                                   icon=killed.role.icon, 
+                                                                   role=killed.role.name))
         # Attiva il onendday dei mifiosi
         for player in self.mifiosiingame:
             if isinstance(player.role, Mifioso) and player.alive:
@@ -474,9 +487,14 @@ def debug(bot, update):
                 if not player.alive:
                     text += s.status_dead_player.format(name=player.tusername)
                 elif player.votingfor is not None:
-                    text += s.status_voting_player.format(icon=player.role.icon, name=player.tusername, votes=str(player.votes), voting=player.votingfor.tusername)
+                    text += s.status_voting_player.format(icon=player.role.icon, 
+                                                          name=player.tusername, 
+                                                          votes=str(player.votes), 
+                                                          voting=player.votingfor.tusername)
                 else:
-                    text += s.status_idle_player.format(icon=player.role.icon, name=player.tusername, votes=str(player.votes))
+                    text += s.status_idle_player.format(icon=player.role.icon, 
+                                                        name=player.tusername, 
+                                                        votes=str(player.votes))
             game.adminmessage(bot, text)
             game.message(bot, s.check_private)
         else:
@@ -496,7 +514,10 @@ def status(bot, update):
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
             elif player.votingfor is not None:
-                text += s.status_voting_player.format(icon="\U0001F610", name=player.tusername, votes=str(player.votes), voting=player.votingfor.tusername)
+                text += s.status_voting_player.format(icon="\U0001F610",
+                                                      name=player.tusername,
+                                                      votes=str(player.votes),
+                                                      voting=player.votingfor.tusername)
             else:
                 text += s.status_idle_player.format(icon="\U0001F610", name=player.tusername, votes=str(player.votes))
         game.message(bot, text)
@@ -653,7 +674,9 @@ def kill(bot, update):
             target = game.findplayerbyusername(update.message.text.split(' ')[1])
             if target is not None:
                 target.kill()
-                game.message(bot, s.admin_killed.format(name=target.tusername, icon=target.role.icon, role=target.role.name))
+                game.message(bot, s.admin_killed.format(name=target.tusername, 
+                                                        icon=target.role.icon, 
+                                                        role=target.role.name))
             else:
                 game.message(bot, s.error_username)
         else:
@@ -665,10 +688,14 @@ def kill(bot, update):
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
     if update.message.chat['type'] == 'private':
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name), parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name), parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name), parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name), parse_mode=ParseMode.MARKDOWN)        
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name),
+                        parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name), 
+                        parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name), 
+                        parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name), 
+                        parse_mode=ParseMode.MARKDOWN)        
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
@@ -685,6 +712,7 @@ updater.dispatcher.addHandler(CommandHandler('debug', debug))
 updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.addHandler(CommandHandler('kill', kill))
 updater.dispatcher.addHandler(CommandHandler('config', config))
+updater.dispatcher.addHandler(CommandHandler('fakerole', fakerole))
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
