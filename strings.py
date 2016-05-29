@@ -99,6 +99,9 @@ display_role = "Il tuo ruolo è *{icon} {role}*."
 check_private = "Messaggio inviato in chat privata.\n" \
                 "Controlla @mifiabot."
 
+# Generale: partita caricata
+game_loaded = "Partita caricata da file."
+
 # Vittoria: team Mifia
 victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n" \
                 "*La Mifia vince!*"

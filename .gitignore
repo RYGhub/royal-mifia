@@ -112,3 +112,4 @@ $RECYCLE.BIN/
 # La roba di Pycharm
 .pyc
 .idea/*
+*.p

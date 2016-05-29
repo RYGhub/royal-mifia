@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
+import pickle
+
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 import filemanager
@@ -438,6 +440,15 @@ class Game:
     def endgame(self):
         inprogress.remove(self)
 
+    def save(self):
+        # Crea il file.
+        file = open(str(self.groupid) + ".p", 'x')
+        file.close()
+        # Scrivi sul file.
+        file = open(str(self.groupid) + ".p", 'wb')
+        pickle.dump(self, file)
+        file.close()
+
 # Partite in corso
 inprogress = list()
 
@@ -713,6 +724,23 @@ def fakerole(bot, update):
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
+
+def load(bot, update):
+    """Carica una partita salvata."""
+    file = open(str(update.message.chat['id']) + ".p", "rb")
+    game = pickle.load(file)
+    inprogress.append(game)
+    game.message(bot, s.game_loaded)
+
+
+def save(bot, update):
+    """Salva una partita su file."""
+    game = findgamebyid(update.message.chat['id'])
+    if game is not None:
+        game.save()
+    else:
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
 updater.dispatcher.addHandler(CommandHandler('join', join))
@@ -727,6 +755,8 @@ updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.addHandler(CommandHandler('kill', kill))
 updater.dispatcher.addHandler(CommandHandler('config', config))
 updater.dispatcher.addHandler(CommandHandler('fakerole', fakerole))
+updater.dispatcher.addHandler(CommandHandler('save', save))
+updater.dispatcher.addHandler(CommandHandler('load', load))
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
