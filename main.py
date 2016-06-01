@@ -505,34 +505,6 @@ def join(bot, update):
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
-def debug(bot, update):
-    """Visualizza tutti i ruoli e gli id."""
-    game = findgamebyid(update.message.chat['id'])
-    if game is not None:
-        if game.adminid == update.message.from_user['id']:
-            text = s.status_header.format(name=game.groupid, admin=game.adminid, phase=game.phase)
-            game.updatevotes()
-            # Aggiungi l'elenco dei giocatori
-            for player in game.players:
-                if not player.alive:
-                    text += s.status_dead_player.format(name=player.tusername)
-                elif player.votingfor is not None:
-                    text += s.status_voting_player.format(icon=player.role.icon, 
-                                                          name=player.tusername, 
-                                                          votes=str(player.votes), 
-                                                          voting=player.votingfor.tusername)
-                else:
-                    text += s.status_idle_player.format(icon=player.role.icon, 
-                                                        name=player.tusername, 
-                                                        votes=str(player.votes))
-            game.adminmessage(bot, text)
-            game.message(bot, s.check_private)
-        else:
-            game.message(bot, s.error_not_admin)
-    else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
-
-
 def status(bot, update):
     """Visualizza lo stato della partita."""
     game = findgamebyid(update.message.chat['id'])
@@ -686,11 +658,6 @@ def role(bot, update):
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
-def debuggameslist(bot, update):
-    """Visualizza l'elenco delle partite in corso."""
-    bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
-
-
 def kill(bot, update):
     """Uccidi un giocatore in partita."""
     game = findgamebyid(update.message.chat['id'])
@@ -741,6 +708,41 @@ def save(bot, update):
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
+
+def debug(bot, update):
+    """Visualizza tutti i ruoli e gli id."""
+    if __debug__:
+        game = findgamebyid(update.message.chat['id'])
+        if game is not None:
+            if game.adminid == update.message.from_user['id']:
+                text = s.status_header.format(name=game.groupid, admin=game.adminid, phase=game.phase)
+                game.updatevotes()
+                # Aggiungi l'elenco dei giocatori
+                for player in game.players:
+                    if not player.alive:
+                        text += s.status_dead_player.format(name=player.tusername)
+                    elif player.votingfor is not None:
+                        text += s.status_voting_player.format(icon=player.role.icon, 
+                                                              name=player.tusername, 
+                                                              votes=str(player.votes), 
+                                                              voting=player.votingfor.tusername)
+                    else:
+                        text += s.status_idle_player.format(icon=player.role.icon, 
+                                                            name=player.tusername, 
+                                                            votes=str(player.votes))
+                game.adminmessage(bot, text)
+                game.message(bot, s.check_private)
+            else:
+                game.message(bot, s.error_not_admin)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+
+
+def debuggameslist(bot, update):
+    """Visualizza l'elenco delle partite in corso."""
+    if __debug__:
+        bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
+
 updater.dispatcher.addHandler(CommandHandler('ping', ping))
 updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
 updater.dispatcher.addHandler(CommandHandler('join', join))
@@ -761,3 +763,4 @@ updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
     updater.idle()
+
