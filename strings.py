@@ -85,6 +85,12 @@ join_phase_ended = "La fase di join è terminata."
 roles_assigned_successfully = "I ruoli sono stati assegnati.\n" \
                               "Controlla la chat privata con @mifiabot per vedere il tuo."
 
+# Generale: comunica ai mifiosi i loro compagni di squadra
+mifia_team_intro = "I mifiosi in questa partita sono:\n"
+
+# Generale: formattazione elenco mifiosi (deve terminare con \n)
+mifia_team_player = "{icon} {name}\n"
+
 # Generale: votazione completata
 vote = "Hai votato per uccidere @{voted}."
 
