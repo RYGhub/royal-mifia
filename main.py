@@ -426,10 +426,20 @@ class Game:
             elif player.alive and player.role.team == 'Good':
                 royal += 1
         if mifiosi >= royal:
-            self.message(bot, s.victory_mifia)
+            self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
+            for player in self.players:
+                if player.role.team == 'Good':
+                    player.message(s.end_mifia_outnumber + s.defeat)
+                elif player.role.team == 'Evil'
+                    player.message(s.end_mifia_outnumber + s.victory)
             self.endgame()
         elif mifiosi == 0:
-            self.message(bot, s.victory_royal)
+            self.message(bot, s.end_mifia_killed + s.victory_royal)
+            for player in self.players:
+                if player.role.team == 'Good':
+                    player.message(s.end_mifia_killed + s.victory)
+                elif player.role.team == 'Evil'
+                    player.message(s.end_mifia_killed + s.defeat)
             self.endgame()
 
     def endconfig(self, bot):
@@ -783,4 +793,3 @@ updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
     updater.idle()
-
