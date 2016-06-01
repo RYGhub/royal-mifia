@@ -116,11 +116,8 @@ status_header = "*ID:* {name}\n" \
                 "*Fase:* {phase}\n" \
                 "*Giocatori partecipanti:*\n" 
 
-# Status: giocatore inattivo (deve terminare con \n)
-status_idle_player =  "{icon} @{name} ({votes})\n"
-
-# Status: giocatore votante (deve terminare con \n)
-status_voting_player = "{icon} @{name} ({votes}) vota per @{voting}\n"
+# Status: giocatore vivo (deve terminare con \n)
+status_alive_player =  "{icon} @{name} ({votes} voti)\n"
 
 # Status: giocatore morto (deve terminare con \n)
 status_dead_player = "\U0001F480 @{name}\n"
