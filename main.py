@@ -660,21 +660,22 @@ def role(bot, update):
 
 def kill(bot, update):
     """Uccidi un giocatore in partita."""
-    game = findgamebyid(update.message.chat['id'])
-    if game is not None and game.phase is 'Voting':
-        if update.message.from_user['id'] == game.adminid:
-            target = game.findplayerbyusername(update.message.text.split(' ')[1])
-            if target is not None:
-                target.kill()
-                game.message(bot, s.admin_killed.format(name=target.tusername, 
-                                                        icon=target.role.icon, 
-                                                        role=target.role.name))
+    if __debug__:
+        game = findgamebyid(update.message.chat['id'])
+        if game is not None and game.phase is 'Voting':
+            if update.message.from_user['id'] == game.adminid:
+                target = game.findplayerbyusername(update.message.text.split(' ')[1])
+                if target is not None:
+                    target.kill()
+                    game.message(bot, s.admin_killed.format(name=target.tusername, 
+                                                            icon=target.role.icon, 
+                                                            role=target.role.name))
+                else:
+                    game.message(bot, s.error_username)
             else:
-                game.message(bot, s.error_username)
+                game.message(bot, s.error_not_admin)
         else:
-            game.message(bot, s.error_not_admin)
-    else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def delete(bot, update):
