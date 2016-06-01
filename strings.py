@@ -108,13 +108,24 @@ game_loaded = "Partita caricata da file."
 # Generale: partita terminata remotamente dal proprietario del bot
 owner_ended = "Il proprietario del bot ha eliminato questa partita."
 
-# Vittoria: team Mifia
-victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n" \
-                "*La Mifia vince!*"
+# Vittoria: Mifia >= Royal
+end_mifia_outnumber = "I Mifiosi rimasti sono più dei Royal.\n" \
+                      "La Mifia ha preso il controllo della città.\n"
+
+# Vittoria: Mifia == 0
+end_mifia_killed = "Tutti i Mifiosi sono stati eliminati.\n"
 
 # Vittoria: team Royal
-victory_royal = "Tutti i Mifiosi sono stati eliminati.\n" \
-                "*La Royal Games vince!*"
+victory_royal = "**La Royal Games vince!**"
+
+# Vittoria: team Mifia
+victory_mifia = "**La Mifia vince!**"
+
+# Vittoria!
+victory = "*Hai vinto!*"
+
+# Sconfitta.
+defeat = "*Hai perso...*"
 
 # Status: parte aggiunta prima dell'elenco dei giocatori (deve terminare con \n)
 status_header = "*ID:* {name}\n" \
