@@ -515,13 +515,10 @@ def status(bot, update):
         for player in game.players:
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
-            elif player.votingfor is not None:
-                text += s.status_voting_player.format(icon="\U0001F610",
-                                                      name=player.tusername,
-                                                      votes=str(player.votes),
-                                                      voting=player.votingfor.tusername)
             else:
-                text += s.status_idle_player.format(icon="\U0001F610", name=player.tusername, votes=str(player.votes))
+                text += s.status_alive_player.format(icon="\U0001F610",
+                                                    name=player.tusername,
+                                                    votes=str(player.votes))
         game.message(bot, text)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
@@ -742,13 +739,8 @@ def debug(bot, update):
                 for player in game.players:
                     if not player.alive:
                         text += s.status_dead_player.format(name=player.tusername)
-                    elif player.votingfor is not None:
-                        text += s.status_voting_player.format(icon=player.role.icon, 
-                                                              name=player.tusername, 
-                                                              votes=str(player.votes), 
-                                                              voting=player.votingfor.tusername)
                     else:
-                        text += s.status_idle_player.format(icon=player.role.icon, 
+                        text += s.status_alive_player.format(icon=player.role.icon, 
                                                             name=player.tusername, 
                                                             votes=str(player.votes))
                 game.adminmessage(bot, text)
