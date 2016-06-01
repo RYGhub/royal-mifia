@@ -92,9 +92,6 @@ vote = "Hai votato per uccidere @{voted}."
 admin_killed = "{name} è morto _di infarto_.\n" \
                "Era un *{icon} {role}*."
 
-# Generale: richiesta la visualizzazione del proprio ruolo
-display_role = "Il tuo ruolo è *{icon} {role}*."
-
 # Generale: inviato messaggio in chat privata
 check_private = "Messaggio inviato in chat privata.\n" \
                 "Controlla @mifiabot."
