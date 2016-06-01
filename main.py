@@ -676,7 +676,7 @@ def role(bot, update):
         player = game.findplayerbyid(update.message.from_user['id'])
         if player is not None:
             if player.alive:
-                player.message(bot, s.display_role.format(icon=player.role.icon, role=player.role.name))
+                player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
                 game.message(bot, s.check_private)
             else:
                 game.message(bot, s.error_dead)
