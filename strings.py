@@ -99,6 +99,9 @@ check_private = "Messaggio inviato in chat privata.\n" \
 # Generale: partita caricata
 game_loaded = "Partita caricata da file."
 
+# Generale: partita terminata remotamente dal proprietario del bot
+owner_ended = "Il proprietario del bot ha eliminato questa partita."
+
 # Vittoria: team Mifia
 victory_mifia = "I Mifiosi rimasti sono più dei Royal.\n" \
                 "*La Mifia vince!*"
@@ -155,6 +158,9 @@ error_dead = "\U000026A0 Sei morto."
 
 # Errore: azione riservata agli admin
 error_not_admin = "\U000026A0 Questa azione è riservata al creatore della partita."
+
+# Errore: azione riservata al proprietario
+error_not_owner = "\U000026A0 Questa azione è riservata al proprietario del bot."
 
 # Errore: non sei nella partita
 error_not_in_game = "\U000026A0 Non fai parte della partita in corso."
