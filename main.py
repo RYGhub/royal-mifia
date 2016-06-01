@@ -25,11 +25,10 @@ freenames = s.names_list.copy()
 # Base di un ruolo
 class Role:
     """Classe base di un ruolo. Da qui si sviluppano tutti gli altri ruoli."""
-    def __init__(self):
-        self.icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
-        self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
-        self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
-        self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
+    self.icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
+    self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
+    self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
+    self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
     def __repr__(self) -> str:
         r = "<undefined Role>"
@@ -46,11 +45,12 @@ class Role:
 
 class Royal(Role):
     """Un membro della Royal Games. Il ruolo principale, non ha alcun potere se non quello di votare."""
+    self.icon = s.royal_icon
+    self.team = 'Good'
+    self.name = s.royal_name
+
     def __init__(self):
         super().__init__()
-        self.icon = s.royal_icon
-        self.team = 'Good'
-        self.name = s.royal_name
 
     def __repr__(self) -> str:
         r = "<Role: Royal>"
@@ -59,13 +59,14 @@ class Royal(Role):
 
 class Mifioso(Role):
     """Il nemico globale. Può impostare come bersaglio una persona al giorno, per poi ucciderla alla fine."""
+    self.icon = s.mifia_icon
+    self.team = 'Evil'
+    self.name = s.mifia_name
+    self.powerdesc = s.mifia_power_description
+
     def __init__(self):
         super().__init__()
-        self.icon = s.mifia_icon
-        self.team = 'Evil'
         self.target = None
-        self.name = s.mifia_name
-        self.powerdesc = s.mifia_power_description
 
     def __repr__(self) -> str:
         if self.target is None:
@@ -103,13 +104,15 @@ class Mifioso(Role):
 
 class Investigatore(Role):
     """L'investigatore può indagare sul vero ruolo di una persona una volta al giorno."""
+    self.icon = s.detective_icon
+    self.team = 'Good'
+    self.name = s.detective_name
+    self.powerdesc = s.detective_power_description
+    self.refillpoweruses = 1
+
     def __init__(self):
         super().__init__()
-        self.icon = s.detective_icon
-        self.team = 'Good'
-        self.poweruses = 1
-        self.name = s.detective_name
-        self.powerdesc = s.detective_power_description
+        self.poweruses = self.refillpoweruses
 
     def __repr__(self) -> str:
         r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
@@ -132,19 +135,20 @@ class Investigatore(Role):
 
     def onendday(self, bot, game):
         # Ripristina il potere
-        self.poweruses = 1
+        self.poweruses = self.refillpoweruses
 
 
 class Angelo(Role):
     """L'angelo può proteggere una persona al giorno dalla Mifia.
        Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
+    self.icon = s.angel_icon
+    self.team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
+    self.name = s.angel_name
+    self.powerdesc = s.angel_power_description
+
     def __init__(self):
         super().__init__()
-        self.icon = s.angel_icon
-        self.team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
-        self.name = s.angel_name
         self.protecting = None  # La persona che questo angelo sta proteggendo
-        self.powerdesc = s.angel_power_description
 
     def __repr__(self) -> str:
         if self.protecting is None:
