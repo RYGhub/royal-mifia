@@ -174,7 +174,6 @@ class Angelo(Role):
             player.message(bot, s.error_username)
             
     def onendday(self, bot, game):
-
         # Resetta la protezione
         if self.protecting is not None:
             self.protecting.protectedby = None
@@ -306,6 +305,13 @@ class Game:
             player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
             if player.role.powerdesc is not None:
                 player.message(bot, player.role.powerdesc.format(gamename=self.name))
+        # Manda ai mifiosi l'elenco dei loro compagni di squadra
+        text = s.mifia_team_intro
+        for player in self.mifiosiingame:
+            text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+        for player in self.mifiosiingame:
+            player.message(bot, text)
+
 
     def updatevotes(self):
         """Aggiorna il conteggio dei voti di tutti i giocatori."""
@@ -516,7 +522,7 @@ def status(bot, update):
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
             else:
-                text += s.status_alive_player.format(icon="\U0001F610",
+                text += s.status_idle_player.format(icon="\U0001F610",
                                                     name=player.tusername,
                                                     votes=str(player.votes))
         game.message(bot, text)
