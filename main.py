@@ -279,25 +279,21 @@ class Game:
         """Assegna ruoli casuali a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
-        random.shuffle(playersleft)
         # Seleziona mifiosi
-        while self.totalmifiosi > 0:
-            selected = playersleft.pop()
-            self.mifiosiingame.append(selected)
-            selected.role = Mifioso()
-            self.totalmifiosi -= 1
+        self.mifiosiingame = random.sample(playersleft, self.totalmifiosi)
+        for player in self.mifiosiingame:
+            player.role = Mifioso()
+            playersleft.remove(player)
         # Seleziona detective
-        while self.totaldetectives > 0:
-            selected = playersleft.pop()
-            self.detectivesingame.append(selected)
-            selected.role = Investigatore()
-            self.totaldetectives -= 1
+        self.detectivesingame = random.sample(playersleft, self.totaldetectives)
+        for player in self.detectivesingame:
+            player.role = Investigatore()
+            playersleft.remove(player)
         # Seleziona angeli
-        while self.totalangels > 0:
-            selected = playersleft.pop()
-            self.angelsingame.append(selected)
-            selected.role = Angelo()
-            self.totalangels -= 1
+        self.angelsingame = random.sample(playersleft, self.totalangels)
+        for player in self.angelsingame:
+            player.role = Angelo()
+            playersleft.remove(player)
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
             player.role = Royal()
