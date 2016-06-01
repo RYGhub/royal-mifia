@@ -677,6 +677,26 @@ def kill(bot, update):
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
+def delete(bot, update):
+    """Elimina una partita in corso."""
+    if update.message.chat['type'] == 'private':
+        if update.message.from_user['username'] == "Steffo":
+            cmd = update.message.text.split(' ', 2)
+            game = findgamebyname(cmd[1])
+            # Se non lo trovi con il nome, prova con l'id
+            if game is None:
+                game = findgamebyid(int(cmd[1]))
+            if game is not None:
+                game.message(bot, g.owner_ended)
+                game.endgame()
+            else:
+                game.message(bot, s.error_no_games_found)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_not_owner, parse_mode=ParseMode.MARKDOWN)
+    else:
+        bot.sendMessage(update.message.chat['id'], s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
+
+
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
     if update.message.chat['type'] == 'private':
@@ -759,6 +779,7 @@ updater.dispatcher.addHandler(CommandHandler('config', config))
 updater.dispatcher.addHandler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.addHandler(CommandHandler('save', save))
 updater.dispatcher.addHandler(CommandHandler('load', load))
+updater.dispatcher.addHandler(CommandHandler('delete', delete))
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
