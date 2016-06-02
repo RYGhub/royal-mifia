@@ -25,10 +25,10 @@ freenames = s.names_list.copy()
 # Base di un ruolo
 class Role:
     """Classe base di un ruolo. Da qui si sviluppano tutti gli altri ruoli."""
-    self.icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
-    self.team = 'None'  # Squadra: 'None', 'Good', 'Evil'
-    self.name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
-    self.powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
+    icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
+    team = 'None'  # Squadra: 'None', 'Good', 'Evil'
+    name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
+    powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
     def __repr__(self) -> str:
         r = "<undefined Role>"
@@ -45,9 +45,9 @@ class Role:
 
 class Royal(Role):
     """Un membro della Royal Games. Il ruolo principale, non ha alcun potere se non quello di votare."""
-    self.icon = s.royal_icon
-    self.team = 'Good'
-    self.name = s.royal_name
+    icon = s.royal_icon
+    team = 'Good'
+    name = s.royal_name
 
     def __init__(self):
         super().__init__()
@@ -59,10 +59,10 @@ class Royal(Role):
 
 class Mifioso(Role):
     """Il nemico globale. Può impostare come bersaglio una persona al giorno, per poi ucciderla alla fine."""
-    self.icon = s.mifia_icon
-    self.team = 'Evil'
-    self.name = s.mifia_name
-    self.powerdesc = s.mifia_power_description
+    icon = s.mifia_icon
+    team = 'Evil'
+    name = s.mifia_name
+    powerdesc = s.mifia_power_description
 
     def __init__(self):
         super().__init__()
@@ -104,11 +104,11 @@ class Mifioso(Role):
 
 class Investigatore(Role):
     """L'investigatore può indagare sul vero ruolo di una persona una volta al giorno."""
-    self.icon = s.detective_icon
-    self.team = 'Good'
-    self.name = s.detective_name
-    self.powerdesc = s.detective_power_description
-    self.refillpoweruses = 1
+    icon = s.detective_icon
+    team = 'Good'
+    name = s.detective_name
+    powerdesc = s.detective_power_description
+    refillpoweruses = 1
 
     def __init__(self):
         super().__init__()
@@ -141,10 +141,10 @@ class Investigatore(Role):
 class Angelo(Role):
     """L'angelo può proteggere una persona al giorno dalla Mifia.
        Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
-    self.icon = s.angel_icon
-    self.team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
-    self.name = s.angel_name
-    self.powerdesc = s.angel_power_description
+    icon = s.angel_icon
+    team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
+    name = s.angel_name
+    powerdesc = s.angel_power_description
 
     def __init__(self):
         super().__init__()
@@ -312,7 +312,6 @@ class Game:
         for player in self.mifiosiingame:
             player.message(bot, text)
 
-
     def updatevotes(self):
         """Aggiorna il conteggio dei voti di tutti i giocatori."""
         for player in self.players:
@@ -430,7 +429,7 @@ class Game:
             for player in self.players:
                 if player.role.team == 'Good':
                     player.message(s.end_mifia_outnumber + s.defeat)
-                elif player.role.team == 'Evil'
+                elif player.role.team == 'Evil':
                     player.message(s.end_mifia_outnumber + s.victory)
             self.endgame()
         elif mifiosi == 0:
@@ -438,7 +437,7 @@ class Game:
             for player in self.players:
                 if player.role.team == 'Good':
                     player.message(s.end_mifia_killed + s.victory)
-                elif player.role.team == 'Evil'
+                elif player.role.team == 'Evil':
                     player.message(s.end_mifia_killed + s.defeat)
             self.endgame()
 
@@ -532,9 +531,9 @@ def status(bot, update):
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
             else:
-                text += s.status_idle_player.format(icon="\U0001F610",
-                                                    name=player.tusername,
-                                                    votes=str(player.votes))
+                text += s.status_alive_player.format(icon="\U0001F610",
+                                                     name=player.tusername,
+                                                     votes=str(player.votes))
         game.message(bot, text)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
@@ -701,7 +700,7 @@ def delete(bot, update):
             if game is None:
                 game = findgamebyid(int(cmd[1]))
             if game is not None:
-                game.message(bot, g.owner_ended)
+                game.message(bot, s.owner_ended)
                 game.endgame()
             else:
                 game.message(bot, s.error_no_games_found)
@@ -757,8 +756,8 @@ def debug(bot, update):
                         text += s.status_dead_player.format(name=player.tusername)
                     else:
                         text += s.status_alive_player.format(icon=player.role.icon, 
-                                                            name=player.tusername, 
-                                                            votes=str(player.votes))
+                                                             name=player.tusername,
+                                                             votes=str(player.votes))
                 game.adminmessage(bot, text)
                 game.message(bot, s.check_private)
             else:
