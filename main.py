@@ -546,7 +546,7 @@ def status(bot, update):
 def endjoin(bot, update):
     """Termina la fase di join e inizia quella di votazione."""
     game = findgamebyid(update.message.chat['id'])
-    if game is not None and game.phase is 'Join':
+    if game is not None and game.phase == 'Join':
         if update.message.from_user['id'] == game.adminid:
             # Inizio fase di configurazione
             game.phase = 'Config'
