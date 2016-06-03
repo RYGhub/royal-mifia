@@ -428,17 +428,17 @@ class Game:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
-                    player.message(s.end_mifia_outnumber + s.defeat)
+                    player.message(bot, s.end_mifia_outnumber + s.defeat)
                 elif player.role.team == 'Evil':
-                    player.message(s.end_mifia_outnumber + s.victory)
+                    player.message(bot, s.end_mifia_outnumber + s.victory)
             self.endgame()
         elif mifiosi == 0:
             self.message(bot, s.end_mifia_killed + s.victory_royal)
             for player in self.players:
                 if player.role.team == 'Good':
-                    player.message(s.end_mifia_killed + s.victory)
+                    player.message(bot, s.end_mifia_killed + s.victory)
                 elif player.role.team == 'Evil':
-                    player.message(s.end_mifia_killed + s.defeat)
+                    player.message(bot, s.end_mifia_killed + s.defeat)
             self.endgame()
 
     def endconfig(self, bot):
@@ -457,8 +457,12 @@ class Game:
 
     def save(self):
         # Crea il file.
-        file = open(str(self.groupid) + ".p", 'x')
-        file.close()
+        try:
+            file = open(str(self.groupid) + ".p", 'x')
+        except FileExistsError:
+            pass
+        else:
+            file.close()
         # Scrivi sul file.
         file = open(str(self.groupid) + ".p", 'wb')
         pickle.dump(self, file)
@@ -771,23 +775,23 @@ def debuggameslist(bot, update):
     if __debug__:
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
-updater.dispatcher.addHandler(CommandHandler('ping', ping))
-updater.dispatcher.addHandler(CommandHandler('newgame', newgame))
-updater.dispatcher.addHandler(CommandHandler('join', join))
-updater.dispatcher.addHandler(CommandHandler('endjoin', endjoin))
-updater.dispatcher.addHandler(CommandHandler('vote', vote))
-updater.dispatcher.addHandler(CommandHandler('endday', endday))
-updater.dispatcher.addHandler(CommandHandler('power', power))
-updater.dispatcher.addHandler(CommandHandler('status', status))
-updater.dispatcher.addHandler(CommandHandler('role', role))
-updater.dispatcher.addHandler(CommandHandler('debug', debug))
-updater.dispatcher.addHandler(CommandHandler('debuggameslist', debuggameslist))
-updater.dispatcher.addHandler(CommandHandler('kill', kill))
-updater.dispatcher.addHandler(CommandHandler('config', config))
-updater.dispatcher.addHandler(CommandHandler('fakerole', fakerole))
-updater.dispatcher.addHandler(CommandHandler('save', save))
-updater.dispatcher.addHandler(CommandHandler('load', load))
-updater.dispatcher.addHandler(CommandHandler('delete', delete))
+updater.dispatcher.add_handler(CommandHandler('ping', ping))
+updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
+updater.dispatcher.add_handler(CommandHandler('join', join))
+updater.dispatcher.add_handler(CommandHandler('endjoin', endjoin))
+updater.dispatcher.add_handler(CommandHandler('vote', vote))
+updater.dispatcher.add_handler(CommandHandler('endday', endday))
+updater.dispatcher.add_handler(CommandHandler('power', power))
+updater.dispatcher.add_handler(CommandHandler('status', status))
+updater.dispatcher.add_handler(CommandHandler('role', role))
+updater.dispatcher.add_handler(CommandHandler('debug', debug))
+updater.dispatcher.add_handler(CommandHandler('debuggameslist', debuggameslist))
+updater.dispatcher.add_handler(CommandHandler('kill', kill))
+updater.dispatcher.add_handler(CommandHandler('config', config))
+updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
+updater.dispatcher.add_handler(CommandHandler('save', save))
+updater.dispatcher.add_handler(CommandHandler('load', load))
+updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
