@@ -7,13 +7,50 @@ from telegram import ParseMode
 import filemanager
 import random
 import strings as s
+import logging.config
+from raven.handlers.logging import SentryHandler
 
-import logging
-logger = logging.getLogger()
-logger.setLevel(logging.WARN)
+sentrykey = filemanager.readfile("sentrykey.txt")
 
-logging.basicConfig(level=logging.WARN,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = SentryHandler(
+    sentrykey)
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': True,
+
+    'formatters': {
+        'console': {
+            'format': '[%(asctime)s][%(levelname)s] %(name)s '
+                      '%(filename)s:%(funcName)s:%(lineno)d | %(message)s',
+            'datefmt': '%H:%M:%S',
+            },
+        },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+            },
+        'sentry': {
+            'level': 'WARNING',
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': sentrykey,
+            },
+        },
+
+    'loggers': {
+        '': {
+            'handlers': ['console', 'sentry'],
+            'level': 'DEBUG',
+            'propagate': False,
+            },
+        'your_app': {
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
+})
 
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
@@ -39,7 +76,11 @@ class Role:
         pass
 
     def onendday(self, bot, game):
-        """Metodo chiamato alla fine di ogni giorno, per attivare o ripristinare allo stato iniziale il potere."""
+        """Metodo chiamato alla fine di ogni giorno."""
+        pass
+
+    def ondeath(self, bot, game):
+        """Metodo chiamato alla morte del giocatore."""
         pass
 
 
@@ -89,7 +130,7 @@ class Mifioso(Role):
             # Uccidi il bersaglio se non è protetto da un Angelo.
             if self.target is not None:
                 if self.target.protectedby is None:
-                    self.target.kill()
+                    self.target.kill(bot, game)
                     game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
                                                                    icon=self.target.role.icon,
                                                                    role=self.target.role.name))
@@ -156,7 +197,7 @@ class Angelo(Role):
         else:
             r = "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
         return r
-    
+
     def power(self, bot, game, player, arg):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
@@ -172,7 +213,7 @@ class Angelo(Role):
                 player.message(bot, s.error_angel_no_selfprotect)
         else:
             player.message(bot, s.error_username)
-            
+
     def onendday(self, bot, game):
         # Resetta la protezione
         if self.protecting is not None:
@@ -182,7 +223,7 @@ class Angelo(Role):
 
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
-       e i dati riguardanti telegram, come ID e username.""" 
+       e i dati riguardanti telegram, come ID e username."""
     def __init__(self, tid, tusername):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
@@ -201,9 +242,9 @@ class Player:
         """Manda un messaggio privato al giocatore."""
         bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
 
-    def kill(self):
+    def kill(self, bot, game):
         """Uccidi il giocatore."""
-        # Perchè questo esiste?
+        self.role.ondeath(bot, game)
         self.alive = False
 
 
@@ -355,7 +396,7 @@ class Game:
             if player.mifiavotes > currenttop:
                 mostvoted = list()
                 mostvoted.append(player)
-                currenttop = player.mifiavotes                
+                currenttop = player.mifiavotes
             elif player.votes == currenttop:
                     mostvoted.append(player)
         if currenttop > 0:
@@ -376,7 +417,7 @@ class Game:
                 self.message(bot, s.player_lynched.format(name=lynched.tusername,
                                                           icon=lynched.role.icon,
                                                           role=lynched.role.name))
-                lynched.kill()
+                lynched.kill(bot, self)
         else:
             self.message(bot, s.no_players_lynched)
         # Fai gli endday in un certo ordine.
@@ -393,7 +434,7 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     if killed.protectedby is None:
-                        killed.kill()
+                        killed.kill(bot, self)
                         self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
                                                                        icon=killed.role.icon,
                                                                        role=killed.role.name))
@@ -682,9 +723,9 @@ def kill(bot, update):
             if update.message.from_user['id'] == game.adminid:
                 target = game.findplayerbyusername(update.message.text.split(' ')[1])
                 if target is not None:
-                    target.kill()
-                    game.message(bot, s.admin_killed.format(name=target.tusername, 
-                                                            icon=target.role.icon, 
+                    target.kill(bot, game)
+                    game.message(bot, s.admin_killed.format(name=target.tusername,
+                                                            icon=target.role.icon,
                                                             role=target.role.name))
                 else:
                     game.message(bot, s.error_username)
@@ -719,12 +760,12 @@ def fakerole(bot, update):
     if update.message.chat['type'] == 'private':
         bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name), 
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name), 
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name), 
-                        parse_mode=ParseMode.MARKDOWN)        
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name),
+                        parse_mode=ParseMode.MARKDOWN)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
@@ -759,7 +800,7 @@ def debug(bot, update):
                     if not player.alive:
                         text += s.status_dead_player.format(name=player.tusername)
                     else:
-                        text += s.status_alive_player.format(icon=player.role.icon, 
+                        text += s.status_alive_player.format(icon=player.role.icon,
                                                              name=player.tusername,
                                                              votes=str(player.votes))
                 game.adminmessage(bot, text)
