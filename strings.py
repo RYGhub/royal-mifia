@@ -60,6 +60,26 @@ angel_power_description = "Puoi proteggere una persona dalla Mifia ogni notte.\n
                           "Per proteggere una persona, scrivi in questa chat:\n" \
                           "`/power {gamename} nomeutentebersaglio`\n"
 
+# Terrorista: icona
+terrorist_icon = "\U0001F60E"
+
+# Terrorista: nome ruolo
+terrorist_name = "Terrorista"
+
+# Terrorista: descrizione del potere
+terrorist_power_description = "Puoi fare saltare in aria un sacco di persone!\n" \
+                              "Se vieni votato come colpevole di associazione mifiosa, potrai fare esplodere tutti" \
+                              " quelli che ti hanno votato!\n" \
+                              "La mifia non sa chi sei, ma fai parte della squadra dei malvagi.\n"
+
+# Terrorista: esplosione
+terrorist_kaboom = "Boom! Il terrorista si è fatto esplodere prima che poteste ucciderlo, mietendo vittime tra tutti" \
+                   " quelli che lo hanno votato!"
+
+# Terrorista: bersaglio ucciso
+terrorist_target_killed = "Boom! @{target} è esploso!\n" \
+                          "Era un *{icon} {role}*."
+
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
 
@@ -222,5 +242,6 @@ names_list = ["Modena",
 config_list = ["Quanti Mifiosi devono essere nella partita?",
                "Quanti Investigatori devono essere nella partita?",
                "Quanti Angeli devono essere nella partita?",
+               "Quanti Terroristi devono essere nella partita?",
                "I mifiosi possono uccidere una persona a `testa` al giorno "
                "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?"]

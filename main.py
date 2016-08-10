@@ -39,7 +39,7 @@ class Role:
         """Metodo chiamato alla fine di ogni giorno."""
         pass
 
-    def ondeath(self, bot, game):
+    def ondeath(self, bot, game, player):
         """Metodo chiamato alla morte del giocatore."""
         pass
 
@@ -181,7 +181,31 @@ class Angelo(Role):
         self.protecting = None
 
 
-rolepriority = [Mifioso, Investigatore, Angelo]
+class Terrorista(Role):
+    """Il terrorista è un mifioso che può uccidere in un solo modo: facendosi uccidere dai Royal.
+       Se riesce, vince la partita e uccide tutti quelli che lo hanno votato."""
+    icon = s.terrorist_icon
+    team = "Evil"
+    name = s.terrorist_name
+    powerdesc = s.terrorist_power_description
+
+    def __repr__(self) -> str:
+        r = "<Role: Terrorista>"
+        return r
+
+    def ondeath(self, bot, game, player):
+        # Se è stato ucciso da una votazione, attiva il suo potere
+        if player == game.lastlynch:
+            game.message(bot, s.terrorist_kaboom)
+            for selectedplayer in game.players:
+                if selectedplayer.votingfor == player:
+                    game.message(bot, s.terrorist_target_killed.format(target=selectedplayer.tusername,
+                                                                       icon=selectedplayer.role.icon,
+                                                                       role=selectedplayer.role.name))
+                    selectedplayer.kill(bot, game)
+
+
+rolepriority = [Mifioso, Investigatore, Angelo, Terrorista]
 
 
 class Player:
@@ -207,7 +231,7 @@ class Player:
 
     def kill(self, bot, game):
         """Uccidi il giocatore."""
-        self.role.ondeath(bot, game)
+        self.role.ondeath(bot, game, self)
         self.alive = False
 
 
@@ -236,6 +260,8 @@ class Game:
             self.name = freenames.pop()
         else:
             self.name = str(groupid)
+
+        self.lastlynch = None  # Ultima persona uccisa dai Royal, diventa un player
 
     def __del__(self):
         # Rimetti il nome che si è liberato in disponibili.
@@ -369,6 +395,7 @@ class Game:
                 self.message(bot, s.player_lynched.format(name=lynched.tusername,
                                                           icon=lynched.role.icon,
                                                           role=lynched.role.name))
+                self.lastlynch = lynched
                 lynched.kill(bot, self)
         else:
             self.message(bot, s.no_players_lynched)
@@ -582,6 +609,14 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 3:
+                    try:
+                        game.roleconfig["Terrorista"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 4:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
                         game.endconfig(bot)
@@ -595,7 +630,7 @@ def config(bot, update):
         else:
             game.message(bot, s.error_not_admin)
     else:
-        game.message(bot, s.error_no_games_found)
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def vote(bot, update):
@@ -768,11 +803,6 @@ def debuggameslist(bot, update):
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
-def debugcrash(bot, update):
-    if __debug__:
-        raise Exception("NUKEM")
-
-
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
@@ -784,7 +814,6 @@ updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('role', role))
 updater.dispatcher.add_handler(CommandHandler('debug', debug))
 updater.dispatcher.add_handler(CommandHandler('debuggameslist', debuggameslist))
-updater.dispatcher.add_handler(CommandHandler('debugcrash', debugcrash))
 updater.dispatcher.add_handler(CommandHandler('kill', kill))
 updater.dispatcher.add_handler(CommandHandler('config', config))
 updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
