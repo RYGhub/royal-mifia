@@ -221,6 +221,9 @@ class Angelo(Role):
         self.protecting = None
 
 
+rolepriority = [Mifioso, Investigatore, Angelo]
+
+
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
        e i dati riguardanti telegram, come ID e username."""
@@ -259,15 +262,13 @@ class Game:
         self.phase = 'Join'  # Fase di gioco: 'Join', 'Config', 'Voting'
 
         self.configstep = 0  # Passo attuale di configurazione
-        self.totalmifiosi = 0  # Numero di mifiosi da inserire
-        self.totaldetectives = 0  # Numero di detective da inserire
-        self.totalangels = 0  # Numero di angeli da inserire
+        self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
         self.votingmifia = False  # Seguire le regole originali della mifia che vota?
 
         # Liste di ruoli in gioco, per velocizzare gli endday
-        self.mifiosiingame = list()
-        self.detectivesingame = list()
-        self.angelsingame = list()
+        self.playersinrole = dict()
+        for currentrole in rolepriority:
+            self.playersinrole[currentrole.__name__] = list()
 
         # Trova un nome per la partita
         if len(freenames) > 0:
@@ -324,20 +325,11 @@ class Game:
         random.seed()
         playersleft = self.players.copy()
         # Seleziona mifiosi
-        self.mifiosiingame = random.sample(playersleft, self.totalmifiosi)
-        for player in self.mifiosiingame:
-            player.role = Mifioso()
-            playersleft.remove(player)
-        # Seleziona detective
-        self.detectivesingame = random.sample(playersleft, self.totaldetectives)
-        for player in self.detectivesingame:
-            player.role = Investigatore()
-            playersleft.remove(player)
-        # Seleziona angeli
-        self.angelsingame = random.sample(playersleft, self.totalangels)
-        for player in self.angelsingame:
-            player.role = Angelo()
-            playersleft.remove(player)
+        for currentrole in rolepriority:
+            for player in random.sample(playersleft, self.roleconfig[currentrole.__name__]):
+                self.playersinrole[currentrole.__name__].append(player)
+                player.role = currentrole()
+                playersleft.remove(player)
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
             player.role = Royal()
@@ -348,9 +340,9 @@ class Game:
                 player.message(bot, player.role.powerdesc.format(gamename=self.name))
         # Manda ai mifiosi l'elenco dei loro compagni di squadra
         text = s.mifia_team_intro
-        for player in self.mifiosiingame:
+        for player in self.playersinrole['Mifioso']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-        for player in self.mifiosiingame:
+        for player in self.playersinrole['Mifioso']:
             player.message(bot, text)
 
     def updatevotes(self):
@@ -365,7 +357,7 @@ class Game:
         """Aggiorna il conteggio dei voti mifiosi di tutti i giocatori."""
         for player in self.players:
             player.mifiavotes = 0
-        for player in self.mifiosiingame:
+        for player in self.playersinrole['Mifioso']:
             if player.alive:
                 if player.role.target is not None:
                     player.role.target.mifiavotes += 1
@@ -442,18 +434,11 @@ class Game:
                         self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
                                                                           icon=killed.protectedby.role.icon,
                                                                           protectedby=killed.protectedby.tusername))
-        # Attiva il onendday dei mifiosi
-        for player in self.mifiosiingame:
-            if isinstance(player.role, Mifioso) and player.alive:
-                player.role.onendday(bot, self)
-        # Investigatori
-        for player in self.detectivesingame:
-            if isinstance(player.role, Investigatore) and player.alive:
-                player.role.onendday(bot, self)
-        # Angeli
-        for player in self.angelsingame:
-            if isinstance(player.role, Angelo) and player.alive:
-                player.role.onendday(bot, self)
+        # Attiva gli onendday
+        for currentrole in rolepriority:
+            for player in self.playersinrole[currentrole.__name__]:
+                if player.alive:
+                    player.role.onendday(bot, self)
         # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
@@ -508,6 +493,7 @@ class Game:
         file = open(str(self.groupid) + ".p", 'wb')
         pickle.dump(self, file)
         file.close()
+
 
 # Partite in corso
 inprogress = list()
