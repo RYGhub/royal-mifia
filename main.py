@@ -7,6 +7,10 @@ from telegram import ParseMode
 import filemanager
 import random
 import strings as s
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
