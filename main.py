@@ -594,7 +594,7 @@ def config(bot, update):
             if len(cmd) >= 2:
                 if game.configstep == 0:
                     try:
-                        game.totalmifiosi = int(cmd[1])
+                        game.roleconfig["Mifioso"] = int(cmd[1])
                     except ValueError:
                         game.message(bot, s.error_invalid_config)
                     else:
@@ -602,7 +602,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 1:
                     try:
-                        game.totaldetectives = int(cmd[1])
+                        game.roleconfig["Detective"] = int(cmd[1])
                     except ValueError:
                         game.message(bot, s.error_invalid_config)
                     else:
@@ -610,7 +610,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 2:
                     try:
-                        game.totalangels = int(cmd[1])
+                        game.roleconfig["Angelo"] = int(cmd[1])
                     except ValueError:
                         game.message(bot, s.error_invalid_config)
                     else:
