@@ -744,13 +744,16 @@ def delete(bot, update):
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
     if update.message.chat['type'] == 'private':
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.royal_icon, name=s.royal_name),
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=Royal.icon, name=Royal.name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.mifia_icon, name=s.mifia_name),
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=Mifioso.icon, name=Mifioso.name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.detective_icon, name=s.detective_name),
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=Investigatore.icon,
+                                                                          name=Investigatore.name),
                         parse_mode=ParseMode.MARKDOWN)
-        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=s.angel_icon, name=s.angel_name),
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=Angelo.icon, name=Angelo.name),
+                        parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=Terrorista.icon, name=Terrorista.name),
                         parse_mode=ParseMode.MARKDOWN)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
