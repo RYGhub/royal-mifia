@@ -135,6 +135,9 @@ end_mifia_outnumber = "I Mifiosi rimasti sono più dei Royal.\n" \
 # Vittoria: Mifia == 0
 end_mifia_killed = "Tutti i Mifiosi sono stati eliminati.\n"
 
+# Vittoria: nessuno vivo lol
+end_game_wiped = "Nessuno è più vivo. La specie umana si è estinta.\n"
+
 # Vittoria: team Royal
 victory_royal = "**La Royal Games vince!**"
 
@@ -146,6 +149,9 @@ victory = "*Hai vinto!*"
 
 # Sconfitta.
 defeat = "*Hai perso...*"
+
+# Pareggio?
+tie = "*Pareggio?*"
 
 # Status: parte aggiunta prima dell'elenco dei giocatori (deve terminare con \n)
 status_header = "*ID:* {name}\n" \

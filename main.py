@@ -429,30 +429,8 @@ class Game:
         # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
-        # Condizioni di vittoria
-        royal = 0
-        mifiosi = 0
-        for player in self.players:
-            if player.alive and player.role.team == 'Evil':
-                mifiosi += 1
-            elif player.alive and player.role.team == 'Good':
-                royal += 1
-        if mifiosi >= royal:
-            self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
-            for player in self.players:
-                if player.role.team == 'Good':
-                    player.message(bot, s.end_mifia_outnumber + s.defeat)
-                elif player.role.team == 'Evil':
-                    player.message(bot, s.end_mifia_outnumber + s.victory)
-            self.endgame()
-        elif mifiosi == 0:
-            self.message(bot, s.end_mifia_killed + s.victory_royal)
-            for player in self.players:
-                if player.role.team == 'Good':
-                    player.message(bot, s.end_mifia_killed + s.victory)
-                elif player.role.team == 'Evil':
-                    player.message(bot, s.end_mifia_killed + s.defeat)
-            self.endgame()
+        # Controlla se qualcuno ha vinto
+        self.victoryconditions(bot)
 
     def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
@@ -486,6 +464,38 @@ class Game:
         pickle.dump(self, file)
         file.close()
 
+    def victoryconditions(self, bot):
+        # Condizioni di vittoria
+        good = 0
+        evil = 0
+        for player in self.players:
+            if player.alive and player.role.team == 'Evil':
+                evil += 1
+            elif player.alive and player.role.team == 'Good':
+                good += 1
+        # Distruzione atomica!
+        if good == 0 and evil == 0:
+            self.message(bot, s.end_game_wiped)
+            for player in self.players:
+                player.message(bot, s.end_game_wiped + s.tie)
+        # Mifiosi più dei Royal
+        if evil >= good:
+            self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
+            for player in self.players:
+                if player.role.team == 'Good':
+                    player.message(bot, s.end_mifia_outnumber + s.defeat)
+                elif player.role.team == 'Evil':
+                    player.message(bot, s.end_mifia_outnumber + s.victory)
+            self.endgame()
+        # Male distrutto
+        elif evil == 0:
+            self.message(bot, s.end_mifia_killed + s.victory_royal)
+            for player in self.players:
+                if player.role.team == 'Good':
+                    player.message(bot, s.end_mifia_killed + s.victory)
+                elif player.role.team == 'Evil':
+                    player.message(bot, s.end_mifia_killed + s.defeat)
+            self.endgame()
 
 # Partite in corso
 inprogress = list()
