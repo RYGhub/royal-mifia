@@ -479,7 +479,7 @@ class Game:
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
         # Mifiosi più dei Royal
-        if evil >= good:
+        elif evil >= good:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
