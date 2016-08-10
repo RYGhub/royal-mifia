@@ -28,7 +28,7 @@ logging.config.dictConfig({
 
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 0,
             'class': 'logging.StreamHandler',
             'formatter': 'console'
             },
@@ -42,11 +42,11 @@ logging.config.dictConfig({
     'loggers': {
         '': {
             'handlers': ['console', 'sentry'],
-            'level': 'DEBUG',
+            'level': 0,
             'propagate': False,
             },
         'your_app': {
-            'level': 'DEBUG',
+            'level': 0,
             'propagate': True,
         },
     }
@@ -471,12 +471,13 @@ class Game:
         """Fine della fase di config, inizio assegnazione ruoli"""
         # Controlla che ci siano abbastanza giocatori per avviare la partita
         requiredplayers = 0
-        for selectedrole in rolepriority:
-            requiredplayers += self.roleconfig[selectedrole.__name__]
+        for selectedrole in self.roleconfig:
+            requiredplayers += self.roleconfig[selectedrole]
         # Se non ce ne sono abbastanza, torna alla fase di join
         if requiredplayers > len(self.players):
             self.phase = 'Join'
             self.configstep = 0
+            self.message(bot, s.error_not_enough_players)
         else:
             self.phase = 'Voting'
             self.assignroles(bot)
@@ -606,7 +607,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 1:
                     try:
-                        game.roleconfig["Detective"] = int(cmd[1])
+                        game.roleconfig["Investigatore"] = int(cmd[1])
                     except ValueError:
                         game.message(bot, s.error_invalid_config)
                     else:
