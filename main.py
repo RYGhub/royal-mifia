@@ -469,13 +469,17 @@ class Game:
 
     def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
-        self.phase = 'Voting'
-        try:
-            self.assignroles(bot)
-        except IndexError:
-            self.message(bot, s.error_not_enough_players)
-            self.endgame()
+        # Controlla che ci siano abbastanza giocatori per avviare la partita
+        requiredplayers = 0
+        for selectedrole in rolepriority:
+            requiredplayers += self.roleconfig[selectedrole.__name__]
+        # Se non ce ne sono abbastanza, torna alla fase di join
+        if requiredplayers > len(self.players):
+            self.phase = 'Join'
+            self.configstep = 0
         else:
+            self.phase = 'Voting'
+            self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
 
     def endgame(self):
