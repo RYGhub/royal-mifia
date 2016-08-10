@@ -7,50 +7,6 @@ from telegram import ParseMode
 import filemanager
 import random
 import strings as s
-import logging.config
-from raven.handlers.logging import SentryHandler
-
-sentrykey = filemanager.readfile("sentrykey.txt")
-
-handler = SentryHandler(
-    sentrykey)
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': True,
-
-    'formatters': {
-        'console': {
-            'format': '[%(asctime)s][%(levelname)s] %(name)s '
-                      '%(filename)s:%(funcName)s:%(lineno)d | %(message)s',
-            'datefmt': '%H:%M:%S',
-            },
-        },
-
-    'handlers': {
-        'console': {
-            'level': 0,
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-            },
-        'sentry': {
-            'level': 'WARNING',
-            'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': sentrykey,
-            },
-        },
-
-    'loggers': {
-        '': {
-            'handlers': ['console', 'sentry'],
-            'level': 0,
-            'propagate': False,
-            },
-        'your_app': {
-            'level': 0,
-            'propagate': True,
-        },
-    }
-})
 
 token = filemanager.readfile('telegramapi.txt')
 updater = Updater(token)
@@ -807,6 +763,12 @@ def debuggameslist(bot, update):
     if __debug__:
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
+
+def debugcrash(bot, update):
+    if __debug__:
+        raise Exception("NUKEM")
+
+
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
@@ -818,6 +780,7 @@ updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('role', role))
 updater.dispatcher.add_handler(CommandHandler('debug', debug))
 updater.dispatcher.add_handler(CommandHandler('debuggameslist', debuggameslist))
+updater.dispatcher.add_handler(CommandHandler('debugcrash', debugcrash))
 updater.dispatcher.add_handler(CommandHandler('kill', kill))
 updater.dispatcher.add_handler(CommandHandler('config', config))
 updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
