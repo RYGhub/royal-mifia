@@ -205,7 +205,39 @@ class Terrorista(Role):
                     selectedplayer.kill(bot, game)
 
 
-rolepriority = [Mifioso, Investigatore, Angelo, Terrorista]
+class Derek(Role):
+    """Derek muore. Quando gli pare."""
+    icon = s.derek_icon
+    team = "Good"
+    name = s.derek_name
+    powerdesc = s.derek_power_description
+
+    def __init__(self):
+        # Per qualche motivo assurdo ho deciso di tenere l'oggetto Player qui
+        self.deathwish = None
+
+    def __repr__(self) -> str:
+        r = "<Role: Derek>"
+        return r
+
+    def power(self, bot, game, player, arg):
+        # Attiva / disattiva la morte alla fine del round
+        if self.deathwish is not None:
+            self.deathwish = None
+            player.message(bot, s.derek_deathwish_unset)
+        else:
+            self.deathwish = player
+            player.message(bot, s.derek_deathwish_set)
+
+    def onendday(self, bot, game):
+        if self.deathwish is not None:
+            game.message(bot, s.derek_deathwish_successful.format(icon=s.derek_icon,
+                                                                  role=s.derek_name,
+                                                                  name=self.deathwish.tusername))
+            self.deathwish.kill()
+
+
+rolepriority = [Mifioso, Investigatore, Angelo, Derek, Terrorista]
 
 
 class Player:

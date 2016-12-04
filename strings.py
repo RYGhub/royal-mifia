@@ -28,7 +28,7 @@ mifia_target_protected = "@{target} è stato protetto dalla Mifia da {icon} @{pr
 mifia_power_description = "Puoi selezionare come bersaglio di un'assassinio una personas.\n" \
                           "Per selezionare un bersaglio, scrivi in questa chat:\n" \
                           "`/power {gamename} nomeutentebersaglio`\n" \
-                          "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!"
+                          "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!\n"
 
 # Investigatore: icona
 detective_icon = "\U0001F575"
@@ -79,6 +79,28 @@ terrorist_kaboom = "Boom! Il terrorista si è fatto esplodere prima che poteste 
 # Terrorista: bersaglio ucciso
 terrorist_target_killed = "Boom! @{target} è esploso!\n" \
                           "Era un *{icon} {role}*."
+
+# Derek: icona
+derek_icon = "\U0001F635"
+
+# Derek: nome ruolo
+derek_name = "Derek"
+
+# Derek: descrizione del potere
+derek_power_description = "Puoi decidere di suicidarti alla fine di un round.\n" \
+                          "Potresti farlo per confondere le idee ai Royal, o per ragequittare malissimo.\n" \
+                          "Sta a te la scelta.\n" \
+                          "Per lasciare questo mondo alla fine del giorno, scrivi in questa chat:\n" \
+                          "`/power {gamename}`\n"
+
+# Derek: morte attivata
+derek_deathwish_set = "*Morirai* alla fine di questo giorno."
+
+# Derek: morte disattivata
+derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
+
+# Derek: morte
+derek_deathwish_successful = "SPOILER: alla fine di questa giornata {icon} {role} (@{name}) muore.\n"
 
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
