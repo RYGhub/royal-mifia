@@ -190,6 +190,9 @@ status_alive_player = "{icon} @{name} ({votes} voti)\n"
 # Status: giocatore morto (deve terminare con \n)
 status_dead_player = "\U0001F480 @{name}\n"
 
+# Status: Modalità debug
+debug_mode = "*DEBUG/CHEATS MODE*"
+
 # Ping!
 pong = "Pong!"
 
@@ -278,5 +281,6 @@ config_list = ["Quanti Mifiosi devono essere nella partita?",
                "Quanti Investigatori devono essere nella partita?",
                "Quanti Angeli devono essere nella partita?",
                "Quanti Terroristi devono essere nella partita?",
+               "Quanti Derek devono essere nella partita?",
                "I mifiosi possono uccidere una persona a `testa` al giorno "
                "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?"]

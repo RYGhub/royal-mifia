@@ -273,9 +273,9 @@ class Player:
 class Game:
     """Classe di una partita, contenente parametri riguardanti stato della partita 
        e informazioni sul gruppo di Telegram."""
-    def __init__(self, groupid, adminid):
+    def __init__(self, groupid):
         self.groupid = groupid  # ID del gruppo in cui si sta svolgendo una partita
-        self.adminid = adminid  # ID telegram dell'utente che ha creato la partita con /newgame
+        self.admin = None  # ID telegram dell'utente che ha creato la partita con /newgame
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
         self.phase = 'Join'  # Fase di gioco: 'Join', 'Config', 'Voting'
@@ -316,7 +316,7 @@ class Game:
 
     def adminmessage(self, bot, text):
         """Manda un messaggio privato al creatore della partita."""
-        bot.sendMessage(self.adminid, text, parse_mode=ParseMode.MARKDOWN)
+        self.admin.message(bot, text)
 
     def mifiamessage(self, bot, text):
         """Manda un messaggio privato a tutti i Mifiosi nella partita."""
@@ -561,9 +561,10 @@ def newgame(bot, update):
     if update.message.chat['type'] != 'private':
         game = findgamebyid(update.message.chat['id'])
         if game is None:
-            game = Game(update.message.chat['id'], update.message.from_user['id'])
+            game = Game(update.message.chat['id'])
             inprogress.append(game)
             game.message(bot, s.new_game.format(groupid=game.groupid, name=game.name))
+            join(bot, update)
         else:
             bot.sendMessage(update.message.chat['id'], s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
     else:
@@ -584,6 +585,8 @@ def join(bot, update):
                     game.message(bot, s.error_chat_unavailable)
                 else:
                     game.message(bot, s.player_joined.format(name=p.tusername))
+                    if len(game.players) == 0:
+                        game.admin = p
                     game.players.append(p)
             else:
                 game.message(bot, s.error_player_already_joined)
@@ -597,7 +600,9 @@ def status(bot, update):
     """Visualizza lo stato della partita."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
-        text = s.status_header.format(name=game.name, admin=game.adminid, phase=game.phase)
+        text = s.status_header.format(name=game.name, admin=game.admin.tusername, phase=game.phase)
+        if __debug__:
+            text += s.debug_mode
         game.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
@@ -616,7 +621,7 @@ def endjoin(bot, update):
     """Termina la fase di join e inizia quella di votazione."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase == 'Join':
-        if update.message.from_user['id'] == game.adminid:
+        if update.message.from_user['id'] == game.admin.tid:
             # Inizio fase di configurazione
             game.phase = 'Config'
             game.message(bot, s.join_phase_ended)
@@ -631,7 +636,7 @@ def config(bot, update):
     """Configura il parametro richiesto."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase is 'Config':
-        if update.message.from_user['id'] == game.adminid:
+        if update.message.from_user['id'] == game.admin.tid:
             cmd = update.message.text.split(' ', 1)
             if len(cmd) >= 2:
                 if game.configstep == 0:
@@ -667,6 +672,14 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 4:
+                    try:
+                        game.roleconfig["Derek"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 5:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
                         game.endconfig(bot)
@@ -707,7 +720,7 @@ def vote(bot, update):
 def endday(bot, update):
     """Termina la giornata attuale."""
     game = findgamebyid(update.message.chat['id'])
-    if game is not None and game.phase is 'Voting' and update.message.from_user['id'] == game.adminid:
+    if game is not None and game.phase is 'Voting' and update.message.from_user['id'] == game.admin.tid:
         game.endday(bot)
 
 
@@ -756,7 +769,7 @@ def kill(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
         if game is not None and game.phase is 'Voting':
-            if update.message.from_user['id'] == game.adminid:
+            if update.message.from_user['id'] == game.admin.tid:
                 target = game.findplayerbyusername(update.message.text.split(' ')[1])
                 if target is not None:
                     target.kill(bot, game)
@@ -831,8 +844,8 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
         if game is not None:
-            if game.adminid == update.message.from_user['id']:
-                text = s.status_header.format(name=game.groupid, admin=game.adminid, phase=game.phase)
+            if game.admin.tid == update.message.from_user['id']:
+                text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
                 game.updatevotes()
                 # Aggiungi l'elenco dei giocatori
                 for player in game.players:
