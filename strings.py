@@ -191,7 +191,7 @@ status_alive_player = "{icon} @{name} ({votes} voti)\n"
 status_dead_player = "\U0001F480 @{name}\n"
 
 # Status: Modalità debug
-debug_mode = "*DEBUG/CHEATS MODE*"
+debug_mode = "*DEBUG/CHEATS MODE*\n"
 
 # Ping!
 pong = "Pong!"

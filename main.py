@@ -234,7 +234,7 @@ class Derek(Role):
             game.message(bot, s.derek_deathwish_successful.format(icon=s.derek_icon,
                                                                   role=s.derek_name,
                                                                   name=self.deathwish.tusername))
-            self.deathwish.kill()
+            self.deathwish.kill(bot, game)
 
 
 rolepriority = [Mifioso, Investigatore, Angelo, Derek, Terrorista]
@@ -580,7 +580,7 @@ def join(bot, update):
             if p is None:
                 p = Player(update.message.from_user['id'], update.message.from_user['username'])
                 try:
-                    p.message(bot, s.you_joined.format(game=game))
+                    p.message(bot, s.you_joined.format(game=game.name))
                 except TelegramError:
                     game.message(bot, s.error_chat_unavailable)
                 else:
