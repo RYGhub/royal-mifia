@@ -3,7 +3,7 @@
 import pickle
 
 from telegram.ext import Updater, CommandHandler
-from telegram import ParseMode
+from telegram import ParseMode, TelegramError
 import filemanager
 import random
 import strings as s
@@ -575,8 +575,13 @@ def join(bot, update):
             p = game.findplayerbyid(update.message.from_user['id'])
             if p is None:
                 p = Player(update.message.from_user['id'], update.message.from_user['username'])
-                game.players.append(p)
-                game.message(bot, s.player_joined.format(name=p.tusername))
+                try:
+                    p.message(bot, s.you_joined.format(game=game))
+                except TelegramError:
+                    game.message(bot, s.error_chat_unavailable)
+                else:
+                    game.message(bot, s.player_joined.format(name=p.tusername))
+                    game.players.append(p)
             else:
                 game.message(bot, s.error_player_already_joined)
         else:

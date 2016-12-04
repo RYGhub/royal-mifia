@@ -120,6 +120,9 @@ new_game = "E' stata creata una nuova partita in questo gruppo.\n" \
 # Generale: un giocatore si è unito
 player_joined = "@{name} si è unito alla partita!"
 
+# Generale: ti sei unito alla partita, in chat privata
+you_joined = "Ti sei unito alla partita _{game}_!"
+
 # Generale: fine della fase di join
 join_phase_ended = "La fase di join è terminata."
 
@@ -235,6 +238,10 @@ error_angel_no_selfprotect = "\U000026A0 Non puoi proteggere te stesso."
 
 # Errore: parametro della configurazione non valido
 error_invalid_config = "\U000026A0 Configurazione non valida."
+
+# Errore: il giocatore non ha mai scritto un messaggio in chat privata al bot
+error_chat_unavailable = "\U000026A0 Non hai mai scritto un messaggio in chat privata a @mifiabot!\n" \
+                         "Scrivigli nella chat privata `/start` e riprova."
 
 # Lista dei possibili nomi di una partita
 names_list = ["Modena",
