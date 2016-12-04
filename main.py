@@ -259,7 +259,10 @@ class Player:
 
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
-        bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+        try:
+            bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+        except TelegramError:
+            pass
 
     def kill(self, bot, game):
         """Uccidi il giocatore."""
