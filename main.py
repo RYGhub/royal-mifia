@@ -283,7 +283,7 @@ class Disastro(Role):
                                                      name=self.player.tusername))
     
     
-rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Royal]
+rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista]
 
 
 class Player:
@@ -329,6 +329,7 @@ class Game:
         self.configstep = 0  # Passo attuale di configurazione
         self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
         self.votingmifia = False  # Seguire le regole originali della mifia che vota?
+        self.missingmifia = False  # La mifia può fallire un'uccisione
 
         # Liste di ruoli in gioco, per velocizzare gli endday
         self.playersinrole = dict()
