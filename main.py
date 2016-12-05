@@ -722,6 +722,14 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 5:
+                    try:
+                        game.roleconfig["Disastro"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 6:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
                         game.endconfig(bot)
