@@ -9,7 +9,7 @@ import random
 import strings as s
 import logging
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 token = filemanager.readfile('telegramapi.txt')
