@@ -259,10 +259,10 @@ class Disastro(Role):
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                fakerole = random.sample(rolepriority, 1)[0]
+                randomrole = random.sample(rolepriority, 1)[0]
                 player.message(bot, s.detective_discovery.format(target=target.tusername,
-                                                                 icon=fakerole.role.icon,
-                                                                 role=fakerole.role.name,
+                                                                 icon=randomrole.role.icon,
+                                                                 role=randomrole.role.name,
                                                                  left=self.poweruses))
             else:
                 player.message(bot, s.error_username)
@@ -272,6 +272,11 @@ class Disastro(Role):
     def onendday(self, bot, game):
         # Ripristina il potere
         self.poweruses = self.refillpoweruses
+
+    def ondeath(self, bot, game, player):
+        game.message(bot, s.disaster_revealed.format(icon=s.disaster_icon,
+                                                     role=s.disaster_name,
+                                                     name=player.tusername))
     
     
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Royal]
