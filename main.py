@@ -42,7 +42,7 @@ class Role:
         """Metodo chiamato alla fine di ogni giorno."""
         pass
 
-    def ondeath(self, bot, game, player):
+    def ondeath(self, bot, game):
         """Metodo chiamato alla morte del giocatore."""
         pass
 
@@ -196,9 +196,9 @@ class Terrorista(Role):
         r = "<Role: Terrorista>"
         return r
 
-    def ondeath(self, bot, game, player):
+    def ondeath(self, bot, game):
         # Se è stato ucciso da una votazione, attiva il suo potere
-        if player == game.lastlynch:
+        if self.player == game.lastlynch:
             game.message(bot, s.terrorist_kaboom)
             for selectedplayer in game.players:
                 if selectedplayer.votingfor == player:
@@ -277,10 +277,10 @@ class Disastro(Role):
         # Ripristina il potere
         self.poweruses = self.refillpoweruses
 
-    def ondeath(self, bot, game, player):
+    def ondeath(self, bot, game):
         game.message(bot, s.disaster_revealed.format(icon=s.disaster_icon,
                                                      role=s.disaster_name,
-                                                     name=player.tusername))
+                                                     name=self.player.tusername))
     
     
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Royal]
@@ -312,7 +312,7 @@ class Player:
 
     def kill(self, bot, game):
         """Uccidi il giocatore."""
-        self.role.ondeath(bot, game, self)
+        self.role.ondeath(bot, game)
         self.alive = False
 
 
