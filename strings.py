@@ -108,10 +108,6 @@ disaster_icon = "\U0001F913"
 # Disastro: nome ruolo
 disaster_name = "Disastro"
 
-# Disastro: rivelato
-disaster_revealed = "In realtà, @{name} era un *{icon} {role}* a ricoprire il suo ruolo...\n" \
-                    "Le informazioni che ha ottenuto erano false!"
-
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
 

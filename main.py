@@ -278,9 +278,8 @@ class Disastro(Role):
         self.poweruses = self.refillpoweruses
 
     def ondeath(self, bot, game):
-        game.message(bot, s.disaster_revealed.format(icon=s.disaster_icon,
-                                                     role=s.disaster_name,
-                                                     name=self.player.tusername))
+        self.icon = s.disaster_icon
+        self.name = s.disaster_name
     
     
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista]
