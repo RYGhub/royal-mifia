@@ -265,8 +265,8 @@ class Disastro(Role):
                 self.poweruses -= 1
                 randomrole = random.sample(rolepriority, 1)[0]
                 self.player.message(bot, s.detective_discovery.format(target=target.tusername,
-                                                                 icon=randomrole.role.icon,
-                                                                 role=randomrole.role.name,
+                                                                 icon=randomrole.icon,
+                                                                 role=randomrole.name,
                                                                  left=self.poweruses))
             else:
                 self.player.message(bot, s.error_username)
@@ -396,7 +396,7 @@ class Game:
         for currentrole in rolepriority:
             for player in random.sample(playersleft, self.roleconfig[currentrole.__name__]):
                 self.playersinrole[currentrole.__name__].append(player)
-                player.role = currentrole(self)
+                player.role = currentrole(player)
                 playersleft.remove(player)
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
