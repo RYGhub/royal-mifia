@@ -201,7 +201,7 @@ class Terrorista(Role):
         if self.player == game.lastlynch:
             game.message(bot, s.terrorist_kaboom)
             for selectedplayer in game.players:
-                if selectedplayer.votingfor == player:
+                if selectedplayer.votingfor == self.player:
                     game.message(bot, s.terrorist_target_killed.format(target=selectedplayer.tusername,
                                                                        icon=selectedplayer.role.icon,
                                                                        role=selectedplayer.role.name))
