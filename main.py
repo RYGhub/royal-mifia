@@ -27,11 +27,14 @@ class Role:
     name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
     powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
 
+    def __init__(self, player):
+        self.player = player
+
     def __repr__(self) -> str:
         r = "<undefined Role>"
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         """Il potere del ruolo. Si attiva quando il bot riceve un /power in chat privata."""
         pass
 
@@ -50,8 +53,8 @@ class Royal(Role):
     team = 'Good'
     name = s.royal_name
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player):
+        super().__init__(player)
 
     def __repr__(self) -> str:
         r = "<Role: Royal>"
@@ -65,8 +68,8 @@ class Mifioso(Role):
     name = s.mifia_name
     powerdesc = s.mifia_power_description
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player):
+        super().__init__(player)
         self.target = None
 
     def __repr__(self) -> str:
@@ -76,14 +79,14 @@ class Mifioso(Role):
             r = "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         # Imposta una persona come bersaglio da uccidere.
         selected = game.findplayerbyusername(arg)
         if selected is not None:
             self.target = selected
-            player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
+            self.player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
         else:
-            player.message(bot, s.error_username)
+            self.player.message(bot, s.error_username)
 
     def onendday(self, bot, game):
         if not game.votingmifia:
@@ -111,28 +114,28 @@ class Investigatore(Role):
     powerdesc = s.detective_power_description
     refillpoweruses = 1
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player):
+        super().__init__(player)
         self.poweruses = self.refillpoweruses
 
     def __repr__(self) -> str:
         r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses > 0:
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                player.message(bot, s.detective_discovery.format(target=target.tusername,
+                self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=target.role.icon,
                                                                  role=target.role.name,
                                                                  left=self.poweruses))
             else:
-                player.message(bot, s.error_username)
+                self.player.message(bot, s.error_username)
         else:
-            player.message(bot, s.error_no_uses)
+            self.player.message(bot, s.error_no_uses)
 
     def onendday(self, bot, game):
         # Ripristina il potere
@@ -147,8 +150,8 @@ class Angelo(Role):
     name = s.angel_name
     powerdesc = s.angel_power_description
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player):
+        super().__init__(player)
         self.protecting = None  # La persona che questo angelo sta proteggendo
 
     def __repr__(self) -> str:
@@ -158,7 +161,7 @@ class Angelo(Role):
             r = "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if selected is not None:
@@ -166,13 +169,13 @@ class Angelo(Role):
                 # Togli la protezione a quello che stavi proteggendo prima
                 if self.protecting is not None:
                     self.protecting.protectedby = None
-                selected.protectedby = player
+                selected.protectedby = self.player
                 self.protecting = selected
-                player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
+                self.player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
             else:
-                player.message(bot, s.error_angel_no_selfprotect)
+                self.player.message(bot, s.error_angel_no_selfprotect)
         else:
-            player.message(bot, s.error_username)
+            self.player.message(bot, s.error_username)
 
     def onendday(self, bot, game):
         # Resetta la protezione
@@ -212,7 +215,8 @@ class Derek(Role):
     name = s.derek_name
     powerdesc = s.derek_power_description
 
-    def __init__(self):
+    def __init__(self, player):
+        super().__init__(player)
         # Per qualche motivo assurdo ho deciso di tenere l'oggetto Player qui
         self.deathwish = None
 
@@ -220,14 +224,14 @@ class Derek(Role):
         r = "<Role: Derek>"
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         # Attiva / disattiva la morte alla fine del round
         if self.deathwish is not None:
             self.deathwish = None
-            player.message(bot, s.derek_deathwish_unset)
+            self.player.message(bot, s.derek_deathwish_unset)
         else:
-            self.deathwish = player
-            player.message(bot, s.derek_deathwish_set)
+            self.deathwish = self.player
+            self.player.message(bot, s.derek_deathwish_set)
 
     def onendday(self, bot, game):
         if self.deathwish is not None:
@@ -245,29 +249,29 @@ class Disastro(Role):
     powerdesc = s.detective_power_description
     refillpoweruses = 1
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player):
+        super().__init__(player)
         self.poweruses = self.refillpoweruses
 
     def __repr__(self) -> str:
         r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
         return r
 
-    def power(self, bot, game, player, arg):
+    def power(self, bot, game, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses > 0:
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
                 randomrole = random.sample(rolepriority, 1)[0]
-                player.message(bot, s.detective_discovery.format(target=target.tusername,
+                self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=randomrole.role.icon,
                                                                  role=randomrole.role.name,
                                                                  left=self.poweruses))
             else:
-                player.message(bot, s.error_username)
+                self.player.message(bot, s.error_username)
         else:
-            player.message(bot, s.error_no_uses)
+            self.player.message(bot, s.error_no_uses)
 
     def onendday(self, bot, game):
         # Ripristina il potere
@@ -288,7 +292,7 @@ class Player:
     def __init__(self, tid, tusername):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
-        self.role = Role()  # Di base, ogni giocatore è un ruolo indefinito
+        self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
         self.alive = True
         self.votingfor = None  # Diventa un player se ha votato
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
@@ -391,11 +395,11 @@ class Game:
         for currentrole in rolepriority:
             for player in random.sample(playersleft, self.roleconfig[currentrole.__name__]):
                 self.playersinrole[currentrole.__name__].append(player)
-                player.role = currentrole()
+                player.role = currentrole(self)
                 playersleft.remove(player)
         # Assegna il ruolo di Royal a tutti gli altri
         for player in playersleft:
-            player.role = Royal()
+            player.role = Royal(self)
         # Manda i ruoli assegnati a tutti
         for player in self.players:
             player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
@@ -786,7 +790,7 @@ def power(bot, update):
             player = game.findplayerbyid(int(update.message.from_user['id']))
             if player is not None:
                 if player.alive:
-                    player.role.power(bot, game, player, cmd[2])
+                    player.role.power(bot, game, cmd[2])
                 else:
                     player.message(bot, s.error_dead)
             else:
