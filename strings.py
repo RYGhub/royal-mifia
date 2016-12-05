@@ -247,34 +247,15 @@ error_chat_unavailable = "\U000026A0 Non hai mai scritto un messaggio in chat pr
                          "Scrivigli nella chat privata `/start` e riprova."
 
 # Lista dei possibili nomi di una partita
-names_list = ["Modena",
-              "Nonantola",
-              "Sassuolo",
-              "Vignola",
-              "Carpi",
-              "Formigine",
-              "Mirandola",
-              "Castelfranco",
-              "Pavullo",
-              "Maranello",
-              "Fiorano",
-              "Finale",
-              "Soliera",
-              "Castelnuovo",
-              "Spilamberto",
-              "Castelvetro",
-              "Novi",
-              "Bomporto",
-              "Savignano",
-              "Campogalliano",
-              "Concordia",
-              "Serramazzoni",
-              "Cavezzo",
-              "Medolla",
-              "Ravarino",
-              "Marano",
-              "Zocca",
-              "Guiglia"]
+names_list = ["Cassata",
+              "Cannoli",
+              "Granita",
+              "Mandorle",
+              "Salame",
+              "Torrone",
+              "Sorbetto",
+              "Limone",
+              "Arancia"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti Mifiosi devono essere nella partita?",
