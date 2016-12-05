@@ -30,6 +30,10 @@ mifia_power_description = "Puoi selezionare come bersaglio di un'assassinio una 
                           "`/power {gamename} nomeutentebersaglio`\n" \
                           "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!\n"
 
+# Mifioso: uccisione fallita
+mifia_target_missed = "@{target} ha subito un tentativo di assassinio da parte della Mifia!\n" \
+                      "Per fortuna, è riuscito a evitare l'attacco."
+
 # Investigatore: icona
 detective_icon = "\U0001F575"
 
@@ -271,4 +275,5 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita?",
                "Quanti *Derek* devono essere nella partita?",
                "Quanti *Disastri* devono essere nella partita?",
                "I mifiosi possono uccidere una persona a `testa` al giorno "
-               "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?"]
+               "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?",
+               "La mifia può `mancare` le uccisioni o i loro attacchi sono `perfetti`?"]

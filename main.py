@@ -494,10 +494,15 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     if killed.protectedby is None:
-                        killed.kill(bot, self)
-                        self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
-                                                                       icon=killed.role.icon,
-                                                                       role=killed.role.name))
+                        if self.missingmifia and random.randrange(1, 20) < 2:
+                            # Colpo mancato
+                            self.message(bot, s.mifia_target_missed.format(target=killed.tusername))
+                        else:
+                            # Uccisione riuscita
+                            killed.kill(bot, self)
+                            self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
+                                                                           icon=killed.role.icon,
+                                                                           role=killed.role.name))
                     else:
                         self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
                                                                           icon=killed.protectedby.role.icon,
@@ -739,6 +744,14 @@ def config(bot, update):
                         game.endconfig(bot)
                     elif cmd[1].lower() == 'unica':
                         game.votingmifia = True
+                        game.configstep += 1
+                    else:
+                        game.message(bot, s.error_invalid_config)
+                elif game.configstep == 7:
+                    if cmd[1].lower() == 'perfette':
+                        game.missingmifia = False
+                    elif cmd[1].lower() == 'mancare':
+                        game.missingmifia = True
                         game.endconfig(bot)
                     else:
                         game.message(bot, s.error_invalid_config)
