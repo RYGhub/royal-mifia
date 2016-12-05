@@ -237,7 +237,49 @@ class Derek(Role):
             self.deathwish.kill(bot, game)
 
 
-rolepriority = [Mifioso, Investigatore, Angelo, Derek, Terrorista]
+class Disastro(Role):
+    """L'investigatore sbadato investiga, ma giunge a conclusioni sbagliate..."""
+    icon = s.detective_icon
+    team = 'Good'
+    name = s.detective_name
+    powerdesc = s.detective_power_description
+    refillpoweruses = 1
+
+    def __init__(self):
+        super().__init__()
+        self.poweruses = self.refillpoweruses
+
+    def __repr__(self) -> str:
+        r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
+        return r
+
+    def power(self, bot, game, player, arg):
+        # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
+        if self.poweruses > 0:
+            target = game.findplayerbyusername(arg)
+            if target is not None:
+                self.poweruses -= 1
+                randomrole = random.sample(rolepriority, 1)[0]
+                player.message(bot, s.detective_discovery.format(target=target.tusername,
+                                                                 icon=randomrole.role.icon,
+                                                                 role=randomrole.role.name,
+                                                                 left=self.poweruses))
+            else:
+                player.message(bot, s.error_username)
+        else:
+            player.message(bot, s.error_no_uses)
+
+    def onendday(self, bot, game):
+        # Ripristina il potere
+        self.poweruses = self.refillpoweruses
+
+    def ondeath(self, bot, game, player):
+        game.message(bot, s.disaster_revealed.format(icon=s.disaster_icon,
+                                                     role=s.disaster_name,
+                                                     name=player.tusername))
+    
+    
+rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Royal]
 
 
 class Player:
