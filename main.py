@@ -757,8 +757,7 @@ def config(bot, update):
                 elif game.configstep == 7:
                     if cmd[1].lower() == 'perfette':
                         game.missingmifia = False
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
+                        game.endconfig(bot)
                     elif cmd[1].lower() == 'mancare':
                         game.missingmifia = True
                         game.configstep += 1
