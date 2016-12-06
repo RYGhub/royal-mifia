@@ -629,16 +629,20 @@ def join(bot, update):
         if game.phase == 'Join':
             p = game.findplayerbyid(update.message.from_user['id'])
             if p is None:
-                p = Player(update.message.from_user['id'], update.message.from_user['username'])
                 try:
-                    p.message(bot, s.you_joined.format(game=game.name))
-                except TelegramError:
-                    game.message(bot, s.error_chat_unavailable)
+                    p = Player(update.message.from_user['id'], update.message.from_user['username'])
+                except KeyError:
+                    game.message(bot, s.error_no_username)
                 else:
-                    game.message(bot, s.player_joined.format(name=p.tusername))
-                    if len(game.players) == 0:
-                        game.admin = p
-                    game.players.append(p)
+                    try:
+                        p.message(bot, s.you_joined.format(game=game.name))
+                    except TelegramError:
+                        game.message(bot, s.error_chat_unavailable)
+                    else:
+                        game.message(bot, s.player_joined.format(name=p.tusername))
+                        if len(game.players) == 0:
+                            game.admin = p
+                        game.players.append(p)
             else:
                 game.message(bot, s.error_player_already_joined)
         else:

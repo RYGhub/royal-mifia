@@ -256,6 +256,10 @@ error_invalid_config = "\U000026A0 Configurazione non valida."
 error_chat_unavailable = "\U000026A0 Non hai mai scritto un messaggio in chat privata a @mifiabot!\n" \
                          "Scrivigli nella chat privata `/start` e riprova."
 
+# Erorre: nessun username
+error_no_username = "\U000026A0 Non hai nessun username di Telegram!\n" \
+                    "Specificane uno nelle opzioni!"
+
 # Lista dei possibili nomi di una partita
 names_list = ["Cassata",
               "Cannoli",
