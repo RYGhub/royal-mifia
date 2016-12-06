@@ -329,6 +329,7 @@ class Game:
         self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
         self.votingmifia = False  # Seguire le regole originali della mifia che vota?
         self.missingmifia = False  # La mifia può fallire un'uccisione
+        self.misschance = 5  # Percentuale di fallimento di un'uccisione
 
         # Liste di ruoli in gioco, per velocizzare gli endday
         self.playersinrole = dict()
@@ -494,7 +495,7 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     if killed.protectedby is None:
-                        if self.missingmifia and random.randrange(1, 20) < 2:
+                        if self.missingmifia and random.randrange(0, 100) < self.misschance:
                             # Colpo mancato
                             self.message(bot, s.mifia_target_missed.format(target=killed.tusername))
                         else:
@@ -745,20 +746,36 @@ def config(bot, update):
                 elif game.configstep == 6:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
-                        game.endconfig(bot)
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
                     elif cmd[1].lower() == 'unica':
                         game.votingmifia = True
                         game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
                 elif game.configstep == 7:
                     if cmd[1].lower() == 'perfette':
                         game.missingmifia = False
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
                     elif cmd[1].lower() == 'mancare':
                         game.missingmifia = True
-                        game.endconfig(bot)
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
+                elif game.configstep == 8:
+                    try:
+                        miss = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        if miss < 100:
+                            game.misschance = miss
+                        else:
+                            game.misschance = 100
+                        game.endconfig(bot)
             else:
                 game.message(bot, s.config_list[game.configstep])
         else:
