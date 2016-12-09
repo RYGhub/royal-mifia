@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import pickle
 
-from telegram.ext import Updater, CommandHandler
-from telegram import ParseMode, TelegramError
+import math
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from telegram import ParseMode, TelegramError, InlineKeyboardButton, InlineKeyboardMarkup
 import filemanager
 import random
 import strings as s
@@ -331,7 +332,7 @@ class Game:
         self.admin = None  # ID telegram dell'utente che ha creato la partita con /newgame
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
-        self.phase = 'Join'  # Fase di gioco: 'Join', 'Config', 'Voting'
+        self.phase = 'Join'  # Fase di gioco: 'Join', 'Preset', 'Config', 'Voting'
         self.day = 0  # Numero del giorno. 0 se la partita deve ancora iniziare
 
         self.configstep = 0  # Passo attuale di configurazione
@@ -529,6 +530,76 @@ class Game:
         self.victoryconditions(bot)
         self.day += 1
 
+    def startpreset(self, bot):
+        """Inizio della fase di preset"""
+        self.phase = 'Preset'
+        # Crea la tastiera
+        kbmarkup = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton(s.preset_simple, callback_data="simple"),
+                InlineKeyboardButton(s.preset_classic, callback_data="classic"),
+                InlineKeyboardButton(s.preset_full, callback_data="full")
+            ],
+            [
+                InlineKeyboardButton(s.preset_custom, callback_data="custom")
+            ]
+        ])
+        # Manda la tastiera
+        bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
+
+    def loadpreset(self, bot, preset):
+        """Fine della fase di preset: carica il preset selezionato o passa a config"""
+        if preset == "simple":
+            # Preset semplice
+            self.roleconfig = {
+                "Mifioso":       math.floor(len(self.players) / 8) + 1,
+                "Investigatore": math.floor(len(self.players) / 12) + 1,
+                "Angelo":        0,
+                "Terrorista":    0,
+                "Derek":         0,
+                "Disastro":      0
+            }
+            self.votingmifia = True
+            self.missingmifia = False
+            self.endconfig(bot)
+        elif preset == "classic":
+            # Preset classico
+            self.roleconfig = {
+                "Mifioso":       math.floor(len(self.players) / 8) + 1,
+                "Investigatore": math.floor(len(self.players) / 12) + 1,
+                "Angelo":        math.floor(len(self.players) / 10) + 1,
+                "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,
+                "Derek":         0,
+                "Disastro":      0
+            }
+            self.votingmifia = True
+            self.missingmifia = False
+            self.endconfig(bot)
+        elif preset == "full":
+            # Preset completo
+            self.roleconfig = {
+                "Mifioso":       math.floor(len(self.players) / 8) + 1,
+                "Investigatore": math.floor(len(self.players) / 12) + 1,
+                "Angelo":        math.floor(len(self.players) / 10) + 1,
+                "Terrorista":    1 if random.randrange(0, 100) > 60 else 0,
+                "Derek":         1,
+                "Disastro":      math.floor(len(self.players) / 12) + 1
+            }
+            self.votingmifia = True
+            self.missingmifia = True
+            self.misschance = 5
+            self.endconfig(bot)
+        elif preset == "custom":
+            # Preset personalizzabile
+            self.startconfig(bot)
+
+    def startconfig(self, bot):
+        """Inizio della fase di config"""
+        self.phase = 'Config'
+        self.configstep = 0
+        self.message(bot, s.join_phase_ended)
+        self.message(bot, s.config_list[0])
+
     def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
         # Controlla che ci siano abbastanza giocatori per avviare la partita
@@ -709,10 +780,7 @@ def endjoin(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase == 'Join':
         if update.message.from_user['id'] == game.admin.tid:
-            # Inizio fase di configurazione
-            game.phase = 'Config'
-            game.message(bot, s.join_phase_ended)
-            game.message(bot, s.config_list[0])
+            game.startpreset(bot)
         else:
             game.message(bot, s.error_not_admin)
     else:
@@ -988,6 +1056,18 @@ def debuggameslist(bot, update):
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
+def selectpreset(bot, update):
+    """Seleziona un preset dalla tastiera."""
+    game = findgamebyid(update.callback_query.message.chat['id'])
+    if game is not None and game.phase is 'Preset':
+        if update.callback_query.from_user['id'] == game.admin.tid:
+            game.loadpreset(bot, update.callback_query.data)
+
+
+def handleerror(bot, update, error):
+    bot.sendMessage(update.message.chat['id'], error)
+
+
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
@@ -1006,6 +1086,8 @@ updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
+updater.dispatcher.add_handler(CallbackQueryHandler(selectpreset))
+updater.dispatcher.add_error_handler(handleerror)
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":

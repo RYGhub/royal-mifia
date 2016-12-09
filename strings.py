@@ -288,3 +288,18 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita?",
                "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?",
                "La mifia può `mancare` le uccisioni o i loro attacchi sono `perfetti`?",
                "Qual è la percentuale di attacchi falliti della mifia?"]
+
+# Scegli il preset
+preset_choose = "Seleziona un preset per la partita: "
+
+# Preset semplice
+preset_simple = "Semplice"
+
+# Preset classico
+preset_classic = "Classico"
+
+# Preset completo
+preset_full = "Completo"
+
+# Personalizza
+preset_custom = "Personalizzato"
