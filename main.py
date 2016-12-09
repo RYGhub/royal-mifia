@@ -607,8 +607,6 @@ class Game:
             requiredplayers += self.roleconfig[selectedrole]
         # Se non ce ne sono abbastanza, torna alla fase di join
         if requiredplayers > len(self.players):
-            self.phase = 'Join'
-            self.configstep = 0
             self.message(bot, s.error_not_enough_players)
         else:
             self.phase = 'Voting'
