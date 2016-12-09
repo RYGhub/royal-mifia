@@ -329,6 +329,7 @@ class Game:
         self.players = list()  # Lista dei giocatori in partita
         self.tokill = list()  # Giocatori che verranno uccisi all'endday
         self.phase = 'Join'  # Fase di gioco: 'Join', 'Config', 'Voting'
+        self.day = 0  # Numero del giorno. 0 se la partita deve ancora iniziare
 
         self.configstep = 0  # Passo attuale di configurazione
         self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
@@ -523,6 +524,7 @@ class Game:
             player.votingfor = None
         # Controlla se qualcuno ha vinto
         self.victoryconditions(bot)
+        self.day += 1
 
     def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
@@ -537,6 +539,7 @@ class Game:
             self.message(bot, s.error_not_enough_players)
         else:
             self.phase = 'Voting'
+            self.day += 1
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
 
@@ -669,10 +672,13 @@ def status(bot, update):
         for player in game.players:
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
-            else:
+            elif game.day > 1:
                 text += s.status_alive_player.format(icon="\U0001F610",
                                                      name=player.tusername,
                                                      votes=str(player.votes))
+            else:
+                text += s.status_basic_player.format(icon="\U0001F610",
+                                                     name=player.tusername)
         game.message(bot, text)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
@@ -790,23 +796,32 @@ def config(bot, update):
 
 def vote(bot, update):
     """Vota per uccidere una persona."""
+    # Trova la partita
     game = findgamebyid(update.message.chat['id'])
-    if game is not None and game.phase is 'Voting':
-        player = game.findplayerbyid(update.message.from_user['id'])
-        if player is not None:
-            if player.alive:
-                target = game.findplayerbyusername(update.message.text.split(' ')[1])
-                if target is not None:
-                    player.votingfor = target
-                    game.message(bot, s.vote.format(voted=target.tusername))
-                else:
-                    game.message(bot, s.error_username)
-            else:
-                game.message(bot, s.error_dead)
-        else:
-            game.message(bot, s.error_not_in_game)
-    else:
+    if game is None:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        return
+    elif game.phase is not 'Voting':
+        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        return
+    elif game.day <= 1:
+        game.message(bot, s.error_no_votes_on_first_day)
+        return
+    # Trova il giocatore
+    player = game.findplayerbyid(update.message.from_user['id'])
+    if player is None:
+        game.message(bot, s.error_not_in_game)
+        return
+    if not player.alive:
+        game.message(bot, s.error_dead)
+        return
+    # Trova il bersaglio
+    target = game.findplayerbyusername(update.message.text.split(' ')[1])
+    if target is None:
+        game.message(bot, s.error_username)
+        return
+    player.votingfor = target
+    game.message(bot, s.vote.format(voted=target.tusername))
 
 
 def endday(bot, update):

@@ -194,6 +194,9 @@ status_header = "*ID:* {name}\n" \
                 "*Fase:* {phase}\n" \
                 "*Giocatori partecipanti:*\n" 
 
+# Status: giocatore vivo durante la prima giornata / fase di join (deve terminare con \n)
+status_basic_player = "{icon} @{name}\n"
+
 # Status: giocatore vivo (deve terminare con \n)
 status_alive_player = "{icon} @{name} ({votes} voti)\n"
 
@@ -259,6 +262,9 @@ error_chat_unavailable = "\U000026A0 Non hai mai scritto un messaggio in chat pr
 # Erorre: nessun username
 error_no_username = "\U000026A0 Non hai nessun username di Telegram!\n" \
                     "Specificane uno nelle opzioni!"
+
+# Errore: non si può votare nella prima giornata
+error_no_votes_on_first_day = "\U000026A0 I Royal non votano nella prima giornata, dato che non si sono ancora verificati omicidii."
 
 # Lista dei possibili nomi di una partita
 names_list = ["Cassata",
