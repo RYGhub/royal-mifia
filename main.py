@@ -660,6 +660,22 @@ def join(bot, update):
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
+def debugjoin(bot, update):
+    """Aggiungi un bot alla partita."""
+    if __debug__:
+        game = findgamebyid(update.message.chat['id'])
+        if game is not None:
+            if game.phase == 'Join':
+                arg = update.message.text.split(" ")
+                p = Player(random.randrange(0, 10000), arg[1])
+                game.message(bot, s.player_joined.format(name=p.tusername))
+                game.players.append(p)
+            else:
+                game.message(bot, s.error_join_phase_ended)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+
+
 def status(bot, update):
     """Visualizza lo stato della partita."""
     game = findgamebyid(update.message.chat['id'])
@@ -971,6 +987,7 @@ def debuggameslist(bot, update):
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
+updater.dispatcher.add_handler(CommandHandler('debugjoin', debugjoin))
 updater.dispatcher.add_handler(CommandHandler('endjoin', endjoin))
 updater.dispatcher.add_handler(CommandHandler('vote', vote))
 updater.dispatcher.add_handler(CommandHandler('endday', endday))
