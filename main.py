@@ -293,7 +293,7 @@ rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista]
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
        e i dati riguardanti telegram, come ID e username."""
-    def __init__(self, tid, tusername):
+    def __init__(self, tid, tusername, dummy=False):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
         self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
@@ -302,6 +302,7 @@ class Player:
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
+        self.dummy = dummy  # E' un bot?
 
     def __repr__(self) -> str:
         r = "<Player {username}>".format(username=self.tusername)
@@ -309,10 +310,12 @@ class Player:
 
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
-        try:
-            bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
-        except TelegramError:
-            pass
+        if not self.dummy:
+            try:
+                bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+            except TelegramError:
+                pass
+
 
     def kill(self, bot, game):
         """Uccidi il giocatore."""
@@ -485,7 +488,7 @@ class Game:
                                                           role=lynched.role.name))
                 self.lastlynch = lynched
                 lynched.kill(bot, self)
-        else:
+        elif self.day > 1:
             self.message(bot, s.no_players_lynched)
         # Fai gli endday in un certo ordine.
         # Si potrebbe fare più velocemente, credo.
@@ -667,7 +670,7 @@ def debugjoin(bot, update):
         if game is not None:
             if game.phase == 'Join':
                 arg = update.message.text.split(" ")
-                p = Player(random.randrange(0, 10000), arg[1])
+                p = Player(random.randrange(0, 10000), arg[1], True)
                 game.message(bot, s.player_joined.format(name=p.tusername))
                 game.players.append(p)
             else:
@@ -680,9 +683,10 @@ def status(bot, update):
     """Visualizza lo stato della partita."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
-        text = s.status_header.format(name=game.name, admin=game.admin.tusername, phase=game.phase)
+        text = str()
         if __debug__:
             text += s.debug_mode
+        text += s.status_header.format(name=game.name, admin=game.admin.tusername, phase=game.phase)
         game.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
