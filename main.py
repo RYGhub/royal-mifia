@@ -597,7 +597,6 @@ class Game:
         """Inizio della fase di config"""
         self.phase = 'Config'
         self.configstep = 0
-        self.message(bot, s.join_phase_ended)
         self.message(bot, s.config_list[0])
 
     def endconfig(self, bot):
@@ -780,6 +779,7 @@ def endjoin(bot, update):
     game = findgamebyid(update.message.chat['id'])
     if game is not None and game.phase == 'Join':
         if update.message.from_user['id'] == game.admin.tid:
+            game.message(bot, s.join_phase_ended)
             game.startpreset(bot)
         else:
             game.message(bot, s.error_not_admin)
