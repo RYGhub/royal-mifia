@@ -297,6 +297,7 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita?",
                "Quanti *Terroristi* devono essere nella partita?",
                "Quanti *Derek* devono essere nella partita?",
                "Quanti *Disastri* devono essere nella partita?",
+               "Quante *Mamme* devono essere nella partita?",
                "I mifiosi possono uccidere una persona a `testa` al giorno "
                "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?",
                "La mifia può `mancare` le uccisioni o i loro attacchi sono `perfetti`?",

@@ -871,6 +871,14 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 6:
+                    try:
+                        game.roleconfig["Mamma"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 7:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
                         game.configstep += 1
@@ -881,7 +889,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
-                elif game.configstep == 7:
+                elif game.configstep == 8:
                     if cmd[1].lower() == 'perfette':
                         game.missingmifia = False
                         game.endconfig(bot)
@@ -891,7 +899,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
-                elif game.configstep == 8:
+                elif game.configstep == 9:
                     try:
                         miss = int(cmd[1])
                     except ValueError:
