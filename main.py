@@ -1094,7 +1094,11 @@ def selectpreset(bot, update):
 
 
 def handleerror(bot, update, error):
-    bot.sendMessage(update.message.chat['id'], error)
+    try:
+        bot.sendMessage(update.message.chat['id'], error)
+    except AttributeError:
+        # Magari invece che pass are questo si potrebbe mandare un msg di debug o roba del genere
+        pass
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
