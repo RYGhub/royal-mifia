@@ -304,10 +304,12 @@ class Mamma(Role):
         return r
 
     def onstartgame(self, bot, game):
-        target = random.sample(game.players, 1)[0]
-        self.player.message(bot, s.mom_discovery.format(target=target.tusername,
-                                                        icon=target.role.icon,
-                                                        role=target.role.name))
+        target = None
+        while target != self.player:
+            target = random.sample(game.players, 1)[0]
+            self.player.message(bot, s.mom_discovery.format(target=target.tusername,
+                                                            icon=target.role.icon,
+                                                            role=target.role.name))
 
 
 
