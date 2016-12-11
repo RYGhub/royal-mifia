@@ -304,8 +304,8 @@ class Mamma(Role):
         return r
 
     def onstartgame(self, bot, game):
-        target = None
-        while target != self.player:
+        target = self.player
+        while target == self.player:
             target = random.sample(game.players, 1)[0]
             self.player.message(bot, s.mom_discovery.format(target=target.tusername,
                                                             icon=target.role.icon,
