@@ -47,6 +47,10 @@ class Role:
         """Metodo chiamato alla morte del giocatore."""
         pass
 
+    def onstartgame(self, bot, game):
+        """Metodo chiamato all'inizio della partita."""
+        pass
+
 
 class Royal(Role):
     """Un membro della Royal Games. Il ruolo principale, non ha alcun potere se non quello di votare."""
@@ -286,9 +290,28 @@ class Disastro(Role):
     def ondeath(self, bot, game):
         self.icon = s.disaster_icon
         self.name = s.disaster_name
-    
-    
-rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista]
+
+
+class Mamma(Role):
+    """La mamma sente i pettegolezzi in giro per la città e inizia conoscendo un ruolo a caso..."""
+    icon = s.mom_icon
+    team = 'Good'
+    name = s.mom_name
+    powerdesc = s.mom_power_description
+
+    def __repr__(self) -> str:
+        r = "<Role: Mamma>"
+        return r
+
+    def onstartgame(self, bot, game):
+        target = random.sample(game.players, 1)[0]
+        self.player.message(bot, s.mom_discovery.format(target=target.tusername,
+                                                        icon=target.role.icon,
+                                                        role=target.role.name))
+
+
+
+rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
 
 
 class Player:
@@ -325,7 +348,7 @@ class Player:
 
 
 class Game:
-    """Classe di una partita, contenente parametri riguardanti stato della partita 
+    """Classe di una partita, contenente parametri riguardanti stato della partita
        e informazioni sul gruppo di Telegram."""
     def __init__(self, groupid):
         self.groupid = groupid  # ID del gruppo in cui si sta svolgendo una partita
@@ -557,7 +580,8 @@ class Game:
                 "Angelo":        0,
                 "Terrorista":    0,
                 "Derek":         0,
-                "Disastro":      0
+                "Disastro":      0,
+                "Mamma":         0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -570,7 +594,8 @@ class Game:
                 "Angelo":        math.floor(len(self.players) / 10) + 1,
                 "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,
                 "Derek":         0,
-                "Disastro":      0
+                "Disastro":      0,
+                "Mamma":         0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -579,11 +604,12 @@ class Game:
             # Preset completo
             self.roleconfig = {
                 "Mifioso":       math.floor(len(self.players) / 8) + 1,
-                "Investigatore": math.floor(len(self.players) / 12) + 1,
-                "Angelo":        math.floor(len(self.players) / 10) + 1,
-                "Terrorista":    1 if random.randrange(0, 100) > 60 else 0,
-                "Derek":         1,
-                "Disastro":      math.floor(len(self.players) / 12) + 1
+                "Investigatore": math.floor(len(self.players) / 8) + 1,
+                "Angelo":        math.floor(len(self.players) / 8) + 1,
+                "Terrorista":    math.floor(len(self.players) / 8) + 1,
+                "Derek":         math.floor(len(self.players) / 8) + 1,
+                "Disastro":      math.floor(len(self.players) / 8) + 1,
+                "Mamma":         math.floor(len(self.players) / 8) + 1
             }
             self.votingmifia = True
             self.missingmifia = True
@@ -613,6 +639,8 @@ class Game:
             self.day += 1
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
+            for player in self.players:
+                player.role.onstartgame(bot, self)
 
     def endgame(self):
         inprogress.remove(self)
@@ -1059,6 +1087,9 @@ def selectpreset(bot, update):
     game = findgamebyid(update.callback_query.message.chat['id'])
     if game is not None and game.phase is 'Preset':
         if update.callback_query.from_user['id'] == game.admin.tid:
+            bot.editMessageText(text=s.preset_selected.format(selected=update.callback_query.data),
+                                chat_id=update.callback_query.message.chat['id'],
+                                message_id=update.callback_query.message['id'])
             game.loadpreset(bot, update.callback_query.data)
 
 

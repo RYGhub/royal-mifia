@@ -104,13 +104,26 @@ derek_deathwish_set = "*Morirai* alla fine di questo giorno."
 derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
 
 # Derek: morte
-derek_deathwish_successful = "SPOILER: alla fine di questa giornata {icon} {role} (@{name}) muore.\n"
+derek_deathwish_successful = "SPOILER: alla fine di questa giornata *{icon} {role}* (@{name}) muore schiacciato da un container.\n"
 
 # Disastro: icona
 disaster_icon = "\U0001F913"
 
 # Disastro: nome ruolo
 disaster_name = "Disastro"
+
+# Mamma: icona
+mom_icon = "\U0001F917"
+
+# Mamma: nome ruolo
+mom_name = "Mamma"
+
+# Mamma: descrizione del potere
+mom_power_description = "All'inizio della partita scoprirai il ruolo di un giocatore casuale.\n" \
+                        "Usalo per sapere di chi (non) fidarti!\n"
+
+# Mamma: scoperta di un ruolo
+mom_discovery = "@{target} è un *{icon} {role}*.\n" \
 
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
@@ -291,9 +304,9 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita?",
 
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*\n" \
-                "`Semplice`: solo royal, mifia e investigatori e niente meccaniche avanzate. _(minimo 2 giocatori)_\n" \
+                "`Semplice`: solo royal, mifia e investigatori e niente meccaniche avanzate. _(minimo 3 giocatori)_\n" \
                 "`Classico`: royal, mifia, investigatori, angeli e la comparsa casuale di un terrorista! _(minimo 4 giocatori)_\n" \
-                "`Completo`: tutti i ruoli e le meccaniche nuove! _(minimo 6 giocatori)_\n" \
+                "`Completo`: tutti i ruoli e le meccaniche nuove! _(minimo 7 giocatori)_\n" \
                 "`Personalizzato`: scegli tu i ruoli e le meccaniche che vuoi in partita!"
 
 # Preset semplice
@@ -307,3 +320,6 @@ preset_full = "Completo"
 
 # Personalizza
 preset_custom = "Personalizzato"
+
+# Preset selezionato
+preset_selected = "Preset selezionato: {selected}"
