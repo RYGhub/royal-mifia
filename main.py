@@ -1089,7 +1089,7 @@ def selectpreset(bot, update):
         if update.callback_query.from_user['id'] == game.admin.tid:
             bot.editMessageText(text=s.preset_selected.format(selected=update.callback_query.data),
                                 chat_id=update.callback_query.message.chat['id'],
-                                message_id=update.callback_query.message['id'])
+                                message_id=update.callback_query.id)
             game.loadpreset(bot, update.callback_query.data)
 
 
