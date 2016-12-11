@@ -604,12 +604,12 @@ class Game:
             # Preset completo
             self.roleconfig = {
                 "Mifioso":       math.floor(len(self.players) / 8) + 1,
-                "Investigatore": math.floor(len(self.players) / 8) + 1,
-                "Angelo":        math.floor(len(self.players) / 8) + 1,
-                "Terrorista":    math.floor(len(self.players) / 8) + 1,
-                "Derek":         math.floor(len(self.players) / 8) + 1,
-                "Disastro":      math.floor(len(self.players) / 8) + 1,
-                "Mamma":         math.floor(len(self.players) / 8) + 1
+                "Investigatore": math.floor(len(self.players) / 9) + 1,
+                "Angelo":        math.floor(len(self.players) / 10) + 1,
+                "Terrorista":    math.floor(len(self.players) / 11) + 1,
+                "Derek":         math.floor(len(self.players) / 12) + 1,
+                "Disastro":      math.floor(len(self.players) / 13) + 1,
+                "Mamma":         math.floor(len(self.players) / 14) + 1
             }
             self.votingmifia = True
             self.missingmifia = True
@@ -1087,9 +1087,6 @@ def selectpreset(bot, update):
     game = findgamebyid(update.callback_query.message.chat['id'])
     if game is not None and game.phase is 'Preset':
         if update.callback_query.from_user['id'] == game.admin.tid:
-            bot.editMessageText(text=s.preset_selected.format(selected=update.callback_query.data),
-                                chat_id=update.callback_query.message.chat['id'],
-                                message_id=update.callback_query.id)
             game.loadpreset(bot, update.callback_query.data)
 
 
