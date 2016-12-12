@@ -312,7 +312,6 @@ class Mamma(Role):
                                                             role=target.role.name))
 
 
-
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
 
 
@@ -890,7 +889,7 @@ def config(bot, update):
                     else:
                         game.message(bot, s.error_invalid_config)
                 elif game.configstep == 8:
-                    if cmd[1].lower() == 'perfette':
+                    if cmd[1].lower() == 'perfetti':
                         game.missingmifia = False
                         game.endconfig(bot)
                     elif cmd[1].lower() == 'mancare':
