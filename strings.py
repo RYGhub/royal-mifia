@@ -25,7 +25,7 @@ mifia_target_killed = "@{target} è stato ucciso dalla Mifia.\n" \
 mifia_target_protected = "@{target} è stato protetto dalla Mifia da {icon} @{protectedby}!"
 
 # Mifioso: descrizione del potere
-mifia_power_description = "Puoi selezionare come bersaglio di un'assassinio una personas.\n" \
+mifia_power_description = "Puoi selezionare come bersaglio di un'assassinio una persona.\n" \
                           "Per selezionare un bersaglio, scrivi in questa chat:\n" \
                           "`/power {gamename} nomeutentebersaglio`\n" \
                           "Alla fine del giorno, tutti i bersagli dei Mifiosi saranno eliminati!\n"
