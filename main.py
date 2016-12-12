@@ -245,9 +245,7 @@ class Derek(Role):
 
     def onendday(self, bot, game):
         if self.deathwish is not None:
-            game.message(bot, s.derek_deathwish_successful.format(icon=s.derek_icon,
-                                                                  role=s.derek_name,
-                                                                  name=self.deathwish.tusername))
+            game.message(bot, s.derek_deathwish_successful.format(name=self.deathwish.tusername))
             self.deathwish.kill(bot, game)
 
 
