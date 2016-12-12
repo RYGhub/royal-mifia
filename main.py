@@ -228,7 +228,7 @@ class Derek(Role):
     def __init__(self, player):
         super().__init__(player)
         # Per qualche motivo assurdo ho deciso di tenere l'oggetto Player qui
-        self.deathwish = None
+        self.deathwish = False
 
     def __repr__(self) -> str:
         r = "<Role: Derek>"
@@ -236,17 +236,17 @@ class Derek(Role):
 
     def power(self, bot, game, arg):
         # Attiva / disattiva la morte alla fine del round
-        if self.deathwish is not None:
-            self.deathwish = None
+        if self.deathwish:
+            self.deathwish = False
             self.player.message(bot, s.derek_deathwish_unset)
         else:
-            self.deathwish = self.player
+            self.deathwish = True
             self.player.message(bot, s.derek_deathwish_set)
 
     def onendday(self, bot, game):
-        if self.deathwish is not None:
-            game.message(bot, s.derek_deathwish_successful.format(name=self.deathwish.tusername))
-            self.deathwish.kill(bot, game)
+        if self.deathwish:
+            game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
+            self.player.kill(bot, game)
 
 
 class Disastro(Role):
