@@ -8,9 +8,6 @@ royal_icon = "\U0001F610"
 # Royal: nome ruolo
 royal_name = "Royal"
 
-# Royal: come giocare
-royal_help = "I Royal non hanno alcun potere speciale."
-
 # Mifioso: icona
 mifia_icon = "\U0001F47F"
 

@@ -302,12 +302,14 @@ class Mamma(Role):
         return r
 
     def onstartgame(self, bot, game):
-        target = self.player
-        while target == self.player:
+        while True:
             target = random.sample(game.players, 1)[0]
+            if target == self.player:
+                continue
             self.player.message(bot, s.mom_discovery.format(target=target.tusername,
                                                             icon=target.role.icon,
                                                             role=target.role.name))
+            break
 
 
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
