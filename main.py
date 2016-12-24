@@ -961,7 +961,10 @@ def power(bot, update):
         game = findgamebyname(cmd[1])
         # Se non lo trovi con il nome, prova con l'id
         if game is None:
-            game = findgamebyid(int(cmd[1]))
+            try:
+                game = findgamebyid(int(cmd[1]))
+            except ValueError:
+                pass
         if game is not None:
             player = game.findplayerbyid(int(update.message.from_user['id']))
             if player is not None:
