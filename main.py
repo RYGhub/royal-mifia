@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
+import datetime
 import pickle
 
 import math
@@ -311,7 +312,7 @@ class Mamma(Role):
                                                             role=target.role.name))
             break
 
-
+# Ordine in cui vengono eseguiti i onendday dei vari ruoli.
 rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
 
 
@@ -327,7 +328,8 @@ class Player:
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
-        self.dummy = dummy  # E' un bot?
+        if __debug__:
+            self.dummy = dummy  # E' un bot?
 
     def __repr__(self) -> str:
         r = "<Player {username}>".format(username=self.tusername)
@@ -500,6 +502,8 @@ class Game:
 
     def endday(self, bot):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
+        # SALVA LA PARTITA, così se crasha si riprende da qui
+        self.save()
         # Conta i voti ed elimina il più votato.
         topvotes = self.mostvotedplayer()
         if len(topvotes) > 0:
@@ -576,8 +580,8 @@ class Game:
         if preset == "simple":
             # Preset semplice
             self.roleconfig = {
-                "Mifioso":       math.floor(len(self.players) / 8) + 1,
-                "Investigatore": math.floor(len(self.players) / 12) + 1,
+                "Mifioso":       math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
+                "Investigatore": math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
                 "Angelo":        0,
                 "Terrorista":    0,
                 "Derek":         0,
@@ -590,10 +594,10 @@ class Game:
         elif preset == "classic":
             # Preset classico
             self.roleconfig = {
-                "Mifioso":       math.floor(len(self.players) / 8) + 1,
-                "Investigatore": math.floor(len(self.players) / 12) + 1,
-                "Angelo":        math.floor(len(self.players) / 10) + 1,
-                "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,
+                "Mifioso":       math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
+                "Investigatore": math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
+                "Angelo":        math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
+                "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,  # 30% di avere un terrorista
                 "Derek":         0,
                 "Disastro":      0,
                 "Mamma":         0
@@ -604,6 +608,7 @@ class Game:
         elif preset == "full":
             # Preset completo
             self.roleconfig = {
+                # 1 di ogni ruolo
                 "Mifioso":       math.floor(len(self.players) / 8) + 1,
                 "Investigatore": math.floor(len(self.players) / 9) + 1,
                 "Angelo":        math.floor(len(self.players) / 10) + 1,
@@ -656,6 +661,19 @@ class Game:
             file.close()
         # Scrivi sul file.
         file = open(str(self.groupid) + ".p", 'wb')
+        pickle.dump(self, file)
+        file.close()
+        # Crea un file uguale ma con un timestamp
+        # Non sono troppo sicuro che il timestamp si faccia così
+        t = datetime.datetime(0,0,0,0,0).now()
+        try:
+            file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'x')
+        except FileExistsError:
+            pass
+        else:
+            file.close()
+        # Scrivi sul file.
+        file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'wb')
         pickle.dump(self, file)
         file.close()
 
@@ -969,7 +987,10 @@ def power(bot, update):
             player = game.findplayerbyid(int(update.message.from_user['id']))
             if player is not None:
                 if player.alive:
-                    player.role.power(bot, game, cmd[2])
+                    if len(cmd) > 2:
+                        player.role.power(bot, game, cmd[2])
+                    else:
+                        player.message(bot, s.error_missing_parameters)
                 else:
                     player.message(bot, s.error_dead)
             else:

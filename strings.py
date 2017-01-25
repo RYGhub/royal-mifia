@@ -279,6 +279,10 @@ error_no_username = "\U000026A0 Non hai nessun username di Telegram!\n" \
 # Errore: non si può votare nella prima giornata
 error_no_votes_on_first_day = "\U000026A0 I Royal non votano nella prima giornata, dato che non si sono ancora verificati omicidii."
 
+# Errore: mancano dei parametri nel comando
+error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
+                           "Controlla la sintassi del comando e riprova."
+
 # Lista dei possibili nomi di una partita
 names_list = ["Cassata",
               "Cannoli",
