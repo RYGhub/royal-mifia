@@ -1124,6 +1124,7 @@ def selectpreset(bot, update):
 
 
 def handleerror(bot, update, error):
+    print("Error: " + error)
     try:
         bot.sendMessage(update.message.chat['id'], error)
     except AttributeError:
