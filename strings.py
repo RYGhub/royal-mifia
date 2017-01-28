@@ -125,21 +125,23 @@ mom_power_description = "All'inizio della partita scoprirai il ruolo di un gioca
 # Mamma: scoperta di un ruolo
 mom_discovery = "@{target} è un *{icon} {role}*.\n" \
 
-#TODO: Mettere qualcosa qui
 # Stagista: icona
-intern_icon = "intern_icon"
+intern_icon = "\U0001F913"
 
 # Stagista: nome ruolo
 intern_name = "Stagista"
 
 # Stagista: descrizione del potere
-intern_power_description = "intern_power_description"
+intern_power_description = "In qualsiasi momento della partita puoi scegliere un altro giocatore.\n" \
+                           "Il tuo ruolo diventerà uguale al suo.\n" \
+                           "Ricordati che, qualsiasi cosa succeda, è sempre colpa dello stagista, cioè tua!"
 
+# TODO: si dice in stage?
 # Stagista: inizia lo stage
-intern_started_internship = "intern_started_internship"
+intern_started_internship = "Stai andando in stage da @{master}."
 
 # Stagista: cambiato ruolo
-intern_changed_role = "intern_changed_role"
+intern_changed_role = "Lo stagista ha finito il tirocinio ed ha imparato i segreti del mestiere di *{icon} {role}*."
 
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
@@ -176,7 +178,7 @@ mifia_team_intro = "I mifiosi in questa partita sono:\n"
 mifia_team_player = "{icon} {name}\n"
 
 # Generale: votazione completata
-vote = "Hai votato per uccidere @{voted}."
+vote = "@{voting} ha votato per uccidere @{voted}."
 
 # Generale: un admin ha ucciso un giocatore con /kill
 admin_killed = "{name} è morto _di infarto_.\n" \
@@ -185,6 +187,9 @@ admin_killed = "{name} è morto _di infarto_.\n" \
 # Generale: inviato messaggio in chat privata
 check_private = "Messaggio inviato in chat privata.\n" \
                 "Controlla @mifiabot."
+
+# Generale: partita salvata
+game_saved = "Partita salvata su file."
 
 # Generale: partita caricata
 game_loaded = "Partita caricata da file."

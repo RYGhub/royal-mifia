@@ -329,16 +329,16 @@ class Stagista(Role):
 
     def power(self, bot, game, arg):
         target = game.findplayerbyusername(arg)
-        if target is not None and target is not self.player:
+        if target is not None and target is not self.player and target.alive:
             self.master = target
-            self.player.message(bot, s.intern_started_internship)
+            self.player.message(bot, s.intern_started_internship.format(master=self.master.tusername))
         else:
             self.player.message(bot, s.error_no_username)
 
     def onendday(self, bot, game):
         if self.master is not None:
             if self.master.alive:
-                game.message(bot, s.intern_changed_role)
+                game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
                 game.changerole(self.player, self.master.role.__class__)
             else:
                 game.message(bot, "easter egg. yey")
@@ -373,7 +373,7 @@ class Player:
         if not self.dummy:
             try:
                 bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
-            except TelegramError:
+            except TelegramError as t:
                 pass
 
 
@@ -452,7 +452,7 @@ class Game:
     def findplayerbyusername(self, tusername) -> Player:
         """Trova il giocatore con un certo username."""
         for player in self.players:
-            if player.tusername.lower() == tusername.lower():
+            if player.tusername.lower() == tusername.strip("@").lower():
                 return player
         else:
             return None
@@ -536,7 +536,7 @@ class Game:
     def endday(self, bot):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
         # SALVA LA PARTITA, così se crasha si riprende da qui
-        self.save()
+        self.save(bot)
         # Conta i voti ed elimina il più votato.
         topvotes = self.mostvotedplayer()
         if len(topvotes) > 0:
@@ -625,6 +625,7 @@ class Game:
             self.votingmifia = True
             self.missingmifia = False
             self.endconfig(bot)
+            self.message(bot, "Utilizzo il preset di debug (uno di ogni ruolo)")
         elif preset == "simple":
             # Preset semplice
             self.roleconfig = {
@@ -702,7 +703,7 @@ class Game:
     def endgame(self):
         inprogress.remove(self)
 
-    def save(self):
+    def save(self, bot):
         # Crea il file.
         try:
             file = open(str(self.groupid) + ".p", 'x')
@@ -715,8 +716,8 @@ class Game:
         pickle.dump(self, file)
         file.close()
         # Crea un file uguale ma con un timestamp
-        # Non sono troppo sicuro che il timestamp si faccia così
-        t = datetime.datetime(0,0,0,0,0).now()
+        # Non sono troppo sicuro che il timestamp si faccia così però funziona
+        t = datetime.datetime(2000,1,1,1,1).now()
         try:
             file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'x')
         except FileExistsError:
@@ -726,6 +727,7 @@ class Game:
         # Scrivi sul file.
         file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'wb')
         pickle.dump(self, file)
+        self.message(bot, s.game_saved)
         file.close()
 
     def victoryconditions(self, bot):
@@ -763,9 +765,10 @@ class Game:
 
     def changerole(self, player, newrole):
         """Cambia il ruolo di un giocatore, aggiornando tutti i valori"""
-        self.playersinrole[player.role].remove(player)
+        if player.role.__class__ != Royal:
+            self.playersinrole[player.role.__class__.__name__].remove(player)
         player.role = newrole(player)
-        self.playersinrole[newrole].append(player)
+        self.playersinrole[newrole.__name__].append(player)
         # TODO: controllare se basta fare così
 
 
@@ -1021,7 +1024,7 @@ def vote(bot, update):
         game.message(bot, s.error_username)
         return
     player.votingfor = target
-    game.message(bot, s.vote.format(voted=target.tusername))
+    game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
 
 
 def endday(bot, update):
@@ -1139,7 +1142,7 @@ def save(bot, update):
     """Salva una partita su file."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
-        game.save()
+        game.save(bot)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -1149,21 +1152,28 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
         if game is not None:
-            if game.admin.tid == update.message.from_user['id']:
-                text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
-                game.updatevotes()
-                # Aggiungi l'elenco dei giocatori
-                for player in game.players:
-                    if not player.alive:
-                        text += s.status_dead_player.format(name=player.tusername)
-                    else:
-                        text += s.status_alive_player.format(icon=player.role.icon,
-                                                             name=player.tusername,
-                                                             votes=str(player.votes))
-                game.adminmessage(bot, text)
-                game.message(bot, s.check_private)
-            else:
-                game.message(bot, s.error_not_admin)
+            text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
+            game.updatevotes()
+            # Aggiungi l'elenco dei giocatori
+            for player in game.players:
+                if not player.alive:
+                    text += s.status_dead_player.format(name=player.tusername)
+                else:
+                    text += s.status_alive_player.format(icon=player.role.icon,
+                                                         name=player.tusername,
+                                                         votes=str(player.votes))
+            game.message(bot, text)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+
+
+def debugchangerole(bot, update):
+    """Cambia il ruolo a un giocatore."""
+    if __debug__:
+        game = findgamebyid(update.message.chat['id'])
+        if game is not None:
+            cmd = update.message.text.split(' ', 2)
+            game.changerole(game.findplayerbyusername(cmd[1]), globals()[cmd[2]])
         else:
             bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -1209,6 +1219,7 @@ updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
+updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
 updater.dispatcher.add_handler(CallbackQueryHandler(selectpreset))
 updater.dispatcher.add_error_handler(handleerror)
 updater.start_polling()
