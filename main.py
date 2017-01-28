@@ -176,7 +176,7 @@ class Angelo(Role):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if selected is not None:
-            if selected is not Player:
+            if selected is not Player:  # TODO: cavolo ho scritto qui?
                 # Togli la protezione a quello che stavi proteggendo prima
                 if self.protecting is not None:
                     self.protecting.protectedby = None
@@ -312,8 +312,41 @@ class Mamma(Role):
                                                             role=target.role.name))
             break
 
+
+class Stagista(Role):
+    """Lo stagista sceglie una persona da cui andare in stage e prende il suo ruolo."""
+    icon = s.intern_icon
+    team = 'Good'
+    name = s.intern_name
+    powerdesc = s.intern_power_description
+
+    def __init__(self, player):
+        super().__init__(player)
+        self.master = None
+
+    def __repr__(self) -> str:
+        return "<Role: Stagista>"
+
+    def power(self, bot, game, arg):
+        target = game.findplayerbyusername(arg)
+        if target is not None and target is not self.player:
+            self.master = target
+            self.player.message(bot, s.intern_started_internship)
+        else:
+            self.player.message(bot, s.error_no_username)
+
+    def onendday(self, bot, game):
+        if self.master is not None:
+            if self.master.alive:
+                game.message(bot, s.intern_changed_role)
+                game.changerole(self.player, self.master.role.__class__)
+            else:
+                game.message(bot, "easter egg. yey")
+                #TODO: mettere l'easter egg
+
+
 # Ordine in cui vengono eseguiti i onendday dei vari ruoli.
-rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
+rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Stagista, Terrorista, Mamma]
 
 
 class Player:
@@ -577,7 +610,22 @@ class Game:
 
     def loadpreset(self, bot, preset):
         """Fine della fase di preset: carica il preset selezionato o passa a config"""
-        if preset == "simple":
+        if __debug__:
+            # Debug dello stagista
+            self.roleconfig = {
+                "Mifioso":       1,
+                "Investigatore": 1,
+                "Angelo":        1,
+                "Terrorista":    1,
+                "Derek":         1,
+                "Disastro":      1,
+                "Mamma":         1,
+                "Stagista":      1
+            }
+            self.votingmifia = True
+            self.missingmifia = False
+            self.endconfig(bot)
+        elif preset == "simple":
             # Preset semplice
             self.roleconfig = {
                 "Mifioso":       math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
@@ -586,7 +634,8 @@ class Game:
                 "Terrorista":    0,
                 "Derek":         0,
                 "Disastro":      0,
-                "Mamma":         0
+                "Mamma":         0,
+                "Stagista":      0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -600,7 +649,8 @@ class Game:
                 "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,  # 30% di avere un terrorista
                 "Derek":         0,
                 "Disastro":      0,
-                "Mamma":         0
+                "Mamma":         0,
+                "Stagista":      0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -615,7 +665,8 @@ class Game:
                 "Terrorista":    math.floor(len(self.players) / 11) + 1,
                 "Derek":         math.floor(len(self.players) / 12) + 1,
                 "Disastro":      math.floor(len(self.players) / 13) + 1,
-                "Mamma":         math.floor(len(self.players) / 14) + 1
+                "Mamma":         math.floor(len(self.players) / 14) + 1,
+                "Stagista":      0
             }
             self.votingmifia = True
             self.missingmifia = True
@@ -678,7 +729,7 @@ class Game:
         file.close()
 
     def victoryconditions(self, bot):
-        # Condizioni di vittoria
+        """Controlla se qualcuno ha completato le condizioni di vittoria."""
         good = 0
         evil = 0
         for player in self.players:
@@ -709,6 +760,14 @@ class Game:
                 elif player.role.team == 'Evil':
                     player.message(bot, s.end_mifia_killed + s.defeat)
             self.endgame()
+
+    def changerole(self, player, newrole):
+        """Cambia il ruolo di un giocatore, aggiornando tutti i valori"""
+        self.playersinrole[player.role].remove(player)
+        player.role = newrole(player)
+        self.playersinrole[newrole].append(player)
+        # TODO: controllare se basta fare così
+
 
 # Partite in corso
 inprogress = list()

@@ -125,6 +125,22 @@ mom_power_description = "All'inizio della partita scoprirai il ruolo di un gioca
 # Mamma: scoperta di un ruolo
 mom_discovery = "@{target} è un *{icon} {role}*.\n" \
 
+#TODO: Mettere qualcosa qui
+# Stagista: icona
+intern_icon = "intern_icon"
+
+# Stagista: nome ruolo
+intern_name = "Stagista"
+
+# Stagista: descrizione del potere
+intern_power_description = "intern_power_description"
+
+# Stagista: inizia lo stage
+intern_started_internship = "intern_started_internship"
+
+# Stagista: cambiato ruolo
+intern_changed_role = "intern_changed_role"
+
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
 
