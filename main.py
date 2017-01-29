@@ -1115,21 +1115,15 @@ def vote(bot, update):
     elif game.day <= 1:
         game.message(bot, s.error_no_votes_on_first_day)
         return
-    # Trova il giocatore
-    player = game.findplayerbyid(update.message.from_user['id'])
-    if player is None:
-        game.message(bot, s.error_not_in_game)
-        return
-    if not player.alive:
-        game.message(bot, s.error_dead)
-        return
-    # Trova il bersaglio
-    target = game.findplayerbyusername(update.message.text.split(' ')[1])
-    if target is None:
-        game.message(bot, s.error_username)
-        return
-    player.votingfor = target
-    game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+    # Genera la tastiera
+    table = list()
+    for player in game.players:
+        row = list()
+        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(name=player.tusername), callback_data=player.tusername))
+        table.append(row)
+    keyboard = InlineKeyboardMarkup(table)
+    # Manda la tastiera
+    bot.sendMessage(game.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
 
 
 def endday(bot, update):
@@ -1289,12 +1283,22 @@ def debuggameslist(bot, update):
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
-def selectpreset(bot, update):
+def inlinekeyboard(bot, update):
     """Seleziona un preset dalla tastiera."""
     game = findgamebyid(update.callback_query.message.chat['id'])
-    if game is not None and game.phase is 'Preset':
-        if update.callback_query.from_user['id'] == game.admin.tid:
-            game.loadpreset(bot, update.callback_query.data)
+    if game is not None:
+        if game.phase is 'Preset':
+            if update.callback_query.from_user['id'] == game.admin.tid:
+                game.loadpreset(bot, update.callback_query.data)
+        elif game.phase is 'Voting':
+            # Trova il giocatore
+            player = game.findplayerbyid(update.callback_query.from_user['id'])
+            if player is not None:
+                # Trova il bersaglio
+                target = game.findplayerbyusername(update.callback_query.data)
+                player.votingfor = target
+                game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
 
 
 def handleerror(bot, update, error):
@@ -1325,7 +1329,7 @@ updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
-updater.dispatcher.add_handler(CallbackQueryHandler(selectpreset))
+updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
 updater.dispatcher.add_error_handler(handleerror)
 updater.start_polling()
 print("Bot avviato!")
