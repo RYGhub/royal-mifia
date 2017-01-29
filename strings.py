@@ -358,17 +358,14 @@ error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
                            "Controlla la sintassi del comando e riprova."
 
 # Lista dei possibili nomi di una partita
-names_list = ["Cassata",
-              "Cannoli",
-              "Granita",
-              "Mandorle",
-              "Salame",
-              "Torrone",
-              "Sorbetto",
-              "Limone",
-              "Arancia",
-              "Arancino",
-              "Arancina"]
+names_list = ["Caos",
+              "Vuoto",
+              "Nulla",
+              "Buconero",
+              "Fine",
+              "Supernova",
+              "Centrogalattico",
+              "Madre"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",
