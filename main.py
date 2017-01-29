@@ -230,6 +230,7 @@ class Derek(Role):
         super().__init__(player)
         # Per qualche motivo assurdo ho deciso di tenere l'oggetto Player qui
         self.deathwish = False
+        self.chaos = False
 
     def __repr__(self) -> str:
         r = "<Role: Derek>"
@@ -248,6 +249,7 @@ class Derek(Role):
         if self.deathwish:
             game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
             self.player.kill(bot, game)
+            self.chaos = True
 
 
 class Disastro(Role):
@@ -337,7 +339,7 @@ class Stagista(Role):
 
     def onendday(self, bot, game):
         if self.master is not None:
-            if isinstance(self.master.role, Derek) and self.master.role.deathwish:
+            if isinstance(self.master.role, Derek) and self.master.role.chaos:
                 game.message(bot, s.intern_chaos_summoned)
                 self.master.alive = True
                 game.changerole(bot, self.master, SignoreDelCaos)
