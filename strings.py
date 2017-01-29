@@ -95,7 +95,7 @@ derek_power_description = "Puoi decidere di suicidarti alla fine di un round.\n"
                           "Potresti farlo per confondere le idee ai Royal, o per ragequittare malissimo.\n" \
                           "Sta a te la scelta.\n" \
                           "Per lasciare questo mondo alla fine del giorno, scrivi in questa chat:\n" \
-                          "`/power {gamename}`\n"
+                          "`/power {gamename} banana`\n"
 
 # Derek: morte attivata
 derek_deathwish_set = "*Morirai* alla fine di questo giorno."
@@ -357,7 +357,9 @@ names_list = ["Cassata",
               "Torrone",
               "Sorbetto",
               "Limone",
-              "Arancia"]
+              "Arancia",
+              "Arancino",
+              "Arancina"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",

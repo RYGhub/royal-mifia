@@ -374,9 +374,9 @@ class SignoreDelCaos(Role):
 
     def onendday(self, bot, game):
         if self.target is not None:
-            if self.target.alive:
+            if self.target.alive and self.player.alive:
                 if not isinstance(self.target.role, SignoreDelCaos) or not isinstance(self.target.role, Servitore):
-                    randomrole = random.sample(rolepriority, 1)
+                    randomrole = random.sample(rolepriority, 1)[0]
                     game.changerole(bot, self.target, randomrole)
                     game.message(bot, s.chaos_lord_randomized)
                 else:
@@ -400,7 +400,7 @@ class Servitore(Role):
             if chaoslord.alive:
                 break
         else:
-            game.changerole(bot, self, SignoreDelCaos)
+            game.changerole(bot, self.player, SignoreDelCaos)
             game.message(bot, s.chaos_servant_inherited)
 
 
@@ -802,24 +802,29 @@ class Game:
         """Controlla se qualcuno ha completato le condizioni di vittoria."""
         good = 0
         evil = 0
+        alive = 0
         for player in self.players:
-            if player.alive and player.role.team == 'Evil':
-                evil += 1
-            elif player.alive and player.role.team == 'Good':
-                good += 1
+            if player.alive:
+                if player.role.team == 'Evil':
+                    evil += 1
+                elif player.role.team == 'Good':
+                    good += 1
+                alive += 1
         # Distruzione atomica!
-        if good == 0 and evil == 0:
+        if alive == 0:
             self.message(bot, s.end_game_wiped)
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
         # Mifiosi più dei Royal
-        elif (not self.missingmifia and evil >= good) or good == 0:
+        elif (not self.missingmifia and evil >= alive) or good == 0:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
                     player.message(bot, s.end_mifia_outnumber + s.defeat)
                 elif player.role.team == 'Evil':
                     player.message(bot, s.end_mifia_outnumber + s.victory)
+                elif player.role.team == 'Chaos':
+                    player.message(bot, s.end_game_chaos + s.victory)
             self.endgame()
         # Male distrutto
         elif evil == 0:
@@ -829,6 +834,8 @@ class Game:
                     player.message(bot, s.end_mifia_killed + s.victory)
                 elif player.role.team == 'Evil':
                     player.message(bot, s.end_mifia_killed + s.defeat)
+                elif player.role.team == 'Chaos':
+                    player.message(bot, s.end_game_chaos + s.victory)
             self.endgame()
 
     def changerole(self, bot, player, newrole):
@@ -836,7 +843,7 @@ class Game:
         # Aggiorna le liste dei ruoli
         if player.role.__class__ != Royal:
             self.playersinrole[player.role.__class__.__name__].remove(player)
-        if player.role.__class__ != Royal:
+        if newrole != Royal:
             self.playersinrole[newrole.__name__].append(player)
         # Cambia il ruolo al giocatore
         player.role = newrole(player)
