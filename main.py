@@ -420,8 +420,7 @@ class Player:
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
-        if __debug__:
-            self.dummy = dummy  # E' un bot?
+        self.dummy = dummy  # E' un bot?
 
     def __repr__(self) -> str:
         r = "<Player {username}>".format(username=self.tusername)
