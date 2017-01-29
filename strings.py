@@ -125,6 +125,65 @@ mom_power_description = "All'inizio della partita scoprirai il ruolo di un gioca
 # Mamma: scoperta di un ruolo
 mom_discovery = "@{target} è un *{icon} {role}*.\n" \
 
+# Stagista: icona
+intern_icon = "\U0001F913"
+
+# Stagista: nome ruolo
+intern_name = "Stagista"
+
+# Stagista: descrizione del potere
+intern_power_description = "In qualsiasi momento della partita puoi scegliere un altro giocatore.\n" \
+                           "Il tuo ruolo diventerà uguale al suo.\n" \
+                           "Ricordati che, qualsiasi cosa succeda, è sempre colpa dello stagista, cioè tua!\n" \
+                           "Per andare in stage, scrivi in questa chat:\n" \
+                           "`/power {gamename} nomeutentedatoredilavoro`"
+
+# Stagista: inizia lo stage
+intern_started_internship = "Stai andando in stage da @{master}."
+
+# Stagista: cambiato ruolo
+intern_changed_role = "Lo stagista ha finito il tirocinio ed ha imparato i segreti del mestiere di *{icon} {role}*."
+
+#Stagista: EVOCATO IL SIGNORE DEL CAOS
+intern_chaos_summoned = "Il *\U0001F479 Signore del Caos* e il suo fedele servitore sono scesi sulla Terra.\n" \
+                        "Preparatevi... a non capirci più niente."
+
+# Signore del Caos: icona
+chaos_lord_icon = "\U0001F479"
+
+# Signore del Caos: nome ruolo
+chaos_lord_name = "Signore del Caos"
+
+# Signore del Caos: descrizione del potere
+chaos_lord_power_description = "Sei il *SIGNORE DEL CAOS*!\n" \
+                               "Le faccende dei mortali non ti interessano, quindi non fai parte nè del team Mifia nè del team Royal.\n" \
+                               "Di conseguenza, hai automaticamente _vinto la partita_!\n" \
+                               "Puoi usare i tuoi poteri del Caos per cambiare ruolo a un altro giocatore.\n" \
+                               "Il ruolo che riceverà sarà casuale.\n" \
+                               "Per usare i tuoi poteri, scrivi in questa chat:\n" \
+                               "`/power {gamename} nomeutentebersaglio`"
+
+# Signore del Caos: bersaglio selezionato
+chaos_lord_target_selected = "BWHAHAHA. Hai deciso di usare i tuoi poteri del Caos su {target}."
+
+# Signore del Caos: bersaglio randomizzato
+chaos_lord_randomized = "Il Caos è nell'aria...\n" \
+                        "*Qualcuno ha cambiato ruolo!*"
+
+# Signore del Caos: randomizzazione fallita
+chaos_lord_failed = "Il Caos è nell'aria...\n" \
+                    "_Ma non succede nulla._"
+
+# Servitore del Caos: nome ruolo
+chaos_servant_name = "Servitore del Caos"
+
+# Servitore del Caos: descrizione potere
+chaos_servant_power_description = "Il Signore del Caos ti cederà i suoi poteri quando sarà morto.\n" \
+                                  "Facendo parte della fazione del Caos, hai automaticamente _vinto la partita_!"
+
+# Servitore del Caos: ereditato i poteri
+chaos_servant_inherited = "Il servitore ha ereditato i poteri del *\U0001F479 Signore del Caos*."
+
 # Generale: ruolo assegnato
 role_assigned = "Ti è stato assegnato il ruolo di *{icon} {name}*."
 
@@ -160,7 +219,10 @@ mifia_team_intro = "I mifiosi in questa partita sono:\n"
 mifia_team_player = "{icon} {name}\n"
 
 # Generale: votazione completata
-vote = "Hai votato per uccidere @{voted}."
+vote = "@{voting} ha votato per uccidere @{voted}."
+
+# Generale: votazione completata in prima persona
+vote_fp = "Hai votato per uccidere @{voted}."
 
 # Generale: un admin ha ucciso un giocatore con /kill
 admin_killed = "{name} è morto _di infarto_.\n" \
@@ -169,6 +231,9 @@ admin_killed = "{name} è morto _di infarto_.\n" \
 # Generale: inviato messaggio in chat privata
 check_private = "Messaggio inviato in chat privata.\n" \
                 "Controlla @mifiabot."
+
+# Generale: partita salvata
+game_saved = "Partita salvata su file."
 
 # Generale: partita caricata
 game_loaded = "Partita caricata da file."
@@ -185,6 +250,15 @@ end_mifia_killed = "Tutti i Mifiosi sono stati eliminati.\n"
 
 # Vittoria: nessuno vivo lol
 end_game_wiped = "Nessuno è più vivo. La specie umana si è estinta.\n"
+
+# Vittoria: Sei un Signore del Caos.
+end_game_chaos = "Sei un Signore del Caos."
+
+# Generale: scegli per chi votare
+vote_keyboard = "Chi vuoi votare...?"
+
+# Generale: riga della tastiera del voto
+vote_keyboard_line = "@{name}"
 
 # Vittoria: team Royal
 victory_royal = "**La Royal Games vince!**"
@@ -295,13 +369,16 @@ names_list = ["Cassata",
               "Arancia"]
 
 # Lista dei passi di configurazione da eseguire
-config_list = ["Quanti *Mifiosi* devono essere nella partita?",
-               "Quanti *Investigatori* devono essere nella partita?",
-               "Quanti *Angeli* devono essere nella partita?",
-               "Quanti *Terroristi* devono essere nella partita?",
-               "Quanti *Derek* devono essere nella partita?",
-               "Quanti *Disastri* devono essere nella partita?",
-               "Quante *Mamme* devono essere nella partita?",
+config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",
+               "Quanti *Investigatori* devono essere nella partita all'inizio?",
+               "Quanti *Angeli* devono essere nella partita all'inizio?",
+               "Quanti *Terroristi* devono essere nella partita all'inizio?",
+               "Quanti *Derek* devono essere nella partita all'inizio?",
+               "Quanti *Disastri* devono essere nella partita all'inizio?",
+               "Quante *Mamme* devono essere nella partita all'inizio?",
+               "Quanti *Stagisti* devono essere nella partita all'inizio?",
+               "Quante *Signori del Caos* devono essere nella partita all'inizio?",
+               "Quante *Servitori del Caos* devono essere nella partita all'inizio?",
                "I mifiosi possono uccidere una persona a `testa` al giorno "
                "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?",
                "La mifia può `mancare` le uccisioni o i loro attacchi sono `perfetti`?",
@@ -311,7 +388,7 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita?",
 preset_choose = "*Seleziona un preset per la partita:*\n" \
                 "`Semplice`: solo royal, mifia e investigatori e niente meccaniche avanzate. _(minimo 3 giocatori)_\n" \
                 "`Classico`: royal, mifia, investigatori, angeli e la comparsa casuale di un terrorista! _(minimo 4 giocatori)_\n" \
-                "`Completo`: tutti i ruoli e le meccaniche nuove! _(minimo 7 giocatori)_\n" \
+                "`Completo`: tutti i ruoli e le meccaniche nuove! _(minimo 8 giocatori)_\n" \
                 "`Personalizzato`: scegli tu i ruoli e le meccaniche che vuoi in partita!"
 
 # Preset semplice
