@@ -340,6 +340,15 @@ class Stagista(Role):
             if self.master.alive:
                 game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
                 game.changerole(self.player, self.master.role.__class__)
+                self.player.message(bot, s.role_assigned.format(icon=self.player.role.icon, name=self.player.role.name))
+                if self.player.role.powerdesc is not None:
+                    self.player.message(bot, self.player.role.powerdesc.format(gamename=self.name))
+                if self.__class__ == Mifioso:
+                    text = s.mifia_team_intro
+                    for player in game.playersinrole['Mifioso']:
+                        text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+                    for player in game.playersinrole['Mifioso']:
+                        player.message(bot, text)
             else:
                 game.message(bot, "easter egg. yey")
                 #TODO: mettere l'easter egg
