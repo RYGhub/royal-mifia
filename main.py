@@ -337,14 +337,14 @@ class Stagista(Role):
 
     def onendday(self, bot, game):
         if self.master is not None:
-            if self.master.alive:
-                game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
-                game.changerole(bot, self.player, self.master.role.__class__)
-            else:
+            if isinstance(self.master.role, Derek) and self.master.role.deathwish:
                 game.message(bot, s.intern_chaos_summoned)
                 self.master.alive = True
-                game.changerole(bot, self.master, Servitore)
-                game.changerole(bot, self.player, SignoreDelCaos)
+                game.changerole(bot, self.master, SignoreDelCaos)
+                game.changerole(bot, self.player, Servitore)
+            else:
+                game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
+                game.changerole(bot, self.player, self.master.role.__class__)
 
 
 class SignoreDelCaos(Role):
