@@ -221,6 +221,9 @@ mifia_team_player = "{icon} {name}\n"
 # Generale: votazione completata
 vote = "@{voting} ha votato per uccidere @{voted}."
 
+# Generale: votazione completata in prima persona
+vote_fp = "Hai votato per uccidere @{voted}."
+
 # Generale: un admin ha ucciso un giocatore con /kill
 admin_killed = "{name} è morto _di infarto_.\n" \
                "Era un *{icon} {role}*."
@@ -250,6 +253,12 @@ end_game_wiped = "Nessuno è più vivo. La specie umana si è estinta.\n"
 
 # Vittoria: Sei un Signore del Caos.
 end_game_chaos = "Sei un Signore del Caos."
+
+# Generale: scegli per chi votare
+vote_keyboard = "Chi vuoi votare...?"
+
+# Generale: riga della tastiera del voto
+vote_keyboard_line = "@{name}"
 
 # Vittoria: team Royal
 victory_royal = "**La Royal Games vince!**"
