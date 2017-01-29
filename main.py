@@ -176,7 +176,7 @@ class Angelo(Role):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if selected is not None:
-            if selected is not Player:
+            if selected is not Player:  # TODO: cavolo ho scritto qui?
                 # Togli la protezione a quello che stavi proteggendo prima
                 if self.protecting is not None:
                     self.protecting.protectedby = None
@@ -230,6 +230,7 @@ class Derek(Role):
         super().__init__(player)
         # Per qualche motivo assurdo ho deciso di tenere l'oggetto Player qui
         self.deathwish = False
+        self.chaos = False
 
     def __repr__(self) -> str:
         r = "<Role: Derek>"
@@ -248,6 +249,7 @@ class Derek(Role):
         if self.deathwish:
             game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
             self.player.kill(bot, game)
+            self.chaos = True
 
 
 class Disastro(Role):
@@ -312,8 +314,98 @@ class Mamma(Role):
                                                             role=target.role.name))
             break
 
+
+class Stagista(Role):
+    """Lo stagista sceglie una persona da cui andare in stage e prende il suo ruolo."""
+    icon = s.intern_icon
+    team = 'Good'
+    name = s.intern_name
+    powerdesc = s.intern_power_description
+
+    def __init__(self, player):
+        super().__init__(player)
+        self.master = None
+
+    def __repr__(self) -> str:
+        return "<Role: Stagista>"
+
+    def power(self, bot, game, arg):
+        target = game.findplayerbyusername(arg)
+        if target is not None and target is not self.player and target.alive:
+            self.master = target
+            self.player.message(bot, s.intern_started_internship.format(master=self.master.tusername))
+        else:
+            self.player.message(bot, s.error_no_username)
+
+    def onendday(self, bot, game):
+        if self.master is not None:
+            if isinstance(self.master.role, Derek) and self.master.role.chaos:
+                game.message(bot, s.intern_chaos_summoned)
+                self.master.alive = True
+                game.changerole(bot, self.master, SignoreDelCaos)
+                game.changerole(bot, self.player, Servitore)
+            else:
+                game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
+                game.changerole(bot, self.player, self.master.role.__class__)
+
+
+class SignoreDelCaos(Role):
+    """Il Signore del Caos è un Derek negli ultimi secondi prima della morte.
+    Può cambiare la vita delle altre persone... Anche se non può decidere in cosa."""
+    icon = s.chaos_lord_icon
+    team = 'Chaos'
+    name = s.chaos_lord_name
+    powerdesc = s.chaos_lord_power_description
+
+    def __init__(self, player):
+        super().__init__(player)
+        self.target = None
+
+    def __repr__(self) -> str:
+        return "<Role: Signore del Caos>"
+
+    def power(self, bot, game, arg):
+        selected = game.findplayerbyusername(arg)
+        if selected is not None and selected is not self.player and selected.alive:
+            self.target = selected
+            self.player.message(bot, s.chaos_lord_target_selected.format(target=self.target.tusername))
+        else:
+            self.player.message(bot, s.error_no_username)
+
+    def onendday(self, bot, game):
+        if self.target is not None:
+            if self.target.alive and self.player.alive:
+                if not isinstance(self.target.role, SignoreDelCaos) or not isinstance(self.target.role, Servitore):
+                    randomrole = random.sample(rolepriority, 1)[0]
+                    game.changerole(bot, self.target, randomrole)
+                    game.message(bot, s.chaos_lord_randomized)
+                else:
+                    game.message(bot, s.chaos_lord_failed)
+
+
+
+class Servitore(Role):
+    """Il servitore del Caos è il sottoposto al Signore del Caos.
+    Se non ci sono Signori del Caos in partita diventa Signore del Caos."""
+    icon = s.derek_icon
+    team = 'Chaos'
+    name = s.chaos_servant_name
+    powerdesc = s.chaos_servant_power_description
+
+    def __repr__(self) -> str:
+        return "<Role: Servitore del Caos>"
+
+    def onendday(self, bot, game):
+        for chaoslord in game.playersinrole["SignoreDelCaos"]:
+            if chaoslord.alive:
+                break
+        else:
+            game.changerole(bot, self.player, SignoreDelCaos)
+            game.message(bot, s.chaos_servant_inherited)
+
+
 # Ordine in cui vengono eseguiti i onendday dei vari ruoli.
-rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Terrorista, Mamma]
+rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Stagista, Terrorista, Mamma, SignoreDelCaos, Servitore]
 
 
 class Player:
@@ -419,7 +511,7 @@ class Game:
     def findplayerbyusername(self, tusername) -> Player:
         """Trova il giocatore con un certo username."""
         for player in self.players:
-            if player.tusername.lower() == tusername.lower():
+            if player.tusername.lower() == tusername.strip("@").lower():
                 return player
         else:
             return None
@@ -503,7 +595,7 @@ class Game:
     def endday(self, bot):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
         # SALVA LA PARTITA, così se crasha si riprende da qui
-        self.save()
+        self.save(bot)
         # Conta i voti ed elimina il più votato.
         topvotes = self.mostvotedplayer()
         if len(topvotes) > 0:
@@ -561,32 +653,54 @@ class Game:
     def startpreset(self, bot):
         """Inizio della fase di preset"""
         self.phase = 'Preset'
-        # Crea la tastiera
-        kbmarkup = InlineKeyboardMarkup([
-            [
-                InlineKeyboardButton(s.preset_simple, callback_data="simple"),
-                InlineKeyboardButton(s.preset_classic, callback_data="classic"),
-                InlineKeyboardButton(s.preset_full, callback_data="full")
-            ],
-            [
-                InlineKeyboardButton(s.preset_custom, callback_data="custom")
-            ]
-        ])
-        # Manda la tastiera
-        bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
+        if __debug__:
+            # Preset di debug
+            self.roleconfig = {
+                "Mifioso":        0,
+                "Investigatore":  0,
+                "Angelo":         0,
+                "Terrorista":     0,
+                "Derek":          0,
+                "Disastro":       0,
+                "Mamma":          0,
+                "Stagista":       0,
+                "SignoreDelCaos": 0,
+                "Servitore":      0
+            }
+            self.votingmifia = True
+            self.missingmifia = False
+            self.endconfig(bot)
+            self.message(bot, "Utilizzando il preset di debug (tutti royal, cambia ruolo con `/debugchangerole nomeutente ruolo`.")
+        else:
+            # Crea la tastiera
+            kbmarkup = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(s.preset_simple, callback_data="simple"),
+                    InlineKeyboardButton(s.preset_classic, callback_data="classic"),
+                    InlineKeyboardButton(s.preset_full, callback_data="full")
+                ],
+                [
+                    InlineKeyboardButton(s.preset_custom, callback_data="custom")
+                ]
+            ])
+            # Manda la tastiera
+            bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
 
     def loadpreset(self, bot, preset):
         """Fine della fase di preset: carica il preset selezionato o passa a config"""
         if preset == "simple":
             # Preset semplice
             self.roleconfig = {
-                "Mifioso":       math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
-                "Investigatore": math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
-                "Angelo":        0,
-                "Terrorista":    0,
-                "Derek":         0,
-                "Disastro":      0,
-                "Mamma":         0
+                "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
+                "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
+                "Angelo":         0,
+                "Terrorista":     0,
+                "Derek":          0,
+                "Disastro":       0,
+                "Mamma":          0,
+                "Stagista":       0,
+                "SignoreDelCaos": 0,
+                "Servitore":      0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -594,13 +708,16 @@ class Game:
         elif preset == "classic":
             # Preset classico
             self.roleconfig = {
-                "Mifioso":       math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
-                "Investigatore": math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
-                "Angelo":        math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
-                "Terrorista":    1 if random.randrange(0, 99) > 70 else 0,  # 30% di avere un terrorista
-                "Derek":         0,
-                "Disastro":      0,
-                "Mamma":         0
+                "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
+                "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
+                "Angelo":         math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
+                "Terrorista":     1 if random.randrange(0, 99) > 70 else 0,  # 30% di avere un terrorista
+                "Derek":          0,
+                "Disastro":       0,
+                "Mamma":          0,
+                "Stagista":       0,
+                "SignoreDelCaos": 0,
+                "Servitore":      0
             }
             self.votingmifia = True
             self.missingmifia = False
@@ -609,13 +726,16 @@ class Game:
             # Preset completo
             self.roleconfig = {
                 # 1 di ogni ruolo
-                "Mifioso":       math.floor(len(self.players) / 8) + 1,
-                "Investigatore": math.floor(len(self.players) / 9) + 1,
-                "Angelo":        math.floor(len(self.players) / 10) + 1,
-                "Terrorista":    math.floor(len(self.players) / 11) + 1,
-                "Derek":         math.floor(len(self.players) / 12) + 1,
-                "Disastro":      math.floor(len(self.players) / 13) + 1,
-                "Mamma":         math.floor(len(self.players) / 14) + 1
+                "Mifioso":        math.floor(len(self.players) / 9) + 1,
+                "Investigatore":  math.floor(len(self.players) / 10) + 1,
+                "Angelo":         math.floor(len(self.players) / 11) + 1,
+                "Terrorista":     math.floor(len(self.players) / 12) + 1,
+                "Derek":          math.floor(len(self.players) / 13) + 1,
+                "Disastro":       math.floor(len(self.players) / 14) + 1,
+                "Mamma":          math.floor(len(self.players) / 15) + 1,
+                "Stagista":       math.floor(len(self.players) / 16) + 1,
+                "SignoreDelCaos": 0,
+                "Servitore":      0
             }
             self.votingmifia = True
             self.missingmifia = True
@@ -651,7 +771,7 @@ class Game:
     def endgame(self):
         inprogress.remove(self)
 
-    def save(self):
+    def save(self, bot):
         # Crea il file.
         try:
             file = open(str(self.groupid) + ".p", 'x')
@@ -664,8 +784,8 @@ class Game:
         pickle.dump(self, file)
         file.close()
         # Crea un file uguale ma con un timestamp
-        # Non sono troppo sicuro che il timestamp si faccia così
-        t = datetime.datetime(0,0,0,0,0).now()
+        # Non sono troppo sicuro che il timestamp si faccia così però funziona
+        t = datetime.datetime(2000,1,1,1,1).now()
         try:
             file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'x')
         except FileExistsError:
@@ -675,30 +795,36 @@ class Game:
         # Scrivi sul file.
         file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'wb')
         pickle.dump(self, file)
+        self.message(bot, s.game_saved)
         file.close()
 
     def victoryconditions(self, bot):
-        # Condizioni di vittoria
+        """Controlla se qualcuno ha completato le condizioni di vittoria."""
         good = 0
         evil = 0
+        alive = 0
         for player in self.players:
-            if player.alive and player.role.team == 'Evil':
-                evil += 1
-            elif player.alive and player.role.team == 'Good':
-                good += 1
+            if player.alive:
+                if player.role.team == 'Evil':
+                    evil += 1
+                elif player.role.team == 'Good':
+                    good += 1
+                alive += 1
         # Distruzione atomica!
-        if good == 0 and evil == 0:
+        if alive == 0:
             self.message(bot, s.end_game_wiped)
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
         # Mifiosi più dei Royal
-        elif (not self.missingmifia and evil >= good) or good == 0:
+        elif (not self.missingmifia and evil >= alive) or good == 0:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
                     player.message(bot, s.end_mifia_outnumber + s.defeat)
                 elif player.role.team == 'Evil':
                     player.message(bot, s.end_mifia_outnumber + s.victory)
+                elif player.role.team == 'Chaos':
+                    player.message(bot, s.end_game_chaos + s.victory)
             self.endgame()
         # Male distrutto
         elif evil == 0:
@@ -708,7 +834,31 @@ class Game:
                     player.message(bot, s.end_mifia_killed + s.victory)
                 elif player.role.team == 'Evil':
                     player.message(bot, s.end_mifia_killed + s.defeat)
+                elif player.role.team == 'Chaos':
+                    player.message(bot, s.end_game_chaos + s.victory)
             self.endgame()
+
+    def changerole(self, bot, player, newrole):
+        """Cambia il ruolo di un giocatore, aggiornando tutti i valori"""
+        # Aggiorna le liste dei ruoli
+        if player.role.__class__ != Royal:
+            self.playersinrole[player.role.__class__.__name__].remove(player)
+        if newrole != Royal:
+            self.playersinrole[newrole.__name__].append(player)
+        # Cambia il ruolo al giocatore
+        player.role = newrole(player)
+        # Manda i messaggi del nuovo ruolo
+        player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
+        if player.role.powerdesc is not None:
+            player.message(bot, player.role.powerdesc.format(gamename=self.name))
+        # Aggiorna lo stato dei mifiosi
+        if newrole == Mifioso:
+            text = s.mifia_team_intro
+            for player in self.playersinrole['Mifioso']:
+                text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+            for player in self.playersinrole['Mifioso']:
+                player.message(bot, text)
+
 
 # Partite in corso
 inprogress = list()
@@ -896,6 +1046,30 @@ def config(bot, update):
                         game.configstep += 1
                         game.message(bot, s.config_list[game.configstep])
                 elif game.configstep == 7:
+                    try:
+                        game.roleconfig["Stagista"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 8:
+                    try:
+                        game.roleconfig["SignoreDelCaos"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 9:
+                    try:
+                        game.roleconfig["SignoreDelCaos"] = int(cmd[1])
+                    except ValueError:
+                        game.message(bot, s.error_invalid_config)
+                    else:
+                        game.configstep += 1
+                        game.message(bot, s.config_list[game.configstep])
+                elif game.configstep == 10:
                     if cmd[1].lower() == 'testa':
                         game.votingmifia = False
                         game.configstep += 1
@@ -906,7 +1080,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
-                elif game.configstep == 8:
+                elif game.configstep == 11:
                     if cmd[1].lower() == 'perfetti':
                         game.missingmifia = False
                         game.endconfig(bot)
@@ -916,7 +1090,7 @@ def config(bot, update):
                         game.message(bot, s.config_list[game.configstep])
                     else:
                         game.message(bot, s.error_invalid_config)
-                elif game.configstep == 9:
+                elif game.configstep == 12:
                     try:
                         miss = int(cmd[1])
                     except ValueError:
@@ -948,21 +1122,15 @@ def vote(bot, update):
     elif game.day <= 1:
         game.message(bot, s.error_no_votes_on_first_day)
         return
-    # Trova il giocatore
-    player = game.findplayerbyid(update.message.from_user['id'])
-    if player is None:
-        game.message(bot, s.error_not_in_game)
-        return
-    if not player.alive:
-        game.message(bot, s.error_dead)
-        return
-    # Trova il bersaglio
-    target = game.findplayerbyusername(update.message.text.split(' ')[1])
-    if target is None:
-        game.message(bot, s.error_username)
-        return
-    player.votingfor = target
-    game.message(bot, s.vote.format(voted=target.tusername))
+    # Genera la tastiera
+    table = list()
+    for player in game.players:
+        row = list()
+        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(name=player.tusername), callback_data=player.tusername))
+        table.append(row)
+    keyboard = InlineKeyboardMarkup(table)
+    # Manda la tastiera
+    bot.sendMessage(game.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
 
 
 def endday(bot, update):
@@ -1080,7 +1248,7 @@ def save(bot, update):
     """Salva una partita su file."""
     game = findgamebyid(update.message.chat['id'])
     if game is not None:
-        game.save()
+        game.save(bot)
     else:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -1090,21 +1258,28 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
         if game is not None:
-            if game.admin.tid == update.message.from_user['id']:
-                text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
-                game.updatevotes()
-                # Aggiungi l'elenco dei giocatori
-                for player in game.players:
-                    if not player.alive:
-                        text += s.status_dead_player.format(name=player.tusername)
-                    else:
-                        text += s.status_alive_player.format(icon=player.role.icon,
-                                                             name=player.tusername,
-                                                             votes=str(player.votes))
-                game.adminmessage(bot, text)
-                game.message(bot, s.check_private)
-            else:
-                game.message(bot, s.error_not_admin)
+            text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
+            game.updatevotes()
+            # Aggiungi l'elenco dei giocatori
+            for player in game.players:
+                if not player.alive:
+                    text += s.status_dead_player.format(name=player.tusername)
+                else:
+                    text += s.status_alive_player.format(icon=player.role.icon,
+                                                         name=player.tusername,
+                                                         votes=str(player.votes))
+            game.message(bot, text)
+        else:
+            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+
+
+def debugchangerole(bot, update):
+    """Cambia il ruolo a un giocatore."""
+    if __debug__:
+        game = findgamebyid(update.message.chat['id'])
+        if game is not None:
+            cmd = update.message.text.split(' ', 2)
+            game.changerole(bot, game.findplayerbyusername(cmd[1]), globals()[cmd[2]])
         else:
             bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -1115,15 +1290,26 @@ def debuggameslist(bot, update):
         bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
-def selectpreset(bot, update):
+def inlinekeyboard(bot, update):
     """Seleziona un preset dalla tastiera."""
     game = findgamebyid(update.callback_query.message.chat['id'])
-    if game is not None and game.phase is 'Preset':
-        if update.callback_query.from_user['id'] == game.admin.tid:
-            game.loadpreset(bot, update.callback_query.data)
+    if game is not None:
+        if game.phase is 'Preset':
+            if update.callback_query.from_user['id'] == game.admin.tid:
+                game.loadpreset(bot, update.callback_query.data)
+        elif game.phase is 'Voting':
+            # Trova il giocatore
+            player = game.findplayerbyid(update.callback_query.from_user['id'])
+            if player is not None:
+                # Trova il bersaglio
+                target = game.findplayerbyusername(update.callback_query.data)
+                player.votingfor = target
+                game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
 
 
 def handleerror(bot, update, error):
+    print("Error: " + error)
     try:
         bot.sendMessage(update.message.chat['id'], error)
     except AttributeError:
@@ -1149,7 +1335,8 @@ updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
-updater.dispatcher.add_handler(CallbackQueryHandler(selectpreset))
+updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
+updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
 updater.dispatcher.add_error_handler(handleerror)
 updater.start_polling()
 print("Bot avviato!")
