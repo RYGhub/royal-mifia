@@ -814,8 +814,9 @@ class Game:
             self.message(bot, s.end_game_wiped)
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
-        # Mifiosi più dei Royal
-        elif (not self.missingmifia and evil >= alive) or good == 0:
+        # I mifiosi sono più del 50% dei vivi se la mifia è infallibile
+        # o non ci sono più personaggi buoni se la mifia può mancare i colpi
+        elif (not self.missingmifia and evil >= (alive-evil)) or good == 0:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
