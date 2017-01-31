@@ -1,8 +1,7 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 import datetime
-import pickle
-
+import pickle  # Per salvare la partita su file.
 import math
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import ParseMode, TelegramError, InlineKeyboardButton, InlineKeyboardMarkup
@@ -25,9 +24,9 @@ freenames = s.names_list.copy()
 class Role:
     """Classe base di un ruolo. Da qui si sviluppano tutti gli altri ruoli."""
     icon = "-"  # Icona del ruolo, da visualizzare di fianco al nome
-    team = 'None'  # Squadra: 'None', 'Good', 'Evil'
+    team = 'None'  # Squadra: 'None', 'Good', 'Evil', 'Chaos'; conta per le condizioni di vittoria
     name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
-    powerdesc = None  # Ha un potere? Se sì, inviagli le info su come usarlo.
+    powerdesc = None  # Ha un potere? Se sì, queste sono le info su come usarlo in seconda persona.
 
     def __init__(self, player):
         self.player = player
@@ -109,11 +108,13 @@ class Mifioso(Role):
                                                                        icon=self.target.role.icon,
                                                                        role=self.target.role.name))
                 else:
+                # Bersaglio protetto da un angelo
                     game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
                                                                       icon=self.target.protectedby.role.icon,
                                                                       protectedby=self.target.protectedby.tusername))
                 self.target = None
         else:
+            # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game
             self.target = None
 
 
@@ -138,6 +139,7 @@ class Investigatore(Role):
         if self.poweruses > 0:
             target = game.findplayerbyusername(arg)
             if target is not None:
+                # Utilizza il potere su quella persona
                 self.poweruses -= 1
                 self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=target.role.icon,
@@ -157,7 +159,7 @@ class Angelo(Role):
     """L'angelo può proteggere una persona al giorno dalla Mifia.
        Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
     icon = s.angel_icon
-    team = 'Good'  # Squadra: 'None', 'Good', 'Evil'
+    team = 'Good'
     name = s.angel_name
     powerdesc = s.angel_power_description
 
@@ -176,10 +178,12 @@ class Angelo(Role):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
         if selected is not None:
-            if selected is not Player:  # TODO: cavolo ho scritto qui?
+            # Controlla che l'angelo stia provando a proteggere sè stesso
+            if selected is not self.player:
                 # Togli la protezione a quello che stavi proteggendo prima
                 if self.protecting is not None:
                     self.protecting.protectedby = None
+                # Aggiungi la protezione al nuovo giocatore selezionato
                 selected.protectedby = self.player
                 self.protecting = selected
                 self.player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
@@ -212,6 +216,7 @@ class Terrorista(Role):
         if self.player == game.lastlynch:
             game.message(bot, s.terrorist_kaboom)
             for selectedplayer in game.players:
+                # Elimina ogni giocatore che sta votando per sè stesso
                 if selectedplayer.votingfor == self.player:
                     game.message(bot, s.terrorist_target_killed.format(target=selectedplayer.tusername,
                                                                        icon=selectedplayer.role.icon,
