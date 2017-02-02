@@ -243,11 +243,11 @@ class Derek(Role):
 
     def power(self, bot, game, arg):
         # Attiva / disattiva la morte alla fine del round
+        self.deathwish = not self.deathwish
         if self.deathwish:
-            self.deathwish = False
             self.player.message(bot, s.derek_deathwish_unset)
         else:
-            self.deathwish = True
+            
             self.player.message(bot, s.derek_deathwish_set)
 
     def onendday(self, bot, game):
@@ -310,14 +310,13 @@ class Mamma(Role):
         return r
 
     def onstartgame(self, bot, game):
-        while True:
-            target = random.sample(game.players, 1)[0]
-            if target == self.player:
-                continue
-            self.player.message(bot, s.mom_discovery.format(target=target.tusername,
+        # Scegli un bersaglio casuale che non sia il giocatore stesso
+        possibletargets = game.players.copy()
+        possibletargets.pop(self.player)
+        target = random.sample(possibletargets, 1)[0]
+        self.player.message(bot, s.mom_discovery.format(target=target.tusername,
                                                             icon=target.role.icon,
                                                             role=target.role.name))
-            break
 
 
 class Stagista(Role):
@@ -420,12 +419,12 @@ class Player:
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
         self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
-        self.alive = True
+        self.alive = True  # Il giocatore è vivo?
         self.votingfor = None  # Diventa un player se ha votato
         self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
-        self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia.
+        self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia. Se è None, la mifia può uccidere questo giocatore
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
-        self.dummy = dummy  # E' un bot?
+        self.dummy = dummy  # E' un bot? Usato solo per il debug (/debugjoin)
 
     def __repr__(self) -> str:
         r = "<Player {username}>".format(username=self.tusername)
@@ -524,7 +523,7 @@ class Game:
         """Assegna ruoli casuali a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
-        # Seleziona mifiosi
+        # Assegna i ruoli secondo i numeri all'interno di playersinrole
         for currentrole in rolepriority:
             for player in random.sample(playersleft, self.roleconfig[currentrole.__name__]):
                 self.playersinrole[currentrole.__name__].append(player)
@@ -618,7 +617,7 @@ class Game:
         # Fai gli endday in un certo ordine.
         # Si potrebbe fare più velocemente, credo.
         # Ma non sto ho voglia di ottimizzare ora.
-        # Mifiosi
+        # Endday dei mifiosi se votingmifia è attivo
         if self.votingmifia:
             # Trova il più votato dai mifiosi e uccidilo
             killlist = self.mostvotedmifia()
@@ -652,6 +651,7 @@ class Game:
             player.votingfor = None
         # Controlla se qualcuno ha vinto
         self.victoryconditions(bot)
+        # Incrementa il giorno
         self.day += 1
 
     def startpreset(self, bot):
@@ -693,7 +693,7 @@ class Game:
     def loadpreset(self, bot, preset):
         """Fine della fase di preset: carica il preset selezionato o passa a config"""
         if preset == "simple":
-            # Preset semplice
+            # Preset semplice (solo Royal, Mifiosi e Investigatori)
             self.roleconfig = {
                 "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
@@ -710,7 +710,7 @@ class Game:
             self.missingmifia = False
             self.endconfig(bot)
         elif preset == "classic":
-            # Preset classico
+            # Preset classico (solo Royal, Mifiosi, Investigatori, Angeli e Terroristi)
             self.roleconfig = {
                 "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
@@ -727,9 +727,9 @@ class Game:
             self.missingmifia = False
             self.endconfig(bot)
         elif preset == "full":
-            # Preset completo
+            # Preset completo (non ci sono Royal, ogni giocatore ha un ruolo)
             self.roleconfig = {
-                # 1 di ogni ruolo
+                # 1 di ogni ruolo, ma ci devono essere almeno 8 giocatori per avviare la partita
                 "Mifioso":        math.floor(len(self.players) / 9) + 1,
                 "Investigatore":  math.floor(len(self.players) / 10) + 1,
                 "Angelo":         math.floor(len(self.players) / 11) + 1,
