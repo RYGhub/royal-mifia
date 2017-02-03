@@ -653,6 +653,8 @@ class Game:
         self.victoryconditions(bot)
         # Incrementa il giorno
         self.day += 1
+        # Notifica dell'inizi
+        self.message(bot, s.new_day.format(day=self.day))
 
     def startpreset(self, bot):
         """Inizio della fase di preset"""

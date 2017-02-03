@@ -260,6 +260,9 @@ vote_keyboard = "Chi vuoi votare...?"
 # Generale: riga della tastiera del voto
 vote_keyboard_line = "@{name}"
 
+# Generale: inizia un nuovo giorno
+new_day = "Sorge l'alba del giorno **{day}**!"
+
 # Vittoria: team Royal
 victory_royal = "**La Royal Games vince!**"
 
