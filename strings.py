@@ -396,11 +396,32 @@ preset_choose = "*Seleziona un preset per la partita:*\n" \
 # Preset semplice
 preset_simple = "Semplice"
 
+# Preset semplice selezionato
+preset_simple_selected = "Selezionato il preset *Semplice*.\n" \
+                         "In partita saranno presenti:\n" \
+                         "*{mifioso}* Mifiosi,\n" \
+                         "*{investigatore}* Investigatori,\n" \
+                         "*{royal}* Royal."
+
 # Preset classico
 preset_classic = "Classico"
 
-# Preset completo
-preset_full = "Completo"
+# Preset classico selezionato
+preset_classic_selected = "Selezionato il preset *Classico*.\n" \
+                          "In questa partita saranno presenti:\n" \
+                          "*{mifioso}* Mifiosi,\n" \
+                          "*{investigatore}* Investigatori,\n" \
+                          "*{angelo}* Angeli,\n" \
+                          "*{royal}* Royal.\n" \
+                          "Inoltre, _potrebbe_ esserci un terrorista..."
+
+# Preset avanzato
+preset_advanced = "Avanzato"
+
+# Preset avanzato selezionato
+preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
+                           "I ruoli in questa partita sono casuali!\n" \
+                           "Buona fortuna a scoprirli!"
 
 # Personalizza
 preset_custom = "Personalizzato"

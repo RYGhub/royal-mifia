@@ -503,7 +503,7 @@ class Game:
             if isinstance(player.role, Mifioso):
                 player.message(bot, text)
 
-    def findplayerbyid(self, tid) -> Player:
+    def findplayerbyid(self, tid):
         """Trova il giocatore con un certo id."""
         for player in self.players:
             if player.tid == tid:
@@ -511,7 +511,7 @@ class Game:
         else:
             return None
 
-    def findplayerbyusername(self, tusername) -> Player:
+    def findplayerbyusername(self, tusername):
         """Trova il giocatore con un certo username."""
         for player in self.players:
             if player.tusername.lower() == tusername.strip("@").lower():
@@ -683,7 +683,7 @@ class Game:
                 [
                     InlineKeyboardButton(s.preset_simple, callback_data="simple"),
                     InlineKeyboardButton(s.preset_classic, callback_data="classic"),
-                    InlineKeyboardButton(s.preset_full, callback_data="full")
+                    InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
                 ],
                 [
                     InlineKeyboardButton(s.preset_custom, callback_data="custom")
@@ -710,6 +710,9 @@ class Game:
             }
             self.votingmifia = True
             self.missingmifia = False
+            self.message(bot, s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
+                                                              investigatore=self.roleconfig["Investigatore"],
+                                                              royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"]))
             self.endconfig(bot)
         elif preset == "classic":
             # Preset classico (solo Royal, Mifiosi, Investigatori, Angeli e Terroristi)
@@ -717,7 +720,7 @@ class Game:
                 "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
                 "Angelo":         math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
-                "Terrorista":     1 if random.randrange(0, 99) > 70 else 0,  # 30% di avere un terrorista
+                "Terrorista":     1 if random.randrange(0, 100) > 70 else 0,  # 30% di avere un terrorista
                 "Derek":          0,
                 "Disastro":       0,
                 "Mamma":          0,
@@ -727,25 +730,55 @@ class Game:
             }
             self.votingmifia = True
             self.missingmifia = False
+            self.message(bot, s.preset_classic_selected)
             self.endconfig(bot)
-        elif preset == "full":
-            # Preset completo (non ci sono Royal, ogni giocatore ha un ruolo)
-            self.roleconfig = {
-                # 1 di ogni ruolo, ma ci devono essere almeno 8 giocatori per avviare la partita
-                "Mifioso":        math.floor(len(self.players) / 9) + 1,
-                "Investigatore":  math.floor(len(self.players) / 10) + 1,
-                "Angelo":         math.floor(len(self.players) / 11) + 1,
-                "Terrorista":     math.floor(len(self.players) / 12) + 1,
-                "Derek":          math.floor(len(self.players) / 13) + 1,
-                "Disastro":       math.floor(len(self.players) / 14) + 1,
-                "Mamma":          math.floor(len(self.players) / 15) + 1,
-                "Stagista":       math.floor(len(self.players) / 16) + 1,
-                "SignoreDelCaos": 0,
-                "Servitore":      0
-            }
+        elif preset == "advanced":
+            # Preset avanzato: genera i ruoli in modo da rendere la partita divertente
+            self.roleconfig = dict()
+            unassignedplayers = len(self.players)
+            # Mifioso: tra 1 e 25% dei giocatori
+            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 4)),
+            unassignedplayers -= self.roleconfig["Mifioso"]
+            # Investigatore: tra 1 e 19% dei giocatori
+            self.roleconfig["Investigatore"] = random.randint(1, math.ceil(unassignedplayers / 4)),
+            unassignedplayers -= self.roleconfig["Investigatore"]
+            # Angelo: tra 1 e 14% dei giocatori
+            self.roleconfig["Angelo"] = random.randint(1, math.ceil(unassignedplayers / 4))
+            unassignedplayers -= self.roleconfig["Angelo"]
+            # Terrorista: ce n'è uno il 30% delle partite e solo se ci sono più di 5 giocatori senza ruoli maggiori
+            if unassignedplayers >= 6:
+                self.roleconfig["Terrorista"] = 1 if random.randrange(0, 100) >= 70 else 0
+            else:
+                self.roleconfig["Terrorista"] = 0
+            unassignedplayers -= self.roleconfig["Terrorista"]
+            # Mamma: tra 0 e il 10% dei giocatori
+            self.roleconfig["Mamma"] = random.randint(0, math.ceil(unassignedplayers))
+            unassignedplayers -= self.roleconfig["Mamma"]
+            # Stagista e Derek: possono essere nella stessa partita solo il 10% delle volte
+            if random.randint(0, 100) >= 90 and unassignedplayers >= 2:
+                self.roleconfig["Stagista"] = 1
+                self.roleconfig["Derek"] = 1
+                unassignedplayers -= 2
+            # Altrimenti, viene scelto uno dei due ruoli e ne viene inserito uno (lo stagista ha probabilità più alte perchè più interattivo)
+            elif unassignedplayers >= 1:
+                if random.randint(0, 100) >= 30:
+                    self.roleconfig["Stagista"] = 1
+                    self.roleconfig["Derek"] = 0
+                else:
+                    self.roleconfig["Stagista"] = 0
+                    self.roleconfig["Derek"] = 1
+                unassignedplayers -= 1
+            # Disastro: tra 0 e l'8% dei giocatori
+            self.roleconfig["Disastro"] = random.randint(0, math.ceil(unassignedplayers) / 4)
+            unassignedplayers -= self.roleconfig["Disastro"]
+            # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
+            self.roleconfig["SignoreDelCaos"] = 0
+            self.roleconfig["Servitore"] = 0
+            # Altri parametri
             self.votingmifia = True
             self.missingmifia = True
             self.misschance = 5
+            self.message(bot, s.preset_advanced_selected)
             self.endconfig(bot)
         elif preset == "custom":
             # Preset personalizzabile
