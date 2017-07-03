@@ -144,9 +144,15 @@ intern_started_internship = "Stai andando in stage da @{master}."
 # Stagista: cambiato ruolo
 intern_changed_role = "Lo stagista ha finito il tirocinio ed ha imparato i segreti del mestiere di *{icon} {role}*."
 
-#Stagista: EVOCATO IL SIGNORE DEL CAOS
+# Stagista: EVOCATO IL SIGNORE DEL CAOS
 intern_chaos_summoned = "Il *\U0001F479 Signore del Caos* e il suo fedele servitore sono scesi sulla Terra.\n" \
                         "Preparatevi... a non capirci più niente."
+
+#TODO: Corrotto: icona
+corrupt_icon = "CAMBIAMI"
+
+# Corrotto: nome ruolo
+corrupt_name = "Corrotto"
 
 # Signore del Caos: icona
 chaos_lord_icon = "\U0001F479"

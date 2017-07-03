@@ -155,6 +155,18 @@ class Investigatore(Role):
         self.poweruses = self.refillpoweruses
 
 
+class Corrotto(Role, Investigatore):
+    """Il corrotto è un investigatore che lavora per la Mifia."""
+    icon = s.corrupt_icon
+    team = 'Evil'
+    name = s.corrupt_name
+    powerdesc = s.detective_power_description
+    refillpoweruses = 1
+
+    def __repr__(self) -> str:
+        return "<Role: Corrotto, {uses} uses left>".format(uses=self.poweruses)
+
+
 class Angelo(Role):
     """L'angelo può proteggere una persona al giorno dalla Mifia.
        Se ha successo nella protezione, il suo ruolo sarà rivelato a tutti."""
@@ -409,7 +421,7 @@ class Servitore(Role):
 
 
 # Ordine in cui vengono eseguiti i onendday dei vari ruoli.
-rolepriority = [Mifioso, Investigatore, Disastro, Angelo, Derek, Stagista, Terrorista, Mamma, SignoreDelCaos, Servitore]
+rolepriority = [Mifioso, Investigatore, Corrotto, Disastro, Angelo, Derek, Stagista, Terrorista, Mamma, SignoreDelCaos, Servitore]
 
 
 class Player:
@@ -541,7 +553,11 @@ class Game:
         text = s.mifia_team_intro
         for player in self.playersinrole['Mifioso']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+        for player in self.playersinrole['Corrotto']:
+            text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
         for player in self.playersinrole['Mifioso']:
+            player.message(bot, text)
+        for player in self.playersinrole['Corrotto']:
             player.message(bot, text)
 
     def updatevotes(self):
