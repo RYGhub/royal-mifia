@@ -445,8 +445,8 @@ class Player:
         if not self.dummy:
             try:
                 bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
-            except TelegramError:
-                pass
+            except Unauthorized:
+                print("Unauthorized to message {}".format(self))
 
 
     def kill(self, bot, game):
@@ -829,6 +829,15 @@ class Game:
             for player in self.players:
                 player.role.onstartgame(bot, self)
 
+    def revealallroles(self, bot):
+        text = s.status_header.format(name=self.groupid, admin=self.admin.tid, phase=self.phase)
+        self.updatevotes()
+        # Aggiungi l'elenco dei giocatori
+        for player in self.players:
+            text += s.status_basic_player.format(icon=player.role.icon,
+                                                 name=player.tusername)
+        self.message(bot, text)
+
     def endgame(self):
         inprogress.remove(self)
 
@@ -876,6 +885,8 @@ class Game:
             self.message(bot, s.end_game_wiped)
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
+            self.revealallroles(bot)
+            self.endgame()
         # I mifiosi sono più del 50% dei vivi se la mifia è infallibile
         # o non ci sono più personaggi buoni se la mifia può mancare i colpi
         elif (not self.missingmifia and evil >= (alive-evil)) or good == 0:
@@ -887,6 +898,7 @@ class Game:
                     player.message(bot, s.end_mifia_outnumber + s.victory)
                 elif player.role.team == 'Chaos':
                     player.message(bot, s.end_game_chaos + s.victory)
+            self.revealallroles(bot)
             self.endgame()
         # Male distrutto
         elif evil == 0:
@@ -898,6 +910,7 @@ class Game:
                     player.message(bot, s.end_mifia_killed + s.defeat)
                 elif player.role.team == 'Chaos':
                     player.message(bot, s.end_game_chaos + s.victory)
+            self.revealallroles(bot)
             self.endgame()
 
     def changerole(self, bot, player, newrole):
@@ -1322,17 +1335,7 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
         if game is not None:
-            text = s.status_header.format(name=game.groupid, admin=game.admin.tid, phase=game.phase)
-            game.updatevotes()
-            # Aggiungi l'elenco dei giocatori
-            for player in game.players:
-                if not player.alive:
-                    text += s.status_dead_player.format(name=player.tusername)
-                else:
-                    text += s.status_alive_player.format(icon=player.role.icon,
-                                                         name=player.tusername,
-                                                         votes=str(player.votes))
-            game.message(bot, text)
+            game.revealallroles(bot)
         else:
             bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -1395,7 +1398,7 @@ updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
-    while:
+    while True:
         try:
             updater.idle()
         except TimedOut:
