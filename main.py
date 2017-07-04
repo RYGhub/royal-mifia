@@ -3,8 +3,10 @@
 import datetime
 import pickle  # Per salvare la partita su file.
 import math
+import time
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from telegram import ParseMode, TelegramError, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import Unauthorized, TimedOut
 import filemanager
 import random
 import strings as s
@@ -32,8 +34,10 @@ class Role:
         self.player = player
 
     def __repr__(self) -> str:
-        r = "<undefined Role>"
-        return r
+        return "<undefined Role>"
+
+    def __str__(self) -> str:
+        return "{} {}".format(self.icon, self.name)
 
     def power(self, bot, game, arg):
         """Il potere del ruolo. Si attiva quando il bot riceve un /power in chat privata."""
@@ -62,8 +66,7 @@ class Royal(Role):
         super().__init__(player)
 
     def __repr__(self) -> str:
-        r = "<Role: Royal>"
-        return r
+        return "<Role: Royal>"
 
 
 class Mifioso(Role):
@@ -79,10 +82,9 @@ class Mifioso(Role):
 
     def __repr__(self) -> str:
         if self.target is None:
-            r = "<Role: Mifioso>"
+            return "<Role: Mifioso>"
         else:
-            r = "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
-        return r
+            return "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
 
     def power(self, bot, game, arg):
         # Imposta una persona come bersaglio da uccidere.
@@ -131,8 +133,7 @@ class Investigatore(Role):
         self.poweruses = self.refillpoweruses
 
     def __repr__(self) -> str:
-        r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
-        return r
+        return "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
 
     def power(self, bot, game, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
@@ -181,10 +182,9 @@ class Angelo(Role):
 
     def __repr__(self) -> str:
         if self.protecting is None:
-            r = "<Role: Angelo>"
+            return "<Role: Angelo>"
         else:
-            r = "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
-        return r
+            return "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
 
     def power(self, bot, game, arg):
         # Imposta qualcuno come protetto
@@ -220,8 +220,7 @@ class Terrorista(Role):
     powerdesc = s.terrorist_power_description
 
     def __repr__(self) -> str:
-        r = "<Role: Terrorista>"
-        return r
+        return "<Role: Terrorista>"
 
     def ondeath(self, bot, game):
         # Se è stato ucciso da una votazione, attiva il suo potere
@@ -250,8 +249,7 @@ class Derek(Role):
         self.chaos = False
 
     def __repr__(self) -> str:
-        r = "<Role: Derek>"
-        return r
+        return "<Role: Derek>"
 
     def power(self, bot, game, arg):
         # Attiva / disattiva la morte alla fine del round
@@ -282,8 +280,7 @@ class Disastro(Role):
         self.poweruses = self.refillpoweruses
 
     def __repr__(self) -> str:
-        r = "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
-        return r
+        return "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
 
     def power(self, bot, game, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
@@ -318,8 +315,7 @@ class Mamma(Role):
     powerdesc = s.mom_power_description
 
     def __repr__(self) -> str:
-        r = "<Role: Mamma>"
-        return r
+        return "<Role: Mamma>"
 
     def onstartgame(self, bot, game):
         # Scegli un bersaglio casuale che non sia il giocatore stesso
@@ -439,8 +435,10 @@ class Player:
         self.dummy = dummy  # E' un bot? Usato solo per il debug (/debugjoin)
 
     def __repr__(self) -> str:
-        r = "<Player {username}>".format(username=self.tusername)
-        return r
+        return "<Player {username}>".format(username=self.tusername)
+
+    def __str__(self) -> str:
+        return "@{}".format(self.tusername)
 
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
@@ -680,6 +678,7 @@ class Game:
             self.roleconfig = {
                 "Mifioso":        0,
                 "Investigatore":  0,
+                "Corrotto":       0,
                 "Angelo":         0,
                 "Terrorista":     0,
                 "Derek":          0,
@@ -715,6 +714,7 @@ class Game:
             self.roleconfig = {
                 "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
+                "Corrotto":       0,
                 "Angelo":         0,
                 "Terrorista":     0,
                 "Derek":          0,
@@ -753,10 +753,10 @@ class Game:
             self.roleconfig = dict()
             unassignedplayers = len(self.players)
             # Mifioso: tra 1 e 25% dei giocatori
-            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 4)),
+            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 4))
             unassignedplayers -= self.roleconfig["Mifioso"]
             # Investigatore: tra 1 e 19% dei giocatori
-            self.roleconfig["Investigatore"] = random.randint(1, math.ceil(unassignedplayers / 4)),
+            self.roleconfig["Investigatore"] = random.randint(1, math.ceil(unassignedplayers / 4))
             unassignedplayers -= self.roleconfig["Investigatore"]
             # Angelo: tra 1 e 14% dei giocatori
             self.roleconfig["Angelo"] = random.randint(1, math.ceil(unassignedplayers / 4))
@@ -784,12 +784,18 @@ class Game:
                     self.roleconfig["Stagista"] = 0
                     self.roleconfig["Derek"] = 1
                 unassignedplayers -= 1
+            # E se non ce ne fosse nessuno?
+            else:
+                self.roleconfig["Stagista"] = 0
+                self.roleconfig["Derek"] = 0
             # Disastro: tra 0 e l'8% dei giocatori
             self.roleconfig["Disastro"] = random.randint(0, math.ceil(unassignedplayers) / 4)
             unassignedplayers -= self.roleconfig["Disastro"]
             # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
             self.roleconfig["SignoreDelCaos"] = 0
             self.roleconfig["Servitore"] = 0
+            # Non ho ancora finito il corrotto
+            self.roleconfig["Corrotto"] = 0
             # Altri parametri
             self.votingmifia = True
             self.missingmifia = True
@@ -969,7 +975,7 @@ def join(bot, update):
                 else:
                     try:
                         p.message(bot, s.you_joined.format(game=game.name))
-                    except TelegramError:
+                    except Unauthorized:
                         game.message(bot, s.error_chat_unavailable)
                     else:
                         game.message(bot, s.player_joined.format(name=p.tusername))
@@ -1285,7 +1291,9 @@ def delete(bot, update):
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
     if update.message.chat['type'] == 'private':
-        for singlerole in rolepriority:
+        roles = rolepriority.copy()
+        roles.append(Royal)
+        for singlerole in roles:
             bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=singlerole.icon, name=singlerole.name),
                             parse_mode=ParseMode.MARKDOWN)
     else:
@@ -1356,21 +1364,12 @@ def inlinekeyboard(bot, update):
         elif game.phase is 'Voting':
             # Trova il giocatore
             player = game.findplayerbyid(update.callback_query.from_user['id'])
-            if player is not None:
+            if player is not None and player.alive:
                 # Trova il bersaglio
                 target = game.findplayerbyusername(update.callback_query.data)
                 player.votingfor = target
                 game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
-
-
-def handleerror(bot, update, error):
-    print("Error: " + error)
-    try:
-        bot.sendMessage(update.message.chat['id'], error)
-    except AttributeError:
-        # Magari invece che pass are questo si potrebbe mandare un msg di debug o roba del genere
-        pass
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
@@ -1393,8 +1392,11 @@ updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
 updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
-updater.dispatcher.add_error_handler(handleerror)
 updater.start_polling()
 print("Bot avviato!")
 if __name__ == "__main__":
-    updater.idle()
+    while:
+        try:
+            updater.idle()
+        except TimedOut:
+            time.sleep(10)
