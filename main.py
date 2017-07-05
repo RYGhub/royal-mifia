@@ -89,14 +89,18 @@ class Mifioso(Role):
     def power(self, bot, game, arg):
         # Imposta una persona come bersaglio da uccidere.
         selected = game.findplayerbyusername(arg)
-        if selected is not None:
-            self.target = selected
-            self.player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
-        else:
+        if selected is None:
             self.player.message(bot, s.error_username)
+            return
+        self.target = selected
+        self.player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
+
 
     def onendday(self, bot, game):
-        if not game.votingmifia:
+        if game.votingmifia:
+            # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game
+            self.target = None
+        else:
             # Uccidi il bersaglio se non è protetto da un Angelo.
             if self.target is not None:
                 if self.target.protectedby is None:
@@ -110,14 +114,11 @@ class Mifioso(Role):
                                                                        icon=self.target.role.icon,
                                                                        role=self.target.role.name))
                 else:
-                # Bersaglio protetto da un angelo
+                    # Bersaglio protetto da un angelo
                     game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
                                                                       icon=self.target.protectedby.role.icon,
                                                                       protectedby=self.target.protectedby.tusername))
                 self.target = None
-        else:
-            # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game
-            self.target = None
 
 
 class Investigatore(Role):
@@ -137,19 +138,23 @@ class Investigatore(Role):
 
     def power(self, bot, game, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
-        if self.poweruses > 0:
-            target = game.findplayerbyusername(arg)
-            if target is not None:
-                # Utilizza il potere su quella persona
-                self.poweruses -= 1
-                self.player.message(bot, s.detective_discovery.format(target=target.tusername,
-                                                                 icon=target.role.icon,
-                                                                 role=target.role.name,
-                                                                 left=self.poweruses))
-            else:
-                self.player.message(bot, s.error_username)
-        else:
+        if self.poweruses <= 0:
+            # Non hai abbastanza cariche!
             self.player.message(bot, s.error_no_uses)
+            return
+        target = game.findplayerbyusername(arg)
+        if target is None:
+            # Username non valido
+            self.player.message(bot, s.error_username)
+            return
+        # Utilizza il potere su quella persona
+        self.poweruses -= 1
+        self.player.message(bot, s.detective_discovery.format(target=target.tusername,
+                                                         icon=target.role.icon,
+                                                         role=target.role.name,
+                                                         left=self.poweruses))
+
+
 
     def onendday(self, bot, game):
         # Ripristina il potere
@@ -189,20 +194,21 @@ class Angelo(Role):
     def power(self, bot, game, arg):
         # Imposta qualcuno come protetto
         selected = game.findplayerbyusername(arg)
-        if selected is not None:
-            # Controlla che l'angelo stia provando a proteggere sè stesso
-            if selected is not self.player:
-                # Togli la protezione a quello che stavi proteggendo prima
-                if self.protecting is not None:
-                    self.protecting.protectedby = None
-                # Aggiungi la protezione al nuovo giocatore selezionato
-                selected.protectedby = self.player
-                self.protecting = selected
-                self.player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
-            else:
-                self.player.message(bot, s.error_angel_no_selfprotect)
-        else:
+        if selected is None:
             self.player.message(bot, s.error_username)
+            return
+
+        # Controlla che l'angelo stia provando a proteggere sè stesso
+        if selected is not self.player:
+            # Togli la protezione a quello che stavi proteggendo prima
+            if self.protecting is not None:
+                self.protecting.protectedby = None
+            # Aggiungi la protezione al nuovo giocatore selezionato
+            selected.protectedby = self.player
+            self.protecting = selected
+            self.player.message(bot, s.angel_target_selected.format(target=self.protecting.tusername))
+        else:
+            self.player.message(bot, s.error_angel_no_selfprotect)
 
     def onendday(self, bot, game):
         # Resetta la protezione
