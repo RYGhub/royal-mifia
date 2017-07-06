@@ -161,7 +161,7 @@ class Investigatore(Role):
         self.poweruses = self.refillpoweruses
 
 
-class Corrotto(Role, Investigatore):
+class Corrotto(Investigatore):
     """Il corrotto è un investigatore che lavora per la Mifia."""
     icon = s.corrupt_icon
     team = 'Evil'
