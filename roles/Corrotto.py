@@ -3,10 +3,10 @@ import strings as s
 
 class Corrotto(Role):
     """Il corrotto è un investigatore che lavora per la Mifia."""
-    icon = s.detective_icon
+    icon = s.corrupt_icon
     team = 'Evil'
-    name = s.detective_name
-    powerdesc = s.detective_power_description
+    name = s.corrupt_name
+    powerdesc = s.corrupt_power_description
     refillpoweruses = 1
 
     def __init__(self, player):

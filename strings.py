@@ -148,11 +148,17 @@ intern_changed_role = "Lo stagista ha finito il tirocinio ed ha imparato i segre
 intern_chaos_summoned = "Il *\U0001F479 Signore del Caos* e il suo fedele servitore sono scesi sulla Terra.\n" \
                         "Preparatevi... a non capirci più niente."
 
-#TODO: Corrotto: icona
+# Corrotto: icona
 corrupt_icon = "CAMBIAMI"
 
 # Corrotto: nome ruolo
 corrupt_name = "Corrotto"
+
+# Corrotto: descrizione potere
+corrupt_power_description = "Puoi indagare sul vero ruolo di una persona una volta al giorno.\n" \
+                            "Per indagare su qualcuno, scrivi in questa chat:\n" \
+                            "`/power {gamename} nomeutentebersaglio`\n" \
+                            "Sei praticamente un Investigatore, solo che lavori per la Mifia!\n"
 
 # Signore del Caos: icona
 chaos_lord_icon = "\U0001F479"
