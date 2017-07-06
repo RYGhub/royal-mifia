@@ -940,6 +940,13 @@ class Game:
             for player in self.playersinrole['Mifioso']:
                 player.message(bot, text)
 
+    def joinplayer(self, bot, player):
+        self.players.append(player)
+        self.message(bot, s.player_joined.format(name=p.tusername))
+        # Se è il primo giocatore ad unirsi, diventa admin
+        if len(self.players) == 0:
+            self.admin = player
+
 
 # Partite in corso
 inprogress = list()
@@ -983,46 +990,50 @@ def newgame(bot, update):
 def join(bot, update):
     """Unisciti a una partita."""
     game = findgamebyid(update.message.chat['id'])
-    if game is not None:
-        if game.phase == 'Join':
-            p = game.findplayerbyid(update.message.from_user['id'])
-            if p is None:
-                try:
-                    p = Player(update.message.from_user['id'], update.message.from_user['username'])
-                except KeyError:
-                    game.message(bot, s.error_no_username)
-                else:
-                    try:
-                        p.message(bot, s.you_joined.format(game=game.name))
-                    except Unauthorized:
-                        game.message(bot, s.error_chat_unavailable)
-                    else:
-                        game.message(bot, s.player_joined.format(name=p.tusername))
-                        if len(game.players) == 0:
-                            game.admin = p
-                        game.players.append(p)
-            else:
-                game.message(bot, s.error_player_already_joined)
-        else:
-            game.message(bot, s.error_join_phase_ended)
-    else:
+    # Nessuna partita in corso
+    if game is None:
         bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        return
+    # Fase di join finita
+    if game.phase != 'Join':
+        game.message(bot, s.error_join_phase_ended)
+        return
+    p = game.findplayerbyid(update.message.from_user['id'])
+    # Giocatore già in partita
+    if p is not None:
+        game.message(bot, s.error_player_already_joined)
+        return
+    # Giocatore senza username
+    if 'username' not in update.message.from_user:
+        game.message(bot, s.error_no_username)
+        return
+    p = Player(update.message.from_user['id'], update.message.from_user['username'])
+    try:
+        p.message(bot, s.you_joined.format(game=game.name))
+    except Unauthorized:
+        # Bot bloccato dall'utente
+        game.message(bot, s.error_chat_unavailable)
+        return
+    # Aggiungi il giocatore alla partita
+    game.joinplayer(bot, p)
+    # Salva
+    game.save(bot)
 
 
 def debugjoin(bot, update):
     """Aggiungi un bot alla partita."""
     if __debug__:
         game = findgamebyid(update.message.chat['id'])
-        if game is not None:
-            if game.phase == 'Join':
-                arg = update.message.text.split(" ")
-                p = Player(random.randrange(0, 10000), arg[1], True)
-                game.message(bot, s.player_joined.format(name=p.tusername))
-                game.players.append(p)
-            else:
-                game.message(bot, s.error_join_phase_ended)
-        else:
+        if game is None:
             bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            return
+        if game.phase != 'Join':
+            game.message(bot, s.error_join_phase_ended)
+            return
+        arg = update.message.text.split(" ")
+        p = Player(random.randrange(0, 10000), arg[1], True)  # ewwwwww
+        game.message(bot, s.player_joined.format(name=p.tusername))
+        game.players.append(p)
 
 
 def status(bot, update):
