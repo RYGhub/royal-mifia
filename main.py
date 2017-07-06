@@ -441,6 +441,9 @@ class Game:
         self.message(bot, text)
 
     def endgame(self):
+        for player in self.players:
+            # Togli la referenza circolare
+            player.role.player = None
         inprogress.remove(self)
 
     def save(self, bot):
