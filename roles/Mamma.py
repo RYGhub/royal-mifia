@@ -8,6 +8,7 @@ class Mamma(Role):
     team = 'Good'
     name = s.mom_name
     powerdesc = s.mom_power_description
+    value = 25
 
     def __repr__(self) -> str:
         return "<Role: Mamma>"

@@ -1,5 +1,7 @@
 from .Role import Role
+from . import rolepriority
 import strings as s
+import random
 
 class Disastro(Role):
     """L'investigatore sbadato investiga, ma giunge a conclusioni sbagliate..."""
@@ -7,6 +9,7 @@ class Disastro(Role):
     team = 'Good'
     name = s.detective_name
     powerdesc = s.detective_power_description
+    value = 0
     refillpoweruses = 1
 
     def __init__(self, player):

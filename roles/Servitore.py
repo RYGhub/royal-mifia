@@ -9,6 +9,7 @@ class Servitore(Role):
     team = 'Chaos'
     name = s.chaos_servant_name
     powerdesc = s.chaos_servant_power_description
+    value = 0
 
     def __repr__(self) -> str:
         return "<Role: Servitore del Caos>"

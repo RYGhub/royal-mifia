@@ -11,6 +11,7 @@ class SignoreDelCaos(Role):
     team = 'Chaos'
     name = s.chaos_lord_name
     powerdesc = s.chaos_lord_power_description
+    value = 0
 
     def __init__(self, player):
         super().__init__(player)

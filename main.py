@@ -337,6 +337,7 @@ class Game:
             self.roleconfig = {
                 "Mifioso":        math.floor(len(self.players) / 8) + 1,  # 1 Mifioso ogni 8 giocatori
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
+                "Corrotto":       0,
                 "Angelo":         math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
                 "Terrorista":     1 if random.randrange(0, 100) > 70 else 0,  # 30% di avere un terrorista
                 "Derek":          0,
@@ -352,56 +353,53 @@ class Game:
             self.endconfig(bot)
         elif preset == "advanced":
             # Preset avanzato: genera i ruoli in modo da rendere la partita divertente
-            self.roleconfig = dict()
+            self.roleconfig = {
+                "Mifioso": 0,
+                "Investigatore": 0,
+                "Corrotto": 0,
+                "Angelo": 0,
+                "Terrorista": 0,
+                "Derek": 0,
+                "Disastro": 0,
+                "Mamma": 0,
+                "Stagista": 0,
+                "SignoreDelCaos": 0,
+                "Servitore": 0
+            }
             unassignedplayers = len(self.players)
-            # Mifioso: tra 1 e 25% dei giocatori
-            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 4))
+            balance = 0
+            # Scegli casualmente il numero di mifiosi: più ce ne sono più ruoli ci saranno in partita!
+            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 7))
             unassignedplayers -= self.roleconfig["Mifioso"]
-            # Investigatore: tra 1 e 19% dei giocatori
-            self.roleconfig["Investigatore"] = random.randint(1, math.ceil(unassignedplayers / 4))
-            unassignedplayers -= self.roleconfig["Investigatore"]
-            # Angelo: tra 1 e 14% dei giocatori
-            self.roleconfig["Angelo"] = random.randint(1, math.ceil(unassignedplayers / 4))
-            unassignedplayers -= self.roleconfig["Angelo"]
-            # Terrorista: ce n'è uno il 30% delle partite e solo se ci sono più di 5 giocatori senza ruoli maggiori
-            if unassignedplayers >= 6:
-                self.roleconfig["Terrorista"] = 1 if random.randrange(0, 100) >= 70 else 0
-            else:
-                self.roleconfig["Terrorista"] = 0
-            unassignedplayers -= self.roleconfig["Terrorista"]
-            # Mamma: tra 0 e il 10% dei giocatori
-            self.roleconfig["Mamma"] = random.randint(0, math.ceil(unassignedplayers))
-            unassignedplayers -= self.roleconfig["Mamma"]
-            # Stagista e Derek: possono essere nella stessa partita solo il 10% delle volte
-            if random.randint(0, 100) >= 90 and unassignedplayers >= 2:
-                self.roleconfig["Stagista"] = 1
-                self.roleconfig["Derek"] = 1
-                unassignedplayers -= 2
-            # Altrimenti, viene scelto uno dei due ruoli e ne viene inserito uno (lo stagista ha probabilità più alte perchè più interattivo)
-            elif unassignedplayers >= 1:
-                if random.randint(0, 100) >= 30:
-                    self.roleconfig["Stagista"] = 1
-                    self.roleconfig["Derek"] = 0
-                else:
-                    self.roleconfig["Stagista"] = 0
-                    self.roleconfig["Derek"] = 1
+            balance += Mifioso.value
+            # Trova tutti i ruoli positivi
+            positiveroles = list()
+            for role in rolepriority:
+                if role.team == "Good":
+                    positiveroles.append(role)
+            # Trova tutti i ruoli negativi
+            negativeroles = list()
+            for role in rolepriority:
+                if role.team == "Evil":
+                    positiveroles.append(role)
+            # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
+            while balance < 0 and unassignedplayers > 0:
+                role = random.sample(positiveroles, 1)[0]
+                self.roleconfig[role.__class__] += 1
+                balance += role.value
                 unassignedplayers -= 1
-            # E se non ce ne fosse nessuno?
-            else:
-                self.roleconfig["Stagista"] = 0
-                self.roleconfig["Derek"] = 0
-            # Disastro: tra 0 e l'8% dei giocatori
-            self.roleconfig["Disastro"] = random.randint(0, math.ceil(unassignedplayers) / 4)
-            unassignedplayers -= self.roleconfig["Disastro"]
+            # Se la partita è leggermente sfavorita verso i Royal, aggiungi qualche ruolo negativo
+            while balance > 0 and unassignedplayers > 0:
+                role = random.sample(negativeroles, 1)[0]
+                self.roleconfig[role.__class__] += 1
+                balance += role.value
+                unassignedplayers -= 1
             # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
             self.roleconfig["SignoreDelCaos"] = 0
             self.roleconfig["Servitore"] = 0
-            # Non ho ancora finito il corrotto
-            self.roleconfig["Corrotto"] = 0
             # Altri parametri
-            self.votingmifia = True
-            self.missingmifia = True
-            self.misschance = 5
+            self.votingmifia = False
+            self.missingmifia = False
             self.message(bot, s.preset_advanced_selected)
             self.endconfig(bot)
         elif preset == "custom":

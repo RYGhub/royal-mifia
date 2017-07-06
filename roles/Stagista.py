@@ -10,6 +10,7 @@ class Stagista(Role):
     team = 'Good'
     name = s.intern_name
     powerdesc = s.intern_power_description
+    value = 30
 
     def __init__(self, player):
         super().__init__(player)

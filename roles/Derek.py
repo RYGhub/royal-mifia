@@ -7,6 +7,7 @@ class Derek(Role):
     team = "Good"
     name = s.derek_name
     powerdesc = s.derek_power_description
+    value = 0
 
     def __init__(self, player):
         super().__init__(player)
