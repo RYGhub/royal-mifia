@@ -275,39 +275,19 @@ class Game:
     def startpreset(self, bot):
         """Inizio della fase di preset"""
         self.phase = 'Preset'
-        if __debug__:
-            # Preset di debug
-            self.roleconfig = {
-                "Mifioso":        0,
-                "Investigatore":  0,
-                "Corrotto":       0,
-                "Angelo":         0,
-                "Terrorista":     0,
-                "Derek":          0,
-                "Disastro":       0,
-                "Mamma":          0,
-                "Stagista":       0,
-                "SignoreDelCaos": 0,
-                "Servitore":      0
-            }
-            self.votingmifia = True
-            self.missingmifia = False
-            self.endconfig(bot)
-            self.message(bot, "Utilizzando il preset di debug (tutti royal, cambia ruolo con `/debugchangerole nomeutente ruolo`.")
-        else:
-            # Crea la tastiera
-            kbmarkup = InlineKeyboardMarkup([
-                [
-                    InlineKeyboardButton(s.preset_simple, callback_data="simple"),
-                    InlineKeyboardButton(s.preset_classic, callback_data="classic"),
-                    InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
-                ],
-                [
-                    InlineKeyboardButton(s.preset_custom, callback_data="custom")
-                ]
-            ])
-            # Manda la tastiera
-            bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
+        # Crea la tastiera
+        kbmarkup = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton(s.preset_simple, callback_data="simple"),
+                InlineKeyboardButton(s.preset_classic, callback_data="classic"),
+                InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
+            ],
+            [
+                InlineKeyboardButton(s.preset_custom, callback_data="custom")
+            ]
+        ])
+        # Manda la tastiera
+        bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
 
     def loadpreset(self, bot, preset):
         """Fine della fase di preset: carica il preset selezionato o passa a config"""
