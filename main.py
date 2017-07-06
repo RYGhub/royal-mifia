@@ -942,7 +942,7 @@ class Game:
 
     def joinplayer(self, bot, player):
         self.players.append(player)
-        self.message(bot, s.player_joined.format(name=p.tusername))
+        self.message(bot, s.player_joined.format(name=player.tusername))
         # Se è il primo giocatore ad unirsi, diventa admin
         if len(self.players) == 0:
             self.admin = player
@@ -1032,8 +1032,7 @@ def debugjoin(bot, update):
             return
         arg = update.message.text.split(" ")
         p = Player(random.randrange(0, 10000), arg[1], True)  # ewwwwww
-        game.message(bot, s.player_joined.format(name=p.tusername))
-        game.players.append(p)
+        game.joinplayer(bot, p)
 
 
 def status(bot, update):
