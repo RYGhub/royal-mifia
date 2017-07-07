@@ -589,10 +589,10 @@ def join(bot, update):
         game.message(bot, s.error_player_already_joined)
         return
     # Giocatore senza username
-    if update.message.from_user["username"] is not None:
+    if update.message.from_user.username is not None:
         game.message(bot, s.error_no_username)
         return
-    p = Player(update.message.from_user['id'], update.message.from_user['username'])
+    p = Player(update.message.from_user.id, update.message.from_user.username)
     try:
         p.message(bot, s.you_joined.format(game=game.name))
     except Unauthorized:
