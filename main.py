@@ -265,12 +265,12 @@ class Game:
         # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
-        # Controlla se qualcuno ha vinto
-        self.victoryconditions(bot)
         # Incrementa il giorno
         self.day += 1
         # Notifica dell'inizi
         self.message(bot, s.new_day.format(day=self.day))
+        # Controlla se qualcuno ha vinto
+        self.victoryconditions(bot)
 
     def startpreset(self, bot):
         """Inizio della fase di preset"""
