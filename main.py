@@ -521,7 +521,7 @@ class Game:
         self.players.append(player)
         self.message(bot, s.player_joined.format(name=player.tusername))
         # Se è il primo giocatore ad unirsi, diventa admin
-        if len(self.players) == 0:
+        if len(self.players) == 1:
             self.admin = player
 
     def getrandomrole(self):
