@@ -966,6 +966,7 @@ def inlinekeyboard(bot, update):
         if game.phase is 'Preset':
             if update.callback_query.from_user.id == game.admin.tid:
                 game.loadpreset(bot, update.callback_query.data)
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data), show_alert=True)
         elif game.phase is 'Voting':
             # Trova il giocatore
             player = game.findplayerbyid(update.callback_query.from_user.id)
@@ -974,7 +975,7 @@ def inlinekeyboard(bot, update):
                 target = game.findplayerbyusername(update.callback_query.data)
                 player.votingfor = target
                 game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername), show_alert=True)
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
