@@ -361,7 +361,7 @@ class Game:
             negativeroles = list()
             for role in rolepriority:
                 if role.team == "Evil":
-                    positiveroles.append(role)
+                    negativeroles.append(role)
             # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
             while balance < 0 and unassignedplayers > 0:
                 role = random.sample(positiveroles, 1)[0]
