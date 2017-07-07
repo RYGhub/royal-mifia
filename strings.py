@@ -149,7 +149,7 @@ intern_chaos_summoned = "Il *\U0001F479 Signore del Caos* e il suo fedele servit
                         "Preparatevi... a non capirci più niente."
 
 # Corrotto: icona
-corrupt_icon = "CAMBIAMI"
+corrupt_icon = "\U0001F482"
 
 # Corrotto: nome ruolo
 corrupt_name = "Corrotto"
