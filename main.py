@@ -962,20 +962,29 @@ def debuggameslist(bot, update):
 def inlinekeyboard(bot, update):
     """Seleziona un preset dalla tastiera."""
     game = findgamebyid(update.callback_query.message.chat.id)
-    if game is not None:
-        if game.phase is 'Preset':
-            if update.callback_query.from_user.id == game.admin.tid:
-                game.loadpreset(bot, update.callback_query.data)
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data), show_alert=True)
-        elif game.phase is 'Voting':
-            # Trova il giocatore
-            player = game.findplayerbyid(update.callback_query.from_user.id)
-            if player is not None and player.alive:
-                # Trova il bersaglio
-                target = game.findplayerbyusername(update.callback_query.data)
-                player.votingfor = target
-                game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername), show_alert=True)
+    if game is None:
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_no_games_found, show_alert=True)
+        return
+    if game.phase is 'Preset':
+        if update.callback_query.from_user.id != game.admin.tid:
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_not_admin, show_alert=True)
+            return
+        game.loadpreset(bot, update.callback_query.data)
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data), show_alert=True)
+    elif game.phase is 'Voting':
+        # Trova il giocatore
+        player = game.findplayerbyid(update.callback_query.from_user.id)
+        if player is None:
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_not_in_game, show_alert=True)
+            return
+        if not player.alive:
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_dead, show_alert=True)
+            return
+        # Trova il bersaglio
+        target = game.findplayerbyusername(update.callback_query.data)
+        player.votingfor = target
+        game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername), show_alert=True)
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
