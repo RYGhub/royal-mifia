@@ -589,7 +589,7 @@ def join(bot, update):
         game.message(bot, s.error_player_already_joined)
         return
     # Giocatore senza username
-    if 'username' not in update.message.from_user:
+    if not (hasattr(update.message, "from_user") and 'username' in update.message.from_user):
         game.message(bot, s.error_no_username)
         return
     p = Player(update.message.from_user['id'], update.message.from_user['username'])
@@ -627,7 +627,7 @@ def status(bot, update):
         text = str()
         if __debug__:
             text += s.debug_mode
-        text += s.status_header.format(name=game.name, admin=game.admin.tusername, phase=game.phase)
+        text += s.status_header.format(name=game.name, admin=game.admin.tusername if game.admin is not None else "-", phase=game.phase)
         game.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
