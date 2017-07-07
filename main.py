@@ -937,7 +937,7 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat.id)
         if game is not None:
-            game.
+            game.revealallroles(bot)
         else:
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
