@@ -16,7 +16,7 @@ class Mamma(Role):
     def onstartgame(self, bot, game):
         # Scegli un bersaglio casuale che non sia il giocatore stesso
         possibletargets = game.players.copy()
-        possibletargets.pop(self.player)
+        possibletargets.remove(self.player)
         target = random.sample(possibletargets, 1)[0]
         self.player.message(bot, s.mom_discovery.format(target=target.tusername,
                                                             icon=target.role.icon,
