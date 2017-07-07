@@ -11,7 +11,7 @@ import filemanager
 import random
 import strings as s
 import logging
-from roles import *
+from roles.data import *
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -523,6 +523,14 @@ class Game:
         # Se è il primo giocatore ad unirsi, diventa admin
         if len(self.players) == 0:
             self.admin = player
+
+    def getrandomrole(self):
+        availableroles = list()
+        for role in self.playersinrole:
+            if len(role) > 0:
+                availableroles.append(role)
+        return locals()[random.sample(availableroles, 1)[0]]
+
 
 
 # Partite in corso

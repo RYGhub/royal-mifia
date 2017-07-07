@@ -1,5 +1,4 @@
 from .Role import Role
-from . import rolepriority
 import strings as s
 import random
 
@@ -25,7 +24,7 @@ class Disastro(Role):
             target = game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                randomrole = random.sample(rolepriority, 1)[0]
+                randomrole = game.getrandomrole()
                 self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=randomrole.icon,
                                                                  role=randomrole.name,
