@@ -365,13 +365,13 @@ class Game:
             # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
             while balance < 0 and unassignedplayers > 0:
                 role = random.sample(positiveroles, 1)[0]
-                self.roleconfig[role.__class__] += 1
+                self.roleconfig[role.__name__] += 1
                 balance += role.value
                 unassignedplayers -= 1
             # Se la partita è leggermente sfavorita verso i Royal, aggiungi qualche ruolo negativo
             while balance > 0 and unassignedplayers > 0:
                 role = random.sample(negativeroles, 1)[0]
-                self.roleconfig[role.__class__] += 1
+                self.roleconfig[role.__name__] += 1
                 balance += role.value
                 unassignedplayers -= 1
             # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
