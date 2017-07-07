@@ -1,5 +1,4 @@
 from .Role import Role
-from .Servitore import Servitore
 import strings as s
 import random
 
@@ -30,7 +29,7 @@ class SignoreDelCaos(Role):
     def onendday(self, bot, game):
         if self.target is not None:
             if self.target.alive and self.player.alive:
-                if not isinstance(self.target.role, SignoreDelCaos) or not isinstance(self.target.role, Servitore):
+                if not isinstance(self.target.role, SignoreDelCaos):
                     randomrole = game.getrandomrole()
                     game.changerole(bot, self.target, randomrole)
                     game.message(bot, s.chaos_lord_randomized)
