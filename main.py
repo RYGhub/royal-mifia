@@ -381,6 +381,8 @@ class Game:
             self.votingmifia = False
             self.missingmifia = False
             self.message(bot, s.preset_advanced_selected)
+            if __debug__:
+                self.message(bot, "Punteggio di bilanciamento: {}".format(balance))
             self.endconfig(bot)
         elif preset == "custom":
             # Preset personalizzabile
@@ -410,7 +412,7 @@ class Game:
                 player.role.onstartgame(bot, self)
 
     def revealallroles(self, bot):
-        text = s.status_header.format(name=self.groupid, admin=self.admin.tid, phase=self.phase)
+        text = s.status_header.format(name=self.name, admin=self.admin.tusername, phase=self.phase)
         self.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in self.players:
@@ -418,7 +420,8 @@ class Game:
                                                  name=player.tusername)
         self.message(bot, text)
 
-    def endgame(self):
+    def endgame(self, bot):
+        self.revealallroles(bot)
         for player in self.players:
             # Togli la referenza circolare
             player.role.player = None
@@ -469,7 +472,7 @@ class Game:
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
             self.revealallroles(bot)
-            self.endgame()
+            self.endgame(bot)
         # I mifiosi sono più del 50% dei vivi se la mifia è infallibile
         # o non ci sono più personaggi buoni se la mifia può mancare i colpi
         elif (not self.missingmifia and evil >= (alive-evil)) or good == 0:
@@ -481,8 +484,7 @@ class Game:
                     player.message(bot, s.end_mifia_outnumber + s.victory)
                 elif player.role.team == 'Chaos':
                     player.message(bot, s.end_game_chaos + s.victory)
-            self.revealallroles(bot)
-            self.endgame()
+            self.endgame(bot)
         # Male distrutto
         elif evil == 0:
             self.message(bot, s.end_mifia_killed + s.victory_royal)
@@ -493,8 +495,7 @@ class Game:
                     player.message(bot, s.end_mifia_killed + s.defeat)
                 elif player.role.team == 'Chaos':
                     player.message(bot, s.end_game_chaos + s.victory)
-            self.revealallroles(bot)
-            self.endgame()
+            self.endgame(bot)
 
     def changerole(self, bot, player, newrole):
         """Cambia il ruolo di un giocatore, aggiornando tutti i valori"""
@@ -893,7 +894,7 @@ def delete(bot, update):
                 game = findgamebyid(int(cmd[1]))
             if game is not None:
                 game.message(bot, s.owner_ended)
-                game.endgame()
+                game.endgame(bot)
             else:
                 game.message(bot, s.error_no_games_found)
         else:
@@ -936,7 +937,7 @@ def debug(bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat.id)
         if game is not None:
-            game.revealallroles(bot)
+            game.
         else:
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
