@@ -554,30 +554,30 @@ def findgamebyname(name) -> Game:
 # Comandi a cui risponde il bot
 def ping(bot, update):
     """Ping!"""
-    bot.sendMessage(update.message.chat['id'], s.pong, parse_mode=ParseMode.MARKDOWN)
+    bot.sendMessage(update.message.chat.id, s.pong, parse_mode=ParseMode.MARKDOWN)
 
 
 def newgame(bot, update):
     """Crea una nuova partita."""
-    if update.message.chat['type'] != 'private':
-        game = findgamebyid(update.message.chat['id'])
+    if update.message.chat.type != 'private':
+        game = findgamebyid(update.message.chat.id)
         if game is None:
-            game = Game(update.message.chat['id'])
+            game = Game(update.message.chat.id)
             inprogress.append(game)
             game.message(bot, s.new_game.format(groupid=game.groupid, name=game.name))
             join(bot, update)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
 
 
 def join(bot, update):
     """Unisciti a una partita."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     # Nessuna partita in corso
     if game is None:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
     # Fase di join finita
     if game.phase != 'Join':
@@ -608,9 +608,9 @@ def join(bot, update):
 def debugjoin(bot, update):
     """Aggiungi un bot alla partita."""
     if __debug__:
-        game = findgamebyid(update.message.chat['id'])
+        game = findgamebyid(update.message.chat.id)
         if game is None:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
             return
         if game.phase != 'Join':
             game.message(bot, s.error_join_phase_ended)
@@ -622,7 +622,7 @@ def debugjoin(bot, update):
 
 def status(bot, update):
     """Visualizza lo stato della partita."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is not None:
         text = str()
         if __debug__:
@@ -642,27 +642,27 @@ def status(bot, update):
                                                      name=player.tusername)
         game.message(bot, text)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def endjoin(bot, update):
     """Termina la fase di join e inizia quella di votazione."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is not None and game.phase == 'Join':
-        if update.message.from_user['id'] == game.admin.tid:
+        if update.message.from_user.id == game.admin.tid:
             game.message(bot, s.join_phase_ended)
             game.startpreset(bot)
         else:
             game.message(bot, s.error_not_admin)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def config(bot, update):
     """Configura il parametro richiesto."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is not None and game.phase is 'Config':
-        if update.message.from_user['id'] == game.admin.tid:
+        if update.message.from_user.id == game.admin.tid:
             cmd = update.message.text.split(' ', 1)
             if len(cmd) >= 2:
                 if game.configstep == 0:
@@ -782,18 +782,18 @@ def config(bot, update):
         else:
             game.message(bot, s.error_not_admin)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def vote(bot, update):
     """Vota per uccidere una persona."""
     # Trova la partita
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is None:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
     elif game.phase is not 'Voting':
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
     elif game.day <= 1:
         game.message(bot, s.error_no_votes_on_first_day)
@@ -811,14 +811,14 @@ def vote(bot, update):
 
 def endday(bot, update):
     """Termina la giornata attuale."""
-    game = findgamebyid(update.message.chat['id'])
-    if game is not None and game.phase is 'Voting' and update.message.from_user['id'] == game.admin.tid:
+    game = findgamebyid(update.message.chat.id)
+    if game is not None and game.phase is 'Voting' and update.message.from_user.id == game.admin.tid:
         game.endday(bot)
 
 
 def power(bot, update):
     """Attiva il potere del tuo ruolo."""
-    if update.message.chat['type'] == 'private':
+    if update.message.chat.type == 'private':
         cmd = update.message.text.split(' ', 2)
         game = findgamebyname(cmd[1])
         # Se non lo trovi con il nome, prova con l'id
@@ -828,7 +828,7 @@ def power(bot, update):
             except ValueError:
                 pass
         if game is not None:
-            player = game.findplayerbyid(int(update.message.from_user['id']))
+            player = game.findplayerbyid(int(update.message.from_user.id))
             if player is not None:
                 if player.alive:
                     if len(cmd) > 2:
@@ -838,18 +838,18 @@ def power(bot, update):
                 else:
                     player.message(bot, s.error_dead)
             else:
-                bot.sendMessage(update.message.chat['id'], s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
+                bot.sendMessage(update.message.chat.id, s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
 
 def role(bot, update):
     """Visualizza il tuo ruolo."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is not None and game.phase is 'Voting':
-        player = game.findplayerbyid(update.message.from_user['id'])
+        player = game.findplayerbyid(update.message.from_user.id)
         if player is not None:
             if player.alive:
                 player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
@@ -857,17 +857,17 @@ def role(bot, update):
             else:
                 game.message(bot, s.error_dead)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def kill(bot, update):
     """Uccidi un giocatore in partita."""
     if __debug__:
-        game = findgamebyid(update.message.chat['id'])
+        game = findgamebyid(update.message.chat.id)
         if game is not None and game.phase is 'Voting':
-            if update.message.from_user['id'] == game.admin.tid:
+            if update.message.from_user.id == game.admin.tid:
                 target = game.findplayerbyusername(update.message.text.split(' ')[1])
                 if target is not None:
                     target.kill(bot, game)
@@ -879,13 +879,13 @@ def kill(bot, update):
             else:
                 game.message(bot, s.error_not_admin)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def delete(bot, update):
     """Elimina una partita in corso."""
-    if update.message.chat['type'] == 'private':
-        if update.message.from_user['username'] == "Steffo":
+    if update.message.chat.type == 'private':
+        if update.message.from_user.username == "Steffo":
             cmd = update.message.text.split(' ', 2)
             game = findgamebyname(cmd[1])
             # Se non lo trovi con il nome, prova con l'id
@@ -897,26 +897,26 @@ def delete(bot, update):
             else:
                 game.message(bot, s.error_no_games_found)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_not_owner, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_not_owner, parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
 
 
 def fakerole(bot, update):
     """Manda un finto messaggio di ruolo."""
-    if update.message.chat['type'] == 'private':
+    if update.message.chat.type == 'private':
         roles = rolepriority.copy()
         roles.append(Royal)
         for singlerole in roles:
-            bot.sendMessage(update.message.chat['id'], s.role_assigned.format(icon=singlerole.icon, name=singlerole.name),
+            bot.sendMessage(update.message.chat.id, s.role_assigned.format(icon=singlerole.icon, name=singlerole.name),
                             parse_mode=ParseMode.MARKDOWN)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_private_required, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_private_required, parse_mode=ParseMode.MARKDOWN)
 
 
 def load(bot, update):
     """Carica una partita salvata."""
-    file = open(str(update.message.chat['id']) + ".p", "rb")
+    file = open(str(update.message.chat.id) + ".p", "rb")
     game = pickle.load(file)
     inprogress.append(game)
     game.message(bot, s.game_loaded)
@@ -924,50 +924,50 @@ def load(bot, update):
 
 def save(bot, update):
     """Salva una partita su file."""
-    game = findgamebyid(update.message.chat['id'])
+    game = findgamebyid(update.message.chat.id)
     if game is not None:
         game.save(bot)
     else:
-        bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def debug(bot, update):
     """Visualizza tutti i ruoli e gli id."""
     if __debug__:
-        game = findgamebyid(update.message.chat['id'])
+        game = findgamebyid(update.message.chat.id)
         if game is not None:
             game.revealallroles(bot)
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def debugchangerole(bot, update):
     """Cambia il ruolo a un giocatore."""
     if __debug__:
-        game = findgamebyid(update.message.chat['id'])
+        game = findgamebyid(update.message.chat.id)
         if game is not None:
             cmd = update.message.text.split(' ', 2)
             game.changerole(bot, game.findplayerbyusername(cmd[1]), globals()[cmd[2]])
         else:
-            bot.sendMessage(update.message.chat['id'], s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
 def debuggameslist(bot, update):
     """Visualizza l'elenco delle partite in corso."""
     if __debug__:
-        bot.sendMessage(update.message.from_user['id'], repr(inprogress), parse_mode=ParseMode.MARKDOWN)
+        bot.sendMessage(update.message.from_user.id, repr(inprogress), parse_mode=ParseMode.MARKDOWN)
 
 
 def inlinekeyboard(bot, update):
     """Seleziona un preset dalla tastiera."""
-    game = findgamebyid(update.callback_query.message.chat['id'])
+    game = findgamebyid(update.callback_query.message.chat.id)
     if game is not None:
         if game.phase is 'Preset':
-            if update.callback_query.from_user['id'] == game.admin.tid:
+            if update.callback_query.from_user.id == game.admin.tid:
                 game.loadpreset(bot, update.callback_query.data)
         elif game.phase is 'Voting':
             # Trova il giocatore
-            player = game.findplayerbyid(update.callback_query.from_user['id'])
+            player = game.findplayerbyid(update.callback_query.from_user.id)
             if player is not None and player.alive:
                 # Trova il bersaglio
                 target = game.findplayerbyusername(update.callback_query.data)
