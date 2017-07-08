@@ -7,7 +7,7 @@ class Corrotto(Role):
     team = 'Evil'
     name = s.corrupt_name
     powerdesc = s.corrupt_power_description
-    value = -90
+    value = -75
     refillpoweruses = 1
 
     def __init__(self, player):

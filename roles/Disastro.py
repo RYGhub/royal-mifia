@@ -8,7 +8,7 @@ class Disastro(Role):
     team = 'Good'
     name = s.detective_name
     powerdesc = s.detective_power_description
-    value = 0
+    value = -25
     refillpoweruses = 1
 
     def __init__(self, player):
@@ -25,6 +25,9 @@ class Disastro(Role):
             if target is not None:
                 self.poweruses -= 1
                 randomrole = game.getrandomrole()
+                while isinstance(target.role, randomrole):
+                    # TODO:  se ci fossero solo disastri in una partits cosa succederebbe?	
+                    randomrole = game.getrandomrole()
                 self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=randomrole.icon,
                                                                  role=randomrole.name,

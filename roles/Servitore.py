@@ -5,7 +5,7 @@ import strings as s
 class Servitore(Role):
     """Il servitore del Caos è il sottoposto al Signore del Caos.
     Se non ci sono Signori del Caos in partita diventa Signore del Caos."""
-    icon = s.derek_icon
+    icon = s.chaos_servant_icon
     team = 'Chaos'
     name = s.chaos_servant_name
     powerdesc = s.chaos_servant_power_description

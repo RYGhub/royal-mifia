@@ -107,10 +107,10 @@ derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
 derek_deathwish_successful = "SPOILER: alla fine di questa giornata *\U0001F635 Derek* (@{name}) muore schiacciato da un container.\n"
 
 # Disastro: icona
-disaster_icon = "\U0001F913"
+disaster_icon = "\U0001F46E"
 
 # Disastro: nome ruolo
-disaster_name = "Disastro"
+disaster_name = "Carabiniere"
 
 # Mamma: icona
 mom_icon = "\U0001F917"
@@ -139,7 +139,7 @@ intern_power_description = "In qualsiasi momento della partita puoi scegliere un
                            "`/power {gamename} nomeutentedatoredilavoro`"
 
 # Stagista: inizia lo stage
-intern_started_internship = "Stai andando in stage da @{master}."
+intern_started_internship = "Andrai in stage da @{master}."
 
 # Stagista: cambiato ruolo
 intern_changed_role = "Lo stagista ha finito il tirocinio ed ha imparato i segreti del mestiere di *{icon} {role}*."
@@ -188,6 +188,9 @@ chaos_lord_failed = "Il Caos è nell'aria...\n" \
 
 # Servitore del Caos: nome ruolo
 chaos_servant_name = "Servitore del Caos"
+
+# Servitore del Caos: icona
+chaos_servant_icon = "\U0001F468\u200d\U0001F3A4"
 
 # Servitore del Caos: descrizione potere
 chaos_servant_power_description = "Il Signore del Caos ti cederà i suoi poteri quando sarà morto.\n" \
@@ -373,14 +376,7 @@ error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
                            "Controlla la sintassi del comando e riprova."
 
 # Lista dei possibili nomi di una partita
-names_list = ["Caos",
-              "Vuoto",
-              "Nulla",
-              "Buconero",
-              "Fine",
-              "Supernova",
-              "Centrogalattico",
-              "Madre"]
+names_list = ["Mela", "Pera", "Banana", "Pesca", "Kiwi"]
 
 # Lista dei passi di configurazione da eseguire
 config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",
@@ -434,6 +430,14 @@ preset_advanced = "Avanzato"
 preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
                            "I ruoli in questa partita sono casuali!\n" \
                            "Buona fortuna a scoprirli!"
+
+# Preset con uno di tutti
+preset_oneofall = "Round Robin"
+
+# Preset con uno di tutti selezionato
+preset_oneofall_selected = "Selezionato il preset *Round Robin*.\n" \
+                           "In questa partita saranno presenti lo stesso numero di tutti i ruoli.\n" \
+			   "Se sono presenti giocatori in eccesso, verrà assegnato loro un ruolo casuale."
 
 # Personalizza
 preset_custom = "Personalizzato"

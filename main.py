@@ -45,11 +45,7 @@ class Player:
     def message(self, bot, text):
         """Manda un messaggio privato al giocatore."""
         if not self.dummy:
-            try:
-                bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
-            except Unauthorized:
-                print("Unauthorized to message {}".format(self))
-
+            bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
 
     def kill(self, bot, game):
         """Uccidi il giocatore."""
@@ -132,7 +128,7 @@ class Game:
             return None
 
     def assignroles(self, bot):
-        """Assegna ruoli casuali a tutti i giocatori."""
+        """Assegna i ruoli specificati ib playersinrole a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
         # Assegna i ruoli secondo i numeri all'interno di playersinrole
@@ -283,6 +279,8 @@ class Game:
                 InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
             ],
             [
+                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall"),
+
                 InlineKeyboardButton(s.preset_custom, callback_data="custom")
             ]
         ])
@@ -381,8 +379,35 @@ class Game:
             self.votingmifia = False
             self.missingmifia = False
             self.message(bot, s.preset_advanced_selected)
-            if __debug__:
-                self.message(bot, "Punteggio di bilanciamento: {}".format(balance))
+            self.message(bot, "Punteggio di bilanciamento: {}".format(balance))
+            self.endconfig(bot)
+        elif preset == "oneofall":
+            self.roleconfig = {
+                "Mifioso": 1,
+                "Investigatore": 1,
+                "Corrotto": 1,
+                "Angelo": 1,
+                "Terrorista": 1,
+                "Derek": 1,
+                "Disastro": 1,
+                "Mamma": 1,
+                "Stagista": 1,
+                "SignoreDelCaos": 0,
+                "Servitore": 0
+            }
+            unassignedplayers = len(self.players) - 9
+            availableroles = list() 
+            while unassignedplayers > 0:
+                if len(availableroles) == 0:
+                    availableroles = rolepriority.copy()
+                    availableroles.remove(SignoreDelCaos)
+                    availableroles.remove(Servitore)
+                    random.shuffle(availableroles)
+                self.roleconfig[availableroles.pop().__name__] += 1
+                unassignedplayers -= 1
+            self.votingmifia = False
+            self.missingmifia = False
+            self.message(bot, s.preset_oneofall_selected)
             self.endconfig(bot)
         elif preset == "custom":
             # Preset personalizzabile
@@ -530,7 +555,7 @@ class Game:
         for role in self.playersinrole:
             if len(role) > 0:
                 availableroles.append(role)
-        return locals()[random.sample(availableroles, 1)[0]]
+        return globals()[random.sample(availableroles, 1)[0]]
 
 
 
@@ -970,7 +995,7 @@ def inlinekeyboard(bot, update):
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_not_admin, show_alert=True)
             return
         game.loadpreset(bot, update.callback_query.data)
-        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data), show_alert=True)
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data))
     elif game.phase is 'Voting':
         # Trova il giocatore
         player = game.findplayerbyid(update.callback_query.from_user.id)
@@ -984,7 +1009,7 @@ def inlinekeyboard(bot, update):
         target = game.findplayerbyusername(update.callback_query.data)
         player.votingfor = target
         game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
-        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername), show_alert=True)
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))

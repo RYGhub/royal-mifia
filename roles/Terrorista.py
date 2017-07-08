@@ -8,7 +8,7 @@ class Terrorista(Role):
     team = "Evil"
     name = s.terrorist_name
     powerdesc = s.terrorist_power_description
-    value = -50
+    value = -75
 
     def __repr__(self) -> str:
         return "<Role: Terrorista>"
