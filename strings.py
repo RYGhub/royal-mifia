@@ -395,11 +395,7 @@ config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",
                "Qual è la percentuale di attacchi falliti della mifia?"]
 
 # Scegli il preset
-preset_choose = "*Seleziona un preset per la partita:*\n" \
-                "`Semplice`: solo royal, mifia e investigatori e niente meccaniche avanzate. _(minimo 3 giocatori)_\n" \
-                "`Classico`: royal, mifia, investigatori, angeli e la comparsa casuale di un terrorista! _(minimo 4 giocatori)_\n" \
-                "`Completo`: tutti i ruoli e le meccaniche nuove! _(minimo 8 giocatori)_\n" \
-                "`Personalizzato`: scegli tu i ruoli e le meccaniche che vuoi in partita!"
+preset_choose = "*Seleziona un preset per la partita:*" 
 
 # Preset semplice
 preset_simple = "Semplice"
