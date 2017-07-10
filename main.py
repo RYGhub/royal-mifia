@@ -11,7 +11,7 @@ import filemanager
 import random
 import strings as s
 import logging
-from roles.data import *
+from roles.roles import *
 
 logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
