@@ -130,9 +130,9 @@ class Game:
     def updategroupname(self, bot):
         try:
             if self.phase == "Voting":
-                bot.setChatTitle(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
+                bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
             else:
-                bot.setChatTitle(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
+                bot.set_chat_title(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
         except Unauthorized:
             print("Bot is not administrator in group {}".format(self.groupid))
 
