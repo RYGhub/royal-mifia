@@ -378,22 +378,6 @@ error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
 # Lista dei possibili nomi di una partita
 names_list = ["Mela", "Pera", "Banana", "Pesca", "Kiwi"]
 
-# Lista dei passi di configurazione da eseguire
-config_list = ["Quanti *Mifiosi* devono essere nella partita all'inizio?",
-               "Quanti *Investigatori* devono essere nella partita all'inizio?",
-               "Quanti *Angeli* devono essere nella partita all'inizio?",
-               "Quanti *Terroristi* devono essere nella partita all'inizio?",
-               "Quanti *Derek* devono essere nella partita all'inizio?",
-               "Quanti *Disastri* devono essere nella partita all'inizio?",
-               "Quante *Mamme* devono essere nella partita all'inizio?",
-               "Quanti *Stagisti* devono essere nella partita all'inizio?",
-               "Quante *Signori del Caos* devono essere nella partita all'inizio?",
-               "Quante *Servitori del Caos* devono essere nella partita all'inizio?",
-               "I mifiosi possono uccidere una persona a `testa` al giorno "
-               "o votano e decidono un'`unica` persona da uccidere per tutta la squadra?",
-               "La mifia può `mancare` le uccisioni o i loro attacchi sono `perfetti`?",
-               "Qual è la percentuale di attacchi falliti della mifia?"]
-
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*" 
 
@@ -440,3 +424,9 @@ preset_custom = "Personalizzato"
 
 # Preset selezionato
 preset_selected = "Preset selezionato: {selected}"
+
+# Nome gruppo
+group_name = "{phase} - Mifia {name}"
+
+# Giorno
+day = "Day {day}"

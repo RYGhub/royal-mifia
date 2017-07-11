@@ -127,6 +127,15 @@ class Game:
         else:
             return None
 
+    def updategroupname(self, bot):
+        try:
+            if self.phase == "Voting":
+                bot.setChatTitle(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
+            else:
+                bot.setChatTitle(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
+        except Unauthorized:
+            print("Bot is not administrator in group {}".format(self.groupid))
+
     def assignroles(self, bot):
         """Assegna i ruoli specificati ib playersinrole a tutti i giocatori."""
         random.seed()
@@ -271,6 +280,8 @@ class Game:
     def startpreset(self, bot):
         """Inizio della fase di preset"""
         self.phase = 'Preset'
+        # Aggiorna il nome del gruppo
+        self.updategroupname(bot)
         # Crea la tastiera
         kbmarkup = InlineKeyboardMarkup([
             [
@@ -413,11 +424,6 @@ class Game:
             # Preset personalizzabile
             self.startconfig(bot)
 
-    def startconfig(self, bot):
-        """Inizio della fase di config"""
-        self.phase = 'Config'
-        self.configstep = 0
-        self.message(bot, s.config_list[0])
 
     def endconfig(self, bot):
         """Fine della fase di config, inizio assegnazione ruoli"""
@@ -428,8 +434,11 @@ class Game:
         # Se non ce ne sono abbastanza, torna alla fase di join
         if requiredplayers > len(self.players):
             self.message(bot, s.error_not_enough_players)
+            self.phase = "Join"
+            self.updategroupname(bot)
         else:
             self.phase = 'Voting'
+            self.updategroupname(bot)
             self.day += 1
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
