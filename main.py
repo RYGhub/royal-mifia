@@ -127,14 +127,15 @@ class Game:
         else:
             return None
 
-    def updategroupname(self, bot):
-        try:
-            if self.phase == "Voting":
-                bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
-            else:
-                bot.set_chat_title(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
-        except Unauthorized:
-            print("Bot is not administrator in group {}".format(self.groupid))
+    # def updategroupname(self, bot):
+    #     """Cambia il titolo della chat. Per qualche motivo non funziona."""
+    #     try:
+    #         if self.phase == "Voting":
+    #             bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
+    #         else:
+    #             bot.set_chat_title(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
+    #     except Unauthorized:
+    #         print("Bot is not administrator in group {}".format(self.groupid))
 
     def assignroles(self, bot):
         """Assegna i ruoli specificati ib playersinrole a tutti i giocatori."""
@@ -281,7 +282,7 @@ class Game:
         """Inizio della fase di preset"""
         self.phase = 'Preset'
         # Aggiorna il nome del gruppo
-        self.updategroupname(bot)
+        # self.updategroupname(bot)
         # Crea la tastiera
         kbmarkup = InlineKeyboardMarkup([
             [
@@ -435,10 +436,10 @@ class Game:
         if requiredplayers > len(self.players):
             self.message(bot, s.error_not_enough_players)
             self.phase = "Join"
-            self.updategroupname(bot)
+            # self.updategroupname(bot)
         else:
             self.phase = 'Voting'
-            self.updategroupname(bot)
+            # self.updategroupname(bot)
             self.day += 1
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
