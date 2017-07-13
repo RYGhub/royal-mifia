@@ -1,4 +1,5 @@
 from .Role import Role
+import random
 import strings as s
 
 class Mifioso(Role):
