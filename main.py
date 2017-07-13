@@ -6,7 +6,7 @@ import math
 import time
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.error import Unauthorized, TimedOut
+from telegram.error import Unauthorized, TimedOut, RetryAfter
 import filemanager
 import random
 import strings as s
@@ -548,9 +548,10 @@ class Game:
             for player in self.playersinrole['Mifioso']:
                 player.message(bot, text)
 
-    def joinplayer(self, bot, player):
+    def joinplayer(self, bot, player, silent=False):
         self.players.append(player)
-        self.message(bot, s.player_joined.format(name=player.tusername))
+        if not silent:
+            self.message(bot, s.player_joined.format(name=player.tusername))
         # Se è il primo giocatore ad unirsi, diventa admin
         if len(self.players) == 1:
             self.admin = player
@@ -649,7 +650,10 @@ def debugjoin(bot, update):
         arg = update.message.text.split(" ")
         for name in range(1, int(arg[1]) + 1):
             p = Player(int(name), str(name), True)
-            game.joinplayer(bot, p)
+            try:
+                game.joinplayer(bot, p, silent=True)
+            except RetryAfter:
+                pass
 
 
 def status(bot, update):
