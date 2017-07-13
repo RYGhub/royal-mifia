@@ -366,7 +366,7 @@ class Game:
                 maxmifia += 1  # Sono sicuro che questo si potrebbe fare meglio
             self.roleconfig["Mifioso"] = random.randint(math.ceil(unassignedplayers / maxmifia / 2), math.ceil(unassignedplayers / maxmifia))
             unassignedplayers -= self.roleconfig["Mifioso"]
-            balance += Mifioso.value
+            balance += Mifioso.value * self.roleconfig["Mifioso"]
             # Ruoli positivi
             positiveroles = [Angelo, Investigatore, Mamma, Stagista]
             # Trova tutti i ruoli negativi
