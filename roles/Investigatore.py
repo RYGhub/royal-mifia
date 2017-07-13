@@ -7,7 +7,7 @@ class Investigatore(Role):
     team = 'Good'
     name = s.detective_name
     powerdesc = s.detective_power_description
-    value = 100
+    value = 85
     refillpoweruses = 1
 
     def __init__(self, player):
