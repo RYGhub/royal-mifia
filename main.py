@@ -637,7 +637,7 @@ def join(bot, update):
 
 
 def debugjoin(bot, update):
-    """Aggiungi un bot alla partita."""
+    """Aggiungi dei bot alla partita."""
     if __debug__:
         game = findgamebyid(update.message.chat.id)
         if game is None:
@@ -647,8 +647,9 @@ def debugjoin(bot, update):
             game.message(bot, s.error_join_phase_ended)
             return
         arg = update.message.text.split(" ")
-        p = Player(random.randrange(0, 10000), arg[1], True)  # ewwwwww
-        game.joinplayer(bot, p)
+        for name in range(1, int(arg) + 1):
+            p = Player(int(name), str(name), True)
+            game.joinplayer(bot, p)
 
 
 def status(bot, update):
