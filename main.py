@@ -647,7 +647,7 @@ def debugjoin(bot, update):
             game.message(bot, s.error_join_phase_ended)
             return
         arg = update.message.text.split(" ")
-        for name in range(1, int(arg) + 1):
+        for name in range(1, int(arg[0]) + 1):
             p = Player(int(name), str(name), True)
             game.joinplayer(bot, p)
 
