@@ -231,7 +231,7 @@ roles_assigned_successfully = "I ruoli sono stati assegnati.\n" \
 mifia_team_intro = "I mifiosi in questa partita sono:\n"
 
 # Generale: formattazione elenco mifiosi (deve terminare con \n)
-mifia_team_player = "{icon} {name}\n"
+mifia_team_player = "{icon} @{name}\n"
 
 # Generale: votazione completata
 vote = "@{voting} ha votato per uccidere @{voted}."
