@@ -329,7 +329,7 @@ class Game:
                 "Investigatore":  math.floor(len(self.players) / 12) + 1,  # 1 Detective ogni 12 giocatori
                 "Corrotto":       0,
                 "Angelo":         math.floor(len(self.players) / 10) + 1,  # 1 Angelo ogni 10 giocatori
-                "Terrorista":     1 if random.randrange(0, 100) > 70 else 0,  # 30% di avere un terrorista
+                "Terrorista":     1 if random.randrange(0, 100) >= 50 else 0,  # 50% di avere un terrorista
                 "Derek":          0,
                 "Disastro":       0,
                 "Mamma":          0,
