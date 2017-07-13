@@ -400,8 +400,8 @@ preset_classic_selected = "Selezionato il preset *Classico*.\n" \
                           "*{mifioso}* Mifiosi,\n" \
                           "*{investigatore}* Investigatori,\n" \
                           "*{angelo}* Angeli,\n" \
-                          "*{royal}* Royal.\n" \
-                          "Inoltre, _potrebbe_ esserci un terrorista..."
+                          "*forse* un Terrorista, \n" \
+                          "e *{royal}* o *{royalmenouno}* Royal.\n" \
 
 # Preset avanzato
 preset_advanced = "Avanzato"
@@ -409,7 +409,8 @@ preset_advanced = "Avanzato"
 # Preset avanzato selezionato
 preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
                            "I ruoli in questa partita sono casuali!\n" \
-                           "Il punteggio di bilanciamento è {balancescore}."
+                           "Il punteggio di bilanciamento è {balancescore}.\n" \
+                           "Inoltre, ogni mifioso può uccidere una persona diversa ogni giorno..."
 
 # Preset con uno di tutti
 preset_oneofall = "Round Robin"
@@ -417,10 +418,7 @@ preset_oneofall = "Round Robin"
 # Preset con uno di tutti selezionato
 preset_oneofall_selected = "Selezionato il preset *Round Robin*.\n" \
                            "In questa partita saranno presenti lo stesso numero di tutti i ruoli.\n" \
-			   "Se sono presenti giocatori in eccesso, verrà assegnato loro un ruolo casuale."
-
-# Personalizza
-preset_custom = "Personalizzato"
+			               "Se sono presenti giocatori in eccesso, verrà assegnato loro un ruolo casuale."
 
 # Preset selezionato
 preset_selected = "Preset selezionato: {selected}"

@@ -337,7 +337,7 @@ class Game:
             }
             self.votingmifia = True
             self.missingmifia = False
-            self.message(bot, s.preset_classic_selected)
+            self.message(bot, s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
             self.endconfig(bot)
         elif preset == "advanced":
             # Preset avanzato: genera i ruoli in modo da rendere la partita divertente
@@ -368,9 +368,9 @@ class Game:
             unassignedplayers -= self.roleconfig["Mifioso"]
             balance += Mifioso.value
             # Ruoli positivi
-            positiveroles = [Angelo, Investigatore, Mamma, Stagista, Derek]
+            positiveroles = [Angelo, Investigatore, Mamma, Stagista]
             # Trova tutti i ruoli negativi
-            negativeroles = [Corrotto, Disastro, Terrorista]
+            negativeroles = [Corrotto, Disastro, Terrorista, Derek]
             # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
             while balance < 0 and unassignedplayers > 0:
                 selectedrole = random.sample(positiveroles, 1)[0]
