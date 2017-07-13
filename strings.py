@@ -77,11 +77,11 @@ terrorist_power_description = "Puoi fare saltare in aria un sacco di persone!\n"
                               "La mifia non sa chi sei, ma fai parte della squadra dei malvagi.\n"
 
 # Terrorista: esplosione
-terrorist_kaboom = "Boom! Il terrorista si è fatto esplodere prima che poteste ucciderlo, mietendo vittime tra tutti" \
+terrorist_kaboom = "\U0001F4A3 *Boom!* Il terrorista si è fatto esplodere prima che poteste ucciderlo, mietendo vittime tra tutti" \
                    " quelli che lo hanno votato!"
 
 # Terrorista: bersaglio ucciso
-terrorist_target_killed = "Boom! @{target} è esploso!\n" \
+terrorist_target_killed = "\U0001F4A3 *Boom!* @{target} è morto a causa dell'esplosione!\n" \
                           "Era un *{icon} {role}*."
 
 # Derek: icona
@@ -92,7 +92,7 @@ derek_name = "Derek"
 
 # Derek: descrizione del potere
 derek_power_description = "Puoi decidere di suicidarti alla fine di un round.\n" \
-                          "Potresti farlo per confondere le idee ai Royal, o per ragequittare malissimo.\n" \
+                          "Potresti farlo per confondere le idee ai Royal, o per ragequittare con stile.\n" \
                           "Sta a te la scelta.\n" \
                           "Per lasciare questo mondo alla fine del giorno, scrivi in questa chat:\n" \
                           "`/power {gamename} banana`\n"
@@ -104,7 +104,7 @@ derek_deathwish_set = "*Morirai* alla fine di questo giorno."
 derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
 
 # Derek: morte
-derek_deathwish_successful = "SPOILER: alla fine di questa giornata *\U0001F635 Derek* (@{name}) muore schiacciato da un container.\n"
+derek_deathwish_successful = "*SPOILER:* alla fine di questo giorno *\U0001F635 Derek Shepard* (@{name}) è morto schiacciato da un container.\n"
 
 # Disastro: icona
 disaster_icon = "\U0001F46E"
@@ -176,7 +176,7 @@ chaos_lord_power_description = "Sei il *SIGNORE DEL CAOS*!\n" \
                                "`/power {gamename} nomeutentebersaglio`"
 
 # Signore del Caos: bersaglio selezionato
-chaos_lord_target_selected = "BWHAHAHA. Hai deciso di usare i tuoi poteri del Caos su {target}."
+chaos_lord_target_selected = "BWHAHAHA. Hai deciso di usare i tuoi poteri del Caos su @{target}."
 
 # Signore del Caos: bersaglio randomizzato
 chaos_lord_randomized = "Il Caos è nell'aria...\n" \
@@ -184,7 +184,7 @@ chaos_lord_randomized = "Il Caos è nell'aria...\n" \
 
 # Signore del Caos: randomizzazione fallita
 chaos_lord_failed = "Il Caos è nell'aria...\n" \
-                    "_Ma non succede nulla._"
+                    "_Ma non è successo nulla!?_"
 
 # Servitore del Caos: nome ruolo
 chaos_servant_name = "Servitore del Caos"
@@ -211,14 +211,15 @@ no_players_lynched = "La Royal Games non è giunta a una decisione in questo gio
 
 # Generale: partita creata
 new_game = "E' stata creata una nuova partita in questo gruppo.\n" \
-           "*ID:* {groupid}\n" \
            "*Nome:* {name}"
 
 # Generale: un giocatore si è unito
-player_joined = "@{name} si è unito alla partita!"
+player_joined = "@{name} si è unito alla partita!\n" \
+                "Adesso ci sono {players} giocatori in partita."
 
 # Generale: ti sei unito alla partita, in chat privata
-you_joined = "Ti sei unito alla partita _{game}_!"
+you_joined = "Ti sei unito alla partita _{game}_!\n" \
+             "Il ruolo ti verrà assegnato appena @{adminname} chiuderà le iscrizioni."
 
 # Generale: fine della fase di join
 join_phase_ended = "La fase di join è terminata."
@@ -248,7 +249,7 @@ check_private = "Messaggio inviato in chat privata.\n" \
                 "Controlla @mifiabot."
 
 # Generale: partita salvata
-game_saved = "Partita salvata su file."
+game_saved = "Partita _{name}_ salvata su file."
 
 # Generale: partita caricata
 game_loaded = "Partita caricata da file."
@@ -273,16 +274,16 @@ end_game_chaos = "Sei un Signore del Caos."
 vote_keyboard = "Chi vuoi votare...?"
 
 # Generale: riga della tastiera del voto
-vote_keyboard_line = "@{name}"
+vote_keyboard_line = "@{name} - {votes}"
 
 # Generale: inizia un nuovo giorno
-new_day = "Sorge l'alba del giorno **{day}**!"
+new_day = "Sorge l'alba del giorno *{day}*!"
 
 # Vittoria: team Royal
-victory_royal = "**La Royal Games vince!**"
+victory_royal = "*La Royal Games vince!*"
 
 # Vittoria: team Mifia
-victory_mifia = "**La Mifia vince!**"
+victory_mifia = "*La Mifia vince!*"
 
 # Vittoria!
 victory = "*Hai vinto!*"
@@ -366,7 +367,7 @@ error_chat_unavailable = "\U000026A0 Non hai mai scritto un messaggio in chat pr
 
 # Erorre: nessun username
 error_no_username = "\U000026A0 Non hai nessun username di Telegram!\n" \
-                    "Specificane uno nelle opzioni!"
+                    "Vai nelle impostazioni e inseriscine uno!"
 
 # Errore: non si può votare nella prima giornata
 error_no_votes_on_first_day = "\U000026A0 I Royal non votano nella prima giornata, dato che non si sono ancora verificati omicidii."
@@ -388,8 +389,8 @@ preset_simple = "Semplice"
 preset_simple_selected = "Selezionato il preset *Semplice*.\n" \
                          "In partita saranno presenti:\n" \
                          "*{mifioso}* Mifiosi,\n" \
-                         "*{investigatore}* Investigatori,\n" \
-                         "*{royal}* Royal."
+                         "*{investigatore}* Investigatori\n" \
+                         "e *{royal}* Royal."
 
 # Preset classico
 preset_classic = "Classico"
@@ -400,8 +401,8 @@ preset_classic_selected = "Selezionato il preset *Classico*.\n" \
                           "*{mifioso}* Mifiosi,\n" \
                           "*{investigatore}* Investigatori,\n" \
                           "*{angelo}* Angeli,\n" \
-                          "*forse* un Terrorista, \n" \
-                          "e *{royal}* o *{royalmenouno}* Royal.\n" \
+                          "*forse* un Terrorista \n" \
+                          "e *{royalmenouno}* o *{royal}* Royal.\n" \
 
 # Preset avanzato
 preset_advanced = "Avanzato"
@@ -409,8 +410,25 @@ preset_advanced = "Avanzato"
 # Preset avanzato selezionato
 preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
                            "I ruoli in questa partita sono casuali!\n" \
-                           "Il punteggio di bilanciamento è {balancescore}.\n" \
-                           "Inoltre, ogni mifioso può uccidere una persona diversa ogni giorno..."
+                           "Inoltre, ogni mifioso può uccidere una persona diversa ogni giorno...\n"
+
+# Partita in cui i Mifiosi hanno un grande vantaggio (<-30)
+balance_mifia_big = "La mifia ha un grande vantaggio in questa partita." \
+                    "Buona fortuna, Royal Games, ne avrete bisogno!"
+
+# Partita in cui i Royal hanno un grande vantaggio (>+30)
+balance_royal_big = "La Royal Games ha un grande vantaggio in questa partita." \
+                    "State attenti, Mifiosi!"
+
+# Partita in cui i Mifiosi hanno un leggero vantaggio (>-30)
+balance_mifia_small = "La mifia è leggermente avvantaggiata in questa partita."
+
+# Partita in cui i Royal hanno un leggero vantaggio (<+30)
+balance_royal_small = "La Royal Games è leggermente avvantaggiata in questa partita."
+
+# Partita bilanciata (-5<x<5)
+balance_perfect = "La partita è perfettamente bilanciata per entrambe le squadre, nessuno sembra avere un grosso vantaggio.\n" \
+                  "Buona fortuna a tutti!"
 
 # Preset con uno di tutti
 preset_oneofall = "Round Robin"

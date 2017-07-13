@@ -67,8 +67,6 @@ class Game:
         self.configstep = 0  # Passo attuale di configurazione
         self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
         self.votingmifia = False  # Seguire le regole originali della mifia che vota?
-        self.missingmifia = False  # La mifia può fallire un'uccisione
-        self.misschance = 5  # Percentuale di fallimento di un'uccisione
 
         # Liste di ruoli in gioco, per velocizzare gli endday
         self.playersinrole = dict()
@@ -250,15 +248,10 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     if killed.protectedby is None:
-                        if self.missingmifia and random.randrange(0, 100) < self.misschance:
-                            # Colpo mancato
-                            self.message(bot, s.mifia_target_missed.format(target=killed.tusername))
-                        else:
-                            # Uccisione riuscita
-                            killed.kill(bot, self)
-                            self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
-                                                                           icon=killed.role.icon,
-                                                                           role=killed.role.name))
+                        killed.kill(bot, self)
+                        self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
+                                                                       icon=killed.role.icon,
+                                                                       role=killed.role.name))
                     else:
                         self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
                                                                           icon=killed.protectedby.role.icon,
@@ -287,11 +280,11 @@ class Game:
         kbmarkup = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton(s.preset_simple, callback_data="simple"),
-                InlineKeyboardButton(s.preset_classic, callback_data="classic"),
-                InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
+                InlineKeyboardButton(s.preset_classic, callback_data="classic")
             ],
             [
-                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall")
+                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall"),
+                InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
             ]
         ])
         # Manda la tastiera
@@ -315,7 +308,6 @@ class Game:
                 "Servitore":      0
             }
             self.votingmifia = True
-            self.missingmifia = False
             self.message(bot, s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
                                                               investigatore=self.roleconfig["Investigatore"],
                                                               royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"]))
@@ -336,7 +328,6 @@ class Game:
                 "Servitore":      0
             }
             self.votingmifia = True
-            self.missingmifia = False
             self.message(bot, s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
             self.endconfig(bot)
         elif preset == "advanced":
@@ -388,8 +379,16 @@ class Game:
             self.roleconfig["Servitore"] = 0
             # Altri parametri
             self.votingmifia = False
-            self.missingmifia = False
-            self.message(bot, s.preset_advanced_selected.format(balancescore=balance))
+            if balance < -30:
+                self.message(bot, s.preset_advanced_selected + s.balance_mifia_big)
+            elif balance < -5:
+                self.message(bot, s.preset_advanced_selected + s.balance_mifia_small)
+            elif balance < 5:
+                self.message(bot, s.preset_advanced_selected + s.balance_perfect)
+            elif balance < 30:
+                self.message(bot, s.preset_advanced_selected + s.balance_royal_small)
+            else:
+                self.message(bot, s.preset_advanced_selected + s.balance_royal_big)
             self.endconfig(bot)
         elif preset == "oneofall":
             self.roleconfig = {
@@ -416,7 +415,6 @@ class Game:
                 self.roleconfig[availableroles.pop().__name__] += 1
                 unassignedplayers -= 1
             self.votingmifia = False
-            self.missingmifia = False
             self.message(bot, s.preset_oneofall_selected)
             self.endconfig(bot)
 
@@ -436,6 +434,7 @@ class Game:
             self.phase = 'Voting'
             # self.updategroupname(bot)
             self.day += 1
+            self.players.sort(key=lambda p: p.tusername)
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
             for player in self.players:
@@ -481,7 +480,7 @@ class Game:
         # Scrivi sul file.
         file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'wb')
         pickle.dump(self, file)
-        self.message(bot, s.game_saved)
+        self.adminmessage(bot, s.game_saved.format(name=self.name))
         file.close()
 
     def victoryconditions(self, bot):
@@ -505,7 +504,7 @@ class Game:
             self.endgame(bot)
         # I mifiosi sono più del 50% dei vivi se la mifia è infallibile
         # o non ci sono più personaggi buoni se la mifia può mancare i colpi
-        elif (not self.missingmifia and evil >= (alive-evil)) or good == 0:
+        elif evil >= (alive - evil) or good == 0:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
@@ -540,18 +539,21 @@ class Game:
         player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
         if player.role.powerdesc is not None:
             player.message(bot, player.role.powerdesc.format(gamename=self.name))
-        # Aggiorna lo stato dei mifiosi
-        if newrole == Mifioso:
-            text = s.mifia_team_intro
-            for player in self.playersinrole['Mifioso']:
-                text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-            for player in self.playersinrole['Mifioso']:
-                player.message(bot, text)
+        # Manda ai mifiosi l'elenco dei loro compagni di squadra
+        text = s.mifia_team_intro
+        for player in self.playersinrole['Mifioso']:
+            text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+        for player in self.playersinrole['Corrotto']:
+            text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
+        for player in self.playersinrole['Mifioso']:
+            player.message(bot, text)
+        for player in self.playersinrole['Corrotto']:
+            player.message(bot, text)
 
     def joinplayer(self, bot, player, silent=False):
         self.players.append(player)
         if not silent:
-            self.message(bot, s.player_joined.format(name=player.tusername))
+            self.message(bot, s.player_joined.format(name=player.tusername, players=len(self.players)))
         # Se è il primo giocatore ad unirsi, diventa admin
         if len(self.players) == 1:
             self.admin = player
@@ -596,7 +598,7 @@ def newgame(bot, update):
         if game is None:
             game = Game(update.message.chat.id)
             inprogress.append(game)
-            game.message(bot, s.new_game.format(groupid=game.groupid, name=game.name))
+            game.message(bot, s.new_game.format(name=game.name))
             join(bot, update)
         else:
             bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
@@ -626,7 +628,7 @@ def join(bot, update):
         return
     p = Player(update.message.from_user.id, update.message.from_user.username)
     try:
-        p.message(bot, s.you_joined.format(game=game.name))
+        p.message(bot, s.you_joined.format(game=game.name, adminname=game.admin.tusername))
     except Unauthorized:
         # Bot bloccato dall'utente
         game.message(bot, s.error_chat_unavailable)
@@ -710,8 +712,10 @@ def vote(bot, update):
     # Genera la tastiera
     table = list()
     for player in game.players:
+        if not player.alive:
+            continue
         row = list()
-        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(name=player.tusername), callback_data=player.tusername))
+        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(name=player.tusername, votes=player.votes), callback_data=player.tusername))
         table.append(row)
     keyboard = InlineKeyboardMarkup(table)
     # Manda la tastiera
