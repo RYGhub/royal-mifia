@@ -291,9 +291,7 @@ class Game:
                 InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
             ],
             [
-                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall"),
-
-                InlineKeyboardButton(s.preset_custom, callback_data="custom")
+                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall")
             ]
         ])
         # Manda la tastiera
@@ -359,30 +357,31 @@ class Game:
             unassignedplayers = len(self.players)
             balance = 0
             # Scegli casualmente il numero di mifiosi: più ce ne sono più ruoli ci saranno in partita!
-            self.roleconfig["Mifioso"] = random.randint(1, math.ceil(unassignedplayers / 7))
+            maxmifia = 0
+            players = len(self.players)
+            while True:
+                players = math.floor(players / (maxmifia + 1))
+                if players <= 0:
+                    break
+                maxmifia += 1  # Sono sicuro che questo si potrebbe fare meglio
+            self.roleconfig["Mifioso"] = random.randint(math.ceil(unassignedplayers / maxmifia / 2), math.ceil(unassignedplayers / maxmifia))
             unassignedplayers -= self.roleconfig["Mifioso"]
             balance += Mifioso.value
-            # Trova tutti i ruoli positivi
-            positiveroles = list()
-            for role in rolepriority:
-                if role.team == "Good":
-                    positiveroles.append(role)
+            # Ruoli positivi
+            positiveroles = [Angelo, Investigatore, Mamma, Stagista, Derek]
             # Trova tutti i ruoli negativi
-            negativeroles = list()
-            for role in rolepriority:
-                if role.team == "Evil":
-                    negativeroles.append(role)
+            negativeroles = [Corrotto, Disastro, Terrorista]
             # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
             while balance < 0 and unassignedplayers > 0:
-                role = random.sample(positiveroles, 1)[0]
-                self.roleconfig[role.__name__] += 1
-                balance += role.value
+                selectedrole = random.sample(positiveroles, 1)[0]
+                self.roleconfig[selectedrole.__name__] += 1
+                balance += selectedrole.value
                 unassignedplayers -= 1
-            # Se la partita è leggermente sfavorita verso i Royal, aggiungi qualche ruolo negativo
+            # Se la partita è sfavorita verso i Royal, aggiungi qualche ruolo negativo
             while balance > 0 and unassignedplayers > 0:
-                role = random.sample(negativeroles, 1)[0]
-                self.roleconfig[role.__name__] += 1
-                balance += role.value
+                selectedrole = random.sample(negativeroles, 1)[0]
+                self.roleconfig[selectedrole.__name__] += 1
+                balance += selectedrole.value
                 unassignedplayers -= 1
             # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
             self.roleconfig["SignoreDelCaos"] = 0
@@ -390,8 +389,7 @@ class Game:
             # Altri parametri
             self.votingmifia = False
             self.missingmifia = False
-            self.message(bot, s.preset_advanced_selected)
-            self.message(bot, "Punteggio di bilanciamento: {}".format(balance))
+            self.message(bot, s.preset_advanced_selected.format(balancescore=balance))
             self.endconfig(bot)
         elif preset == "oneofall":
             self.roleconfig = {
@@ -421,9 +419,6 @@ class Game:
             self.missingmifia = False
             self.message(bot, s.preset_oneofall_selected)
             self.endconfig(bot)
-        elif preset == "custom":
-            # Preset personalizzabile
-            self.startconfig(bot)
 
 
     def endconfig(self, bot):
@@ -562,10 +557,10 @@ class Game:
 
     def getrandomrole(self):
         availableroles = list()
-        for role in self.playersinrole:
-            if len(role) > 0:
-                availableroles.append(role)
-        return globals()[random.sample(availableroles, 1)[0]]
+        for existingrole in self.playersinrole:
+            if len(existingrole) > 0:
+                availableroles.append(existingrole)
+        return globals()[random.sample(availableroles, 1)[0]]  # EWWW
 
 
 
@@ -688,133 +683,6 @@ def endjoin(bot, update):
         if update.message.from_user.id == game.admin.tid:
             game.message(bot, s.join_phase_ended)
             game.startpreset(bot)
-        else:
-            game.message(bot, s.error_not_admin)
-    else:
-        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
-
-
-def config(bot, update):
-    """Configura il parametro richiesto."""
-    game = findgamebyid(update.message.chat.id)
-    if game is not None and game.phase is 'Config':
-        if update.message.from_user.id == game.admin.tid:
-            cmd = update.message.text.split(' ', 1)
-            if len(cmd) >= 2:
-                if game.configstep == 0:
-                    try:
-                        game.roleconfig["Mifioso"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 1:
-                    try:
-                        game.roleconfig["Investigatore"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 2:
-                    try:
-                        game.roleconfig["Angelo"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 3:
-                    try:
-                        game.roleconfig["Terrorista"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 4:
-                    try:
-                        game.roleconfig["Derek"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 5:
-                    try:
-                        game.roleconfig["Disastro"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 6:
-                    try:
-                        game.roleconfig["Mamma"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 7:
-                    try:
-                        game.roleconfig["Stagista"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 8:
-                    try:
-                        game.roleconfig["SignoreDelCaos"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 9:
-                    try:
-                        game.roleconfig["SignoreDelCaos"] = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                elif game.configstep == 10:
-                    if cmd[1].lower() == 'testa':
-                        game.votingmifia = False
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                    elif cmd[1].lower() == 'unica':
-                        game.votingmifia = True
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                    else:
-                        game.message(bot, s.error_invalid_config)
-                elif game.configstep == 11:
-                    if cmd[1].lower() == 'perfetti':
-                        game.missingmifia = False
-                        game.endconfig(bot)
-                    elif cmd[1].lower() == 'mancare':
-                        game.missingmifia = True
-                        game.configstep += 1
-                        game.message(bot, s.config_list[game.configstep])
-                    else:
-                        game.message(bot, s.error_invalid_config)
-                elif game.configstep == 12:
-                    try:
-                        miss = int(cmd[1])
-                    except ValueError:
-                        game.message(bot, s.error_invalid_config)
-                    else:
-                        if miss < 100:
-                            game.misschance = miss
-                        else:
-                            game.misschance = 100
-                        game.endconfig(bot)
-            else:
-                game.message(bot, s.config_list[game.configstep])
         else:
             game.message(bot, s.error_not_admin)
     else:
@@ -1035,7 +903,6 @@ updater.dispatcher.add_handler(CommandHandler('role', role))
 updater.dispatcher.add_handler(CommandHandler('debug', debug))
 updater.dispatcher.add_handler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.add_handler(CommandHandler('kill', kill))
-updater.dispatcher.add_handler(CommandHandler('config', config))
 updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))

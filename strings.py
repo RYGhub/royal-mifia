@@ -409,7 +409,7 @@ preset_advanced = "Avanzato"
 # Preset avanzato selezionato
 preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
                            "I ruoli in questa partita sono casuali!\n" \
-                           "Buona fortuna a scoprirli!"
+                           "Il punteggio di bilanciamento è {balancescore}."
 
 # Preset con uno di tutti
 preset_oneofall = "Round Robin"
