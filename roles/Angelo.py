@@ -8,7 +8,7 @@ class Angelo(Role):
     team = 'Good'
     name = s.angel_name
     powerdesc = s.angel_power_description
-    value = 50
+    value = 70
 
     def __init__(self, player):
         super().__init__(player)

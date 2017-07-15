@@ -352,10 +352,10 @@ class Game:
             players = len(self.players)
             while True:
                 players = math.floor(players / (maxmifia + 1))
-                if players <= 0:
+                if players <= maxmifia:
                     break
                 maxmifia += 1  # Sono sicuro che questo si potrebbe fare meglio
-            self.roleconfig["Mifioso"] = random.randint(math.ceil(unassignedplayers / maxmifia / 2), math.ceil(unassignedplayers / maxmifia))
+            self.roleconfig["Mifioso"] = random.randint(math.ceil(maxmifia / 2), maxmifia)
             unassignedplayers -= self.roleconfig["Mifioso"]
             balance += Mifioso.value * self.roleconfig["Mifioso"]
             # Ruoli positivi
@@ -628,7 +628,7 @@ def join(bot, update):
         return
     p = Player(update.message.from_user.id, update.message.from_user.username)
     try:
-        p.message(bot, s.you_joined.format(game=game.name, adminname=game.admin.tusername))
+        p.message(bot, s.you_joined.format(game=game.name, adminname=game.admin.tusername if game.admin is not None else p.tusername))
     except Unauthorized:
         # Bot bloccato dall'utente
         game.message(bot, s.error_chat_unavailable)

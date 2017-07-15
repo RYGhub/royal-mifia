@@ -413,22 +413,22 @@ preset_advanced_selected = "Selezionato il preset *Avanzato*.\n" \
                            "Inoltre, ogni mifioso può uccidere una persona diversa ogni giorno...\n"
 
 # Partita in cui i Mifiosi hanno un grande vantaggio (<-30)
-balance_mifia_big = "La mifia ha un grande vantaggio in questa partita." \
-                    "Buona fortuna, Royal Games, ne avrete bisogno!"
+balance_mifia_big = "_La mifia ha un grande vantaggio in questa partita.\n" \
+                    "Buona fortuna, Royal Games, ne avrete bisogno!_"
 
 # Partita in cui i Royal hanno un grande vantaggio (>+30)
-balance_royal_big = "La Royal Games ha un grande vantaggio in questa partita." \
-                    "State attenti, Mifiosi!"
+balance_royal_big = "_La Royal Games ha un grande vantaggio in questa partita.\n" \
+                    "State attenti, Mifiosi!_"
 
 # Partita in cui i Mifiosi hanno un leggero vantaggio (>-30)
-balance_mifia_small = "La mifia è leggermente avvantaggiata in questa partita."
+balance_mifia_small = "_La mifia è leggermente avvantaggiata in questa partita._"
 
 # Partita in cui i Royal hanno un leggero vantaggio (<+30)
-balance_royal_small = "La Royal Games è leggermente avvantaggiata in questa partita."
+balance_royal_small = "_La Royal Games è leggermente avvantaggiata in questa partita._"
 
 # Partita bilanciata (-5<x<5)
-balance_perfect = "La partita è perfettamente bilanciata per entrambe le squadre, nessuno sembra avere un grosso vantaggio.\n" \
-                  "Buona fortuna a tutti!"
+balance_perfect = "_La partita sembra bilanciata per entrambe le squadre, nessuno sembra avere un grosso vantaggio.\n" \
+                  "Buona fortuna a tutti!_"
 
 # Preset con uno di tutti
 preset_oneofall = "Round Robin"

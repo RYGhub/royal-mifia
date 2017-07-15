@@ -38,15 +38,11 @@ class Mifioso(Role):
             # Uccidi il bersaglio se non è protetto da un Angelo.
             if self.target is not None:
                 if self.target.protectedby is None:
-                    if game.missingmifia and random.randrange(0, 100) < game.misschance:
-                        # Colpo mancato
-                        game.message(bot, s.mifia_target_missed.format(target=self.target.tusername))
-                    else:
-                        # Uccisione riuscita
-                        self.target.kill(bot, self)
-                        game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
-                                                                       icon=self.target.role.icon,
-                                                                       role=self.target.role.name))
+                    # Uccisione riuscita
+                    self.target.kill(bot, self)
+                    game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
+                                                                   icon=self.target.role.icon,
+                                                                   role=self.target.role.name))
                 else:
                     # Bersaglio protetto da un angelo
                     game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
