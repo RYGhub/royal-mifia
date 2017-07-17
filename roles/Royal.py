@@ -6,7 +6,6 @@ class Royal(Role):
     icon = s.royal_icon
     team = 'Good'
     name = s.royal_name
-    value = 0
 
     def __init__(self, player):
         super().__init__(player)

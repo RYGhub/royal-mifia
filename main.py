@@ -283,8 +283,7 @@ class Game:
                 InlineKeyboardButton(s.preset_classic, callback_data="classic")
             ],
             [
-                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall"),
-                InlineKeyboardButton(s.preset_advanced, callback_data="advanced")
+                InlineKeyboardButton(s.preset_oneofall, callback_data="oneofall")
             ]
         ])
         # Manda la tastiera
@@ -329,66 +328,6 @@ class Game:
             }
             self.votingmifia = True
             self.message(bot, s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
-            self.endconfig(bot)
-        elif preset == "advanced":
-            # Preset avanzato: genera i ruoli in modo da rendere la partita divertente
-            self.roleconfig = {
-                "Mifioso": 0,
-                "Investigatore": 0,
-                "Corrotto": 0,
-                "Angelo": 0,
-                "Terrorista": 0,
-                "Derek": 0,
-                "Disastro": 0,
-                "Mamma": 0,
-                "Stagista": 0,
-                "SignoreDelCaos": 0,
-                "Servitore": 0
-            }
-            unassignedplayers = len(self.players)
-            balance = 0
-            # Scegli casualmente il numero di mifiosi: più ce ne sono più ruoli ci saranno in partita!
-            maxmifia = 0
-            players = len(self.players)
-            while True:
-                players = math.floor(players / (maxmifia + 1))
-                if players <= maxmifia:
-                    break
-                maxmifia += 1  # Sono sicuro che questo si potrebbe fare meglio
-            self.roleconfig["Mifioso"] = random.randint(math.ceil(maxmifia / 2), maxmifia)
-            unassignedplayers -= self.roleconfig["Mifioso"]
-            balance += Mifioso.value * self.roleconfig["Mifioso"]
-            # Ruoli positivi
-            positiveroles = [Angelo, Investigatore, Mamma, Stagista]
-            # Trova tutti i ruoli negativi
-            negativeroles = [Corrotto, Disastro, Terrorista, Derek]
-            # Aggiungi ruoli positivi casuali finchè la partita non viene bilanciata
-            while balance < 0 and unassignedplayers > 0:
-                selectedrole = random.sample(positiveroles, 1)[0]
-                self.roleconfig[selectedrole.__name__] += 1
-                balance += selectedrole.value
-                unassignedplayers -= 1
-            # Se la partita è sfavorita verso i Royal, aggiungi qualche ruolo negativo
-            while balance > 0 and unassignedplayers > 0:
-                selectedrole = random.sample(negativeroles, 1)[0]
-                self.roleconfig[selectedrole.__name__] += 1
-                balance += selectedrole.value
-                unassignedplayers -= 1
-            # Non ci sono SignoreDelCaos e Servitore per motivi ovvi
-            self.roleconfig["SignoreDelCaos"] = 0
-            self.roleconfig["Servitore"] = 0
-            # Altri parametri
-            self.votingmifia = False
-            if balance < -30:
-                self.message(bot, s.preset_advanced_selected + s.balance_mifia_big)
-            elif balance < -5:
-                self.message(bot, s.preset_advanced_selected + s.balance_mifia_small)
-            elif balance < 5:
-                self.message(bot, s.preset_advanced_selected + s.balance_perfect)
-            elif balance < 30:
-                self.message(bot, s.preset_advanced_selected + s.balance_royal_small)
-            else:
-                self.message(bot, s.preset_advanced_selected + s.balance_royal_big)
             self.endconfig(bot)
         elif preset == "oneofall":
             self.roleconfig = {

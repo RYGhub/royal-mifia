@@ -8,7 +8,6 @@ class Mifioso(Role):
     team = 'Evil'
     name = s.mifia_name
     powerdesc = s.mifia_power_description
-    value = -100
 
     def __init__(self, player):
         super().__init__(player)

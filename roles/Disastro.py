@@ -8,7 +8,6 @@ class Disastro(Role):
     team = 'Good'
     name = s.detective_name
     powerdesc = s.detective_power_description
-    value = -5
     refillpoweruses = 1
 
     def __init__(self, player):

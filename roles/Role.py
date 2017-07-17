@@ -5,7 +5,6 @@ class Role:
     team = 'None'  # Squadra: 'None', 'Good', 'Evil', 'Chaos'; conta per le condizioni di vittoria
     name = "UNDEFINED"  # Nome del ruolo, viene visualizzato dall'investigatore e durante l'assegnazione
     powerdesc = None  # Ha un potere? Se sì, queste sono le info su come usarlo in seconda persona.
-    value = 0  # Valore del ruolo durante l'assegnazione: positivo per Good e negativo per Evil
 
     def __init__(self, player):
         self.player = player
