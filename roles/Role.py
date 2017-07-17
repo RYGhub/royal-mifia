@@ -15,18 +15,18 @@ class Role:
     def __str__(self) -> str:
         return "{} {}".format(self.icon, self.name)
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         """Il potere del ruolo. Si attiva quando il bot riceve un /power in chat privata."""
         pass
 
-    def onendday(self, bot, game):
+    def onendday(self, bot):
         """Metodo chiamato alla fine di ogni giorno."""
         pass
 
-    def ondeath(self, bot, game):
+    def ondeath(self, bot):
         """Metodo chiamato alla morte del giocatore."""
         pass
 
-    def onstartgame(self, bot, game):
+    def onstartgame(self, bot):
         """Metodo chiamato all'inizio della partita."""
         pass

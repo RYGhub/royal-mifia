@@ -19,9 +19,9 @@ class Angelo(Role):
         else:
             return "<Role: Angelo, protecting {target}>".format(target=self.protecting.tusername)
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         # Imposta qualcuno come protetto
-        selected = game.findplayerbyusername(arg)
+        selected = self.player.game.findplayerbyusername(arg)
         if selected is None:
             self.player.message(bot, s.error_username)
             return
@@ -38,7 +38,7 @@ class Angelo(Role):
         else:
             self.player.message(bot, s.error_angel_no_selfprotect)
 
-    def onendday(self, bot, game):
+    def onendday(self, bot):
         # Resetta la protezione
         if self.protecting is not None:
             self.protecting.protectedby = None

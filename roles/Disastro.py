@@ -1,6 +1,5 @@
 from .Role import Role
 import strings as s
-import random
 
 class Disastro(Role):
     """L'investigatore sbadato investiga, ma giunge a conclusioni sbagliate..."""
@@ -17,16 +16,16 @@ class Disastro(Role):
     def __repr__(self) -> str:
         return "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses > 0:
-            target = game.findplayerbyusername(arg)
+            target = self.player.game.findplayerbyusername(arg)
             if target is not None:
                 self.poweruses -= 1
-                randomrole = game.getrandomrole()
+                randomrole = self.player.game.getrandomrole()
                 while isinstance(target.role, randomrole):
                     # TODO:  se ci fossero solo disastri in una partita cosa succederebbe?
-                    randomrole = game.getrandomrole()
+                    randomrole = self.player.game.getrandomrole()
                 self.player.message(bot, s.detective_discovery.format(target=target.tusername,
                                                                  icon=randomrole.icon,
                                                                  role=randomrole.name,
@@ -36,10 +35,10 @@ class Disastro(Role):
         else:
             self.player.message(bot, s.error_no_uses)
 
-    def onendday(self, bot, game):
+    def onendday(self, bot):
         # Ripristina il potere
         self.poweruses = self.refillpoweruses
 
-    def ondeath(self, bot, game):
+    def ondeath(self, bot):
         self.icon = s.disaster_icon
         self.name = s.disaster_name

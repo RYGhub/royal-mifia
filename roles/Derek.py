@@ -17,7 +17,7 @@ class Derek(Role):
     def __repr__(self) -> str:
         return "<Role: Derek>"
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         # Attiva / disattiva la morte alla fine del round
         self.deathwish = not self.deathwish
         if self.deathwish:
@@ -26,8 +26,8 @@ class Derek(Role):
 
             self.player.message(bot, s.derek_deathwish_set)
 
-    def onendday(self, bot, game):
+    def onendday(self, bot):
         if self.deathwish:
-            game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
-            self.player.kill(bot, game)
+            self.player.game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
+            self.player.kill(bot, self.player.game)
             self.chaos = True

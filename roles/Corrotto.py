@@ -16,13 +16,13 @@ class Corrotto(Role):
     def __repr__(self) -> str:
         return "<Role: Corrotto, {uses} uses left>".format(uses=self.poweruses)
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses <= 0:
             # Non hai abbastanza cariche!
             self.player.message(bot, s.error_no_uses)
             return
-        target = game.findplayerbyusername(arg)
+        target = self.player.game.findplayerbyusername(arg)
         if target is None:
             # Username non valido
             self.player.message(bot, s.error_username)
@@ -34,6 +34,6 @@ class Corrotto(Role):
                                                          role=target.role.name,
                                                          left=self.poweruses))
 
-    def onendday(self, bot, game):
+    def onendday(self, bot):
         # Ripristina il potere
         self.poweruses = self.refillpoweruses

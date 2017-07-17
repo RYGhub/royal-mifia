@@ -50,7 +50,7 @@ class Player:
 
     def kill(self, bot):
         """Uccidi il giocatore."""
-        self.role.ondeath(bot, self.game)
+        self.role.ondeath(bot)
         self.alive = False
 
 
@@ -259,11 +259,11 @@ class Game:
                         self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
                                                                           icon=killed.protectedby.role.icon,
                                                                           protectedby=killed.protectedby.tusername))
-        # Attiva gli onendday
+        # Attiva gli \
         for currentrole in rolepriority:
             for player in self.playersinrole[currentrole.__name__]:
                 if player.alive:
-                    player.role.onendday(bot, self)
+                    player.role.onendday(bot)
         # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
@@ -380,7 +380,7 @@ class Game:
             self.assignroles(bot)
             self.message(bot, s.roles_assigned_successfully)
             for player in self.players:
-                player.role.onstartgame(bot, self)
+                player.role.onstartgame(bot)
 
     def revealallroles(self, bot):
         text = s.status_header.format(name=self.name, admin=self.admin.tusername, phase=self.phase)
@@ -690,7 +690,7 @@ def power(bot, update):
             if player is not None:
                 if player.alive:
                     if len(cmd) > 2:
-                        player.role.power(bot, game, cmd[2])
+                        player.role.power(bot, cmd[2])
                     else:
                         player.message(bot, s.error_missing_parameters)
                 else:

@@ -1,5 +1,4 @@
 from .Role import Role
-import random
 import strings as s
 
 class Mifioso(Role):
@@ -19,9 +18,9 @@ class Mifioso(Role):
         else:
             return "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
 
-    def power(self, bot, game, arg):
+    def power(self, bot, arg):
         # Imposta una persona come bersaglio da uccidere.
-        selected = game.findplayerbyusername(arg)
+        selected = self.player.game.findplayerbyusername(arg)
         if selected is None:
             self.player.message(bot, s.error_username)
             return
@@ -29,8 +28,8 @@ class Mifioso(Role):
         self.player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
 
 
-    def onendday(self, bot, game):
-        if game.votingmifia:
+    def onendday(self, bot):
+        if self.player.game.votingmifia:
             # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game
             self.target = None
         else:
@@ -39,12 +38,12 @@ class Mifioso(Role):
                 if self.target.protectedby is None:
                     # Uccisione riuscita
                     self.target.kill(bot, self)
-                    game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
+                    self.player.game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
                                                                    icon=self.target.role.icon,
                                                                    role=self.target.role.name))
                 else:
                     # Bersaglio protetto da un angelo
-                    game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
+                    self.player.game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
                                                                       icon=self.target.protectedby.role.icon,
                                                                       protectedby=self.target.protectedby.tusername))
                 self.target = None
