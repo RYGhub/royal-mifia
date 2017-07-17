@@ -109,7 +109,7 @@ class Game:
         """Manda un messaggio privato a tutti i Mifiosi nella partita."""
         # Trova tutti i mifiosi nell'elenco dei giocatori
         for player in self.players:
-            if isinstance(player.role, Mifioso):
+            if isinstance(player.role, Mifioso) or isinstance(player.role, Corrotto):
                 player.message(bot, text)
 
     def findplayerbyid(self, tid: int):
@@ -160,10 +160,7 @@ class Game:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
         for player in self.playersinrole['Corrotto']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-        for player in self.playersinrole['Mifioso']:
-            player.message(bot, text)
-        for player in self.playersinrole['Corrotto']:
-            player.message(bot, text)
+        self.mifiamessage(bot, text)
 
     def updatevotes(self):
         """Aggiorna il conteggio dei voti di tutti i giocatori."""
@@ -485,10 +482,7 @@ class Game:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
         for player in self.playersinrole['Corrotto']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-        for player in self.playersinrole['Mifioso']:
-            player.message(bot, text)
-        for player in self.playersinrole['Corrotto']:
-            player.message(bot, text)
+        self.mifiamessage(bot, text)
 
     def joinplayer(self, bot: Bot, player: Player, silent=False):
         self.players.append(player)
@@ -758,18 +752,6 @@ def delete(bot: Bot, update):
         bot.sendMessage(update.message.chat.id, s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
 
 
-def fakerole(bot: Bot, update):
-    """Manda un finto messaggio di ruolo."""
-    if update.message.chat.type == 'private':
-        roles = rolepriority.copy()
-        roles.append(Royal)
-        for singlerole in roles:
-            bot.sendMessage(update.message.chat.id, s.role_assigned.format(icon=singlerole.icon, name=singlerole.name),
-                            parse_mode=ParseMode.MARKDOWN)
-    else:
-        bot.sendMessage(update.message.chat.id, s.error_private_required, parse_mode=ParseMode.MARKDOWN)
-
-
 def load(bot: Bot, update):
     """Carica una partita salvata."""
     file = open(str(update.message.chat.id) + ".p", "rb")
@@ -861,7 +843,6 @@ updater.dispatcher.add_handler(CommandHandler('role', role))
 updater.dispatcher.add_handler(CommandHandler('debug', debug))
 updater.dispatcher.add_handler(CommandHandler('debuggameslist', debuggameslist))
 updater.dispatcher.add_handler(CommandHandler('kill', kill))
-updater.dispatcher.add_handler(CommandHandler('fakerole', fakerole))
 updater.dispatcher.add_handler(CommandHandler('save', save))
 updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
