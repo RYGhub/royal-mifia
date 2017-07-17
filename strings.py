@@ -237,8 +237,14 @@ mifia_team_player = "{icon} @{name}\n"
 # Generale: votazione completata
 vote = "@{voting} ha votato per uccidere @{voted}."
 
+# Generale: votazione annullata
+vote_none = "{player} ha annullato il suo voto."
+
 # Generale: votazione completata in prima persona
 vote_fp = "Hai votato per uccidere @{voted}."
+
+# Generale: votazione annullata in prima persona
+vote_none_fp = "Hai annullato il tuo voto."
 
 # Generale: un admin ha ucciso un giocatore con /kill
 admin_killed = "{name} è morto _di infarto_.\n" \
@@ -274,7 +280,10 @@ end_game_chaos = "Sei un Signore del Caos."
 vote_keyboard = "Chi vuoi votare...?"
 
 # Generale: riga della tastiera del voto
-vote_keyboard_line = "@{name} - {votes}"
+vote_keyboard_line = "{player} - {votes}"
+
+# Generale: riga della tastiera per annullare il voto
+vote_keyboard_nobody = "Nessuno"
 
 # Generale: inizia un nuovo giorno
 new_day = "Sorge l'alba del giorno *{day}*!"

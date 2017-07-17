@@ -715,8 +715,11 @@ def vote(bot, update):
         if not player.alive:
             continue
         row = list()
-        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(name=player.tusername, votes=player.votes), callback_data=player.tusername))
+        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(player=player, votes=player.votes), callback_data=player.tusername))
         table.append(row)
+    row = list()
+    row.append(InlineKeyboardButton(s.vote_keyboard_nobody, callback_data="-"))
+    table.append(row)
     keyboard = InlineKeyboardMarkup(table)
     # Manda la tastiera
     bot.sendMessage(game.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
@@ -892,11 +895,17 @@ def inlinekeyboard(bot, update):
         if not player.alive:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_dead, show_alert=True)
             return
-        # Trova il bersaglio
-        target = game.findplayerbyusername(update.callback_query.data)
-        player.votingfor = target
-        game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
-        bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
+        if update.callback_query.data == "-":
+            # Annulla il voto
+            player.votingfor = None
+            game.message(bot, s.vote_none.format(player=player))
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_none_fp)
+        else:
+            # Cambia il voto
+            target = game.findplayerbyusername(update.callback_query.data)
+            player.votingfor = target
+            game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
