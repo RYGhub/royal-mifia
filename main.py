@@ -25,7 +25,7 @@ freenames = s.names_list.copy()
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
        e i dati riguardanti telegram, come ID e username."""
-    def __init__(self, tid, tusername, dummy=False):
+    def __init__(self, game: Game, tid: int, tusername: str, dummy=False):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
         self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
@@ -35,6 +35,7 @@ class Player:
         self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia. Se è None, la mifia può uccidere questo giocatore
         self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
         self.dummy = dummy  # E' un bot? Usato solo per il debug (/debugjoin)
+        self.game = game  # La partita associata al giocatore
 
     def __repr__(self) -> str:
         return "<Player {username}>".format(username=self.tusername)
@@ -47,9 +48,9 @@ class Player:
         if not self.dummy:
             bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
 
-    def kill(self, bot, game):
+    def kill(self, bot):
         """Uccidi il giocatore."""
-        self.role.ondeath(bot, game)
+        self.role.ondeath(bot, self.game)
         self.alive = False
 
 
@@ -88,6 +89,8 @@ class Game:
             int(self.name)
         except ValueError:
             freenames.append(self.name)
+        for player in self.players:
+            player.game = None
 
     def __repr__(self):
         r = "<Game {name} in group {groupid} with {nplayers} players in phase {phase}>" \
@@ -125,7 +128,7 @@ class Game:
         else:
             return None
 
-    # def updategroupname(self, bot):
+    # def updategroupname(self, bot: Bot):
     #     """Cambia il titolo della chat. Per qualche motivo non funziona."""
     #     try:
     #         if self.phase == "Voting":
@@ -565,7 +568,7 @@ def join(bot, update):
     if update.message.from_user.username is None:
         game.message(bot, s.error_no_username)
         return
-    p = Player(update.message.from_user.id, update.message.from_user.username)
+    p = Player(game, update.message.from_user.id, update.message.from_user.username)
     try:
         p.message(bot, s.you_joined.format(game=game.name, adminname=game.admin.tusername if game.admin is not None else p.tusername))
     except Unauthorized:
@@ -590,7 +593,7 @@ def debugjoin(bot, update):
             return
         arg = update.message.text.split(" ")
         for name in range(1, int(arg[1]) + 1):
-            p = Player(int(name), str(name), True)
+            p = Player(game, int(name), str(name), True)
             try:
                 game.joinplayer(bot, p, silent=True)
             except RetryAfter:
