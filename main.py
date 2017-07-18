@@ -437,11 +437,9 @@ class Game:
             self.message(bot, s.end_game_wiped)
             for player in self.players:
                 player.message(bot, s.end_game_wiped + s.tie)
-            self.revealallroles(bot)
             self.endgame(bot)
-        # I mifiosi sono più del 50% dei vivi se la mifia è infallibile
-        # o non ci sono più personaggi buoni se la mifia può mancare i colpi
-        elif evil >= (alive - evil) or good == 0:
+        # I mifiosi vincono se sono più dei royal
+        elif evil >= good:
             self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
@@ -527,17 +525,17 @@ def ping(bot: Bot, update):
 
 def newgame(bot: Bot, update):
     """Crea una nuova partita."""
-    if update.message.chat.type != 'private':
-        game = findgamebyid(update.message.chat.id)
-        if game is None:
-            game = Game(update.message.chat.id)
-            inprogress.append(game)
-            game.message(bot, s.new_game.format(name=game.name))
-            join(bot, update)
-        else:
-            bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
-    else:
+    if update.message.chat.type != 'supergroup':
         bot.sendMessage(update.message.chat.id, s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
+        return
+    game = findgamebyid(update.message.chat.id)
+    if game is not None:
+        bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
+        return
+    game = Game(update.message.chat.id)
+    inprogress.append(game)
+    game.message(bot, s.new_game.format(name=game.name))
+    join(bot, update)
 
 
 def join(bot: Bot, update):
