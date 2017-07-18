@@ -25,7 +25,7 @@ freenames = s.names_list.copy()
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
        e i dati riguardanti telegram, come ID e username."""
-    def __init__(self, game: Game, tid: int, tusername: str, dummy=False):
+    def __init__(self, game: 'Game', tid: int, tusername: str, dummy=False):
         self.tid = tid  # ID di Telegram
         self.tusername = tusername  # Username di Telegram
         self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
