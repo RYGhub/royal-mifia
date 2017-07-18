@@ -386,7 +386,10 @@ error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
                            "Controlla la sintassi del comando e riprova."
 
 # Lista dei possibili nomi di una partita
-names_list = ["Mela", "Pera", "Banana", "Pesca", "Kiwi"]
+if __debug__:
+    names_list = ["Dev"]
+else:
+    names_list = ["Mela", "Pera", "Banana", "Kiwi", "Arancia", "Uva"]
 
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*" 

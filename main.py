@@ -128,15 +128,15 @@ class Game:
                 return player
         return None
 
-    # def updategroupname(self, bot: Bot):
-    #     """Cambia il titolo della chat. Per qualche motivo non funziona."""
-    #     try:
-    #         if self.phase == "Voting":
-    #             bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
-    #         else:
-    #             bot.set_chat_title(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
-    #     except Unauthorized:
-    #         print("Bot is not administrator in group {}".format(self.groupid))
+    def updategroupname(self):
+        """Cambia il titolo della chat. Per qualche motivo non funziona."""
+        try:
+            if self.phase == "Voting":
+                self.bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
+            else:
+                self.bot.set_chat_title(self.groupid, s.group_name.format(phase=self.phase, name=self.name))
+        except Unauthorized:
+            print("Bot is not administrator in group {}".format(self.groupid))
 
     def assignroles(self):
         """Assegna i ruoli specificati in playersinrole a tutti i giocatori."""
@@ -260,6 +260,7 @@ class Game:
             player.votingfor = None
         # Incrementa il giorno
         self.day += 1
+        self.updategroupname()
         # Notifica dell'inizi
         self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
@@ -269,7 +270,7 @@ class Game:
         """Inizio della fase di preset"""
         self.phase = 'Preset'
         # Aggiorna il nome del gruppo
-        # self.updategroupname(bot)
+        self.updategroupname()
         # Crea la tastiera
         kbmarkup = InlineKeyboardMarkup([
             [
@@ -362,11 +363,11 @@ class Game:
         if requiredplayers > len(self.players):
             self.message(s.error_not_enough_players)
             self.phase = "Join"
-            # self.updategroupname(bot)
+            self.updategroupname()
         else:
             self.phase = 'Voting'
-            # self.updategroupname(bot)
             self.day += 1
+            self.updategroupname()
             self.players.sort(key=lambda p: p.tusername)
             self.assignroles()
             self.message(s.roles_assigned_successfully)
