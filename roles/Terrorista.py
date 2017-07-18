@@ -12,14 +12,12 @@ class Terrorista(Role):
     def __repr__(self) -> str:
         return "<Role: Terrorista>"
 
-    def ondeath(self, bot):
+    def ondeath(self):
         # Se è stato ucciso da una votazione, attiva il suo potere
         if self.player == self.player.game.lastlynch:
-            self.player.game.message(bot, s.terrorist_kaboom)
+            self.player.game.message(s.terrorist_kaboom)
             for selectedplayer in self.player.game.players:
                 # Elimina ogni giocatore che sta votando per sè stesso
                 if selectedplayer.votingfor == self.player:
-                    self.player.game.message(bot, s.terrorist_target_killed.format(target=selectedplayer.tusername,
-                                                                       icon=selectedplayer.role.icon,
-                                                                       role=selectedplayer.role.name))
-                    selectedplayer.kill(bot, self.player.game)
+                    self.player.game.message(s.terrorist_target_killed.format(target=selectedplayer.tusername, icon=selectedplayer.role.icon, role=selectedplayer.role.name))
+                    selectedplayer.kill(self.player.game)

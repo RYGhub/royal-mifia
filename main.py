@@ -11,6 +11,7 @@ import filemanager
 import random
 import strings as s
 import logging
+from typing import List, Union, Dict
 from roles.roles import *
 
 logging.basicConfig(level=logging.WARNING,
@@ -43,31 +44,32 @@ class Player:
     def __str__(self) -> str:
         return "@{}".format(self.tusername)
 
-    def message(self, bot: Bot, text: str):
+    def message(self, text: str):
         """Manda un messaggio privato al giocatore."""
         if not self.dummy:
-            bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+            self.game.bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
 
-    def kill(self, bot: Bot):
+    def kill(self):
         """Uccidi il giocatore."""
-        self.role.ondeath(bot)
+        self.role.ondeath()
         self.alive = False
 
 
 class Game:
     """Classe di una partita, contenente parametri riguardanti stato della partita
        e informazioni sul gruppo di Telegram."""
-    def __init__(self, groupid: int):
-        self.groupid = groupid  # ID del gruppo in cui si sta svolgendo una partita
-        self.admin = None  # ID telegram dell'utente che ha creato la partita con /newgame
-        self.players = list()  # Lista dei giocatori in partita
-        self.tokill = list()  # Giocatori che verranno uccisi all'endday
-        self.phase = 'Join'  # Fase di gioco: 'Join', 'Preset', 'Config', 'Voting'
-        self.day = 0  # Numero del giorno. 0 se la partita deve ancora iniziare
+    def __init__(self, bot: Bot, groupid: int):
+        self.groupid = groupid  # type: int
+        self.bot = bot  # type: Bot
+        self.admin = None  # type: Player
+        self.players = list()  # type: List['Player']
+        self.tokill = list()  # type: List['Player']
+        self.phase = 'Join'  # type: str
+        self.day = 0  # type: int
 
-        self.configstep = 0  # Passo attuale di configurazione
-        self.roleconfig = dict()  # Dizionario con le quantità di ruoli da aggiungere
-        self.votingmifia = False  # Seguire le regole originali della mifia che vota?
+        self.configstep = 0  # type: int
+        self.roleconfig = dict()  # type: Dict[int]
+        self.votingmifia = False  # type: bool
 
         # Liste di ruoli in gioco, per velocizzare gli endday
         self.playersinrole = dict()
@@ -97,29 +99,29 @@ class Game:
                 .format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
         return r
 
-    def message(self, bot: Bot, text: str):
+    def message(self, text: str):
         """Manda un messaggio nel gruppo."""
-        bot.sendMessage(self.groupid, text, parse_mode=ParseMode.MARKDOWN)
+        self.bot.sendMessage(self.groupid, text, parse_mode=ParseMode.MARKDOWN)
 
-    def adminmessage(self, bot: Bot, text: str):
+    def adminmessage(self, text: str):
         """Manda un messaggio privato al creatore della partita."""
-        self.admin.message(bot, text)
+        self.admin.message(text)
 
-    def mifiamessage(self, bot: Bot, text: str):
+    def mifiamessage(self, text: str):
         """Manda un messaggio privato a tutti i Mifiosi nella partita."""
         # Trova tutti i mifiosi nell'elenco dei giocatori
         for player in self.players:
             if isinstance(player.role, Mifioso) or isinstance(player.role, Corrotto):
-                player.message(bot, text)
+                player.message(text)
 
-    def findplayerbyid(self, tid: int):
+    def findplayerbyid(self, tid: int) -> Union['Player', None]:
         """Trova il giocatore con un certo id."""
         for player in self.players:
             if player.tid == tid:
                 return player
         return None
 
-    def findplayerbyusername(self, tusername: str):
+    def findplayerbyusername(self, tusername: str) -> Union['Player', None]:
         """Trova il giocatore con un certo username."""
         for player in self.players:
             if player.tusername.lower() == tusername.strip("@").lower():
@@ -136,8 +138,8 @@ class Game:
     #     except Unauthorized:
     #         print("Bot is not administrator in group {}".format(self.groupid))
 
-    def assignroles(self, bot: Bot):
-        """Assegna i ruoli specificati ib playersinrole a tutti i giocatori."""
+    def assignroles(self):
+        """Assegna i ruoli specificati in playersinrole a tutti i giocatori."""
         random.seed()
         playersleft = self.players.copy()
         # Assegna i ruoli secondo i numeri all'interno di playersinrole
@@ -151,16 +153,16 @@ class Game:
             player.role = Royal(self)
         # Manda i ruoli assegnati a tutti
         for player in self.players:
-            player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
+            player.message(s.role_assigned.format(icon=player.role.icon, name=player.role.name))
             if player.role.powerdesc is not None:
-                player.message(bot, player.role.powerdesc.format(gamename=self.name))
+                player.message(player.role.powerdesc.format(gamename=self.name))
         # Manda ai mifiosi l'elenco dei loro compagni di squadra
         text = s.mifia_team_intro
         for player in self.playersinrole['Mifioso']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
         for player in self.playersinrole['Corrotto']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-        self.mifiamessage(bot, text)
+        self.mifiamessage(text)
 
     def updatevotes(self):
         """Aggiorna il conteggio dei voti di tutti i giocatori."""
@@ -179,8 +181,8 @@ class Game:
                 if player.role.target is not None:
                     player.role.target.mifiavotes += 1
 
-    def mostvotedplayer(self) -> list:
-        """Trova il giocatore più votato."""
+    def mostvotedplayers(self) -> List[Player]:
+        """Trova i giocatori più votati."""
         mostvoted = list()
         currenttop = 0
         self.updatevotes()
@@ -196,8 +198,8 @@ class Game:
         else:
             return list()
 
-    def mostvotedmifia(self) -> list:
-        """Trova il giocatore più votato dalla mifia."""
+    def mostvotedmifia(self) -> List[Player]:
+        """Trova i giocatori più votati dalla mifia."""
         mostvoted = list()
         currenttop = 0
         self.updatemifiavotes()
@@ -213,25 +215,23 @@ class Game:
         else:
             return list()
 
-    def endday(self, bot: Bot):
+    def endday(self):
         """Finisci la giornata, uccidi il più votato del giorno ed esegui gli endday di tutti i giocatori."""
         # SALVA LA PARTITA, così se crasha si riprende da qui
-        self.save(bot)
+        self.save()
         # Conta i voti ed elimina il più votato.
-        topvotes = self.mostvotedplayer()
+        topvotes = self.mostvotedplayers()
         if len(topvotes) > 0:
             # In caso di pareggio, elimina un giocatore casuale.
             random.seed()
             random.shuffle(topvotes)
             lynched = topvotes.pop()
             if lynched.alive:
-                self.message(bot, s.player_lynched.format(name=lynched.tusername,
-                                                          icon=lynched.role.icon,
-                                                          role=lynched.role.name))
+                self.message(s.player_lynched.format(name=lynched.tusername, icon=lynched.role.icon, role=lynched.role.name))
                 self.lastlynch = lynched
-                lynched.kill(bot, self)
+                lynched.kill()
         elif self.day > 1:
-            self.message(bot, s.no_players_lynched)
+            self.message(s.no_players_lynched)
         # Fai gli endday in un certo ordine.
         # Si potrebbe fare più velocemente, credo.
         # Ma non sto ho voglia di ottimizzare ora.
@@ -246,30 +246,26 @@ class Game:
                 killed = killlist.pop()
                 if killed.alive:
                     if killed.protectedby is None:
-                        killed.kill(bot, self)
-                        self.message(bot, s.mifia_target_killed.format(target=killed.tusername,
-                                                                       icon=killed.role.icon,
-                                                                       role=killed.role.name))
+                        killed.kill()
+                        self.message(s.mifia_target_killed.format(target=killed.tusername, icon=killed.role.icon, role=killed.role.name))
                     else:
-                        self.message(bot, s.mifia_target_protected.format(target=killed.tusername,
-                                                                          icon=killed.protectedby.role.icon,
-                                                                          protectedby=killed.protectedby.tusername))
+                        self.message(s.mifia_target_protected.format(target=killed.tusername, icon=killed.protectedby.role.icon, protectedby=killed.protectedby.tusername))
         # Attiva gli \
         for currentrole in rolepriority:
             for player in self.playersinrole[currentrole.__name__]:
                 if player.alive:
-                    player.role.onendday(bot)
+                    player.role.onendday()
         # Cancella tutti i voti
         for player in self.players:
             player.votingfor = None
         # Incrementa il giorno
         self.day += 1
         # Notifica dell'inizi
-        self.message(bot, s.new_day.format(day=self.day))
+        self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
-        self.victoryconditions(bot)
+        self.victoryconditions()
 
-    def startpreset(self, bot: Bot):
+    def startpreset(self):
         """Inizio della fase di preset"""
         self.phase = 'Preset'
         # Aggiorna il nome del gruppo
@@ -285,9 +281,9 @@ class Game:
             ]
         ])
         # Manda la tastiera
-        bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
+        self.bot.sendMessage(self.groupid, s.preset_choose, parse_mode=ParseMode.MARKDOWN, reply_markup=kbmarkup)
 
-    def loadpreset(self, bot: Bot, preset: str):
+    def loadpreset(self, preset: str):
         """Fine della fase di preset: carica il preset selezionato o passa a config"""
         if preset == "simple":
             # Preset semplice (solo Royal, Mifiosi e Investigatori)
@@ -305,10 +301,10 @@ class Game:
                 "Servitore":      0
             }
             self.votingmifia = True
-            self.message(bot, s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
+            self.message(s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
                                                               investigatore=self.roleconfig["Investigatore"],
                                                               royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"]))
-            self.endconfig(bot)
+            self.endconfig()
         elif preset == "classic":
             # Preset classico (solo Royal, Mifiosi, Investigatori, Angeli e Terroristi)
             self.roleconfig = {
@@ -325,8 +321,8 @@ class Game:
                 "Servitore":      0
             }
             self.votingmifia = True
-            self.message(bot, s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
-            self.endconfig(bot)
+            self.message(s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
+            self.endconfig()
         elif preset == "oneofall":
             self.roleconfig = {
                 "Mifioso": 1,
@@ -352,11 +348,11 @@ class Game:
                 self.roleconfig[availableroles.pop().__name__] += 1
                 unassignedplayers -= 1
             self.votingmifia = False
-            self.message(bot, s.preset_oneofall_selected)
-            self.endconfig(bot)
+            self.message(s.preset_oneofall_selected)
+            self.endconfig()
 
 
-    def endconfig(self, bot: Bot):
+    def endconfig(self):
         """Fine della fase di config, inizio assegnazione ruoli"""
         # Controlla che ci siano abbastanza giocatori per avviare la partita
         requiredplayers = 0
@@ -364,7 +360,7 @@ class Game:
             requiredplayers += self.roleconfig[selectedrole]
         # Se non ce ne sono abbastanza, torna alla fase di join
         if requiredplayers > len(self.players):
-            self.message(bot, s.error_not_enough_players)
+            self.message(s.error_not_enough_players)
             self.phase = "Join"
             # self.updategroupname(bot)
         else:
@@ -372,28 +368,28 @@ class Game:
             # self.updategroupname(bot)
             self.day += 1
             self.players.sort(key=lambda p: p.tusername)
-            self.assignroles(bot)
-            self.message(bot, s.roles_assigned_successfully)
+            self.assignroles()
+            self.message(s.roles_assigned_successfully)
             for player in self.players:
-                player.role.onstartgame(bot)
+                player.role.onstartgame()
 
-    def revealallroles(self, bot: Bot):
+    def revealallroles(self):
         text = s.status_header.format(name=self.name, admin=self.admin.tusername, phase=self.phase)
         self.updatevotes()
         # Aggiungi l'elenco dei giocatori
         for player in self.players:
             text += s.status_basic_player.format(icon=player.role.icon,
                                                  name=player.tusername)
-        self.message(bot, text)
+        self.message(text)
 
-    def endgame(self, bot: Bot):
-        self.revealallroles(bot)
+    def endgame(self):
+        self.revealallroles()
         for player in self.players:
             # Togli la referenza circolare
             player.role.player = None
         inprogress.remove(self)
 
-    def save(self, bot: Bot):
+    def save(self):
         # Crea il file.
         try:
             file = open(str(self.groupid) + ".p", 'x')
@@ -417,10 +413,10 @@ class Game:
         # Scrivi sul file.
         file = open("{group}-{yy}-{mm}-{dd}-{hh}-{mi}.p".format(group=str(self.groupid), yy=t.year, mm=t.month, dd=t.day, hh=t.hour, mi=t.minute), 'wb')
         pickle.dump(self, file)
-        self.adminmessage(bot, s.game_saved.format(name=self.name))
+        self.adminmessage(s.game_saved.format(name=self.name))
         file.close()
 
-    def victoryconditions(self, bot: Bot):
+    def victoryconditions(self):
         """Controlla se qualcuno ha completato le condizioni di vittoria."""
         good = 0
         evil = 0
@@ -434,34 +430,34 @@ class Game:
                 alive += 1
         # Distruzione atomica!
         if alive == 0:
-            self.message(bot, s.end_game_wiped)
+            self.message(s.end_game_wiped)
             for player in self.players:
-                player.message(bot, s.end_game_wiped + s.tie)
-            self.endgame(bot)
+                player.message(s.end_game_wiped + s.tie)
+            self.endgame()
         # I mifiosi vincono se sono più dei royal
         elif evil >= good:
-            self.message(bot, s.end_mifia_outnumber + s.victory_mifia)
+            self.message(s.end_mifia_outnumber + s.victory_mifia)
             for player in self.players:
                 if player.role.team == 'Good':
-                    player.message(bot, s.end_mifia_outnumber + s.defeat)
+                    player.message(s.end_mifia_outnumber + s.defeat)
                 elif player.role.team == 'Evil':
-                    player.message(bot, s.end_mifia_outnumber + s.victory)
+                    player.message(s.end_mifia_outnumber + s.victory)
                 elif player.role.team == 'Chaos':
-                    player.message(bot, s.end_game_chaos + s.victory)
-            self.endgame(bot)
+                    player.message(s.end_game_chaos + s.victory)
+            self.endgame()
         # Male distrutto
         elif evil == 0:
-            self.message(bot, s.end_mifia_killed + s.victory_royal)
+            self.message(s.end_mifia_killed + s.victory_royal)
             for player in self.players:
                 if player.role.team == 'Good':
-                    player.message(bot, s.end_mifia_killed + s.victory)
+                    player.message(s.end_mifia_killed + s.victory)
                 elif player.role.team == 'Evil':
-                    player.message(bot, s.end_mifia_killed + s.defeat)
+                    player.message(s.end_mifia_killed + s.defeat)
                 elif player.role.team == 'Chaos':
-                    player.message(bot, s.end_game_chaos + s.victory)
-            self.endgame(bot)
+                    player.message(s.end_game_chaos + s.victory)
+            self.endgame()
 
-    def changerole(self, bot: Bot, player: Player, newrole):
+    def changerole(self, player: Player, newrole):
         """Cambia il ruolo di un giocatore, aggiornando tutti i valori"""
         # Aggiorna le liste dei ruoli
         if player.role.__class__ != Royal:
@@ -471,21 +467,21 @@ class Game:
         # Cambia il ruolo al giocatore
         player.role = newrole(player)
         # Manda i messaggi del nuovo ruolo
-        player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
+        player.message(s.role_assigned.format(icon=player.role.icon, name=player.role.name))
         if player.role.powerdesc is not None:
-            player.message(bot, player.role.powerdesc.format(gamename=self.name))
+            player.message(player.role.powerdesc.format(gamename=self.name))
         # Manda ai mifiosi l'elenco dei loro compagni di squadra
         text = s.mifia_team_intro
         for player in self.playersinrole['Mifioso']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
         for player in self.playersinrole['Corrotto']:
             text += s.mifia_team_player.format(icon=player.role.icon, name=player.tusername)
-        self.mifiamessage(bot, text)
+        self.mifiamessage(text)
 
-    def joinplayer(self, bot: Bot, player: Player, silent=False):
+    def joinplayer(self, player: Player, silent=False):
         self.players.append(player)
         if not silent:
-            self.message(bot, s.player_joined.format(name=player.tusername, players=len(self.players)))
+            self.message(s.player_joined.format(name=player.tusername, players=len(self.players)))
         # Se è il primo giocatore ad unirsi, diventa admin
         if len(self.players) == 1:
             self.admin = player
@@ -532,9 +528,9 @@ def newgame(bot: Bot, update):
     if game is not None:
         bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
         return
-    game = Game(update.message.chat.id)
+    game = Game(bot, update.message.chat.id)
     inprogress.append(game)
-    game.message(bot, s.new_game.format(name=game.name))
+    game.message(s.new_game.format(name=game.name))
     join(bot, update)
 
 
@@ -547,28 +543,28 @@ def join(bot: Bot, update):
         return
     # Fase di join finita
     if game.phase != 'Join':
-        game.message(bot, s.error_join_phase_ended)
+        game.message(s.error_join_phase_ended)
         return
     p = game.findplayerbyid(update.message.from_user['id'])
     # Giocatore già in partita
     if p is not None:
-        game.message(bot, s.error_player_already_joined)
+        game.message(s.error_player_already_joined)
         return
     # Giocatore senza username
     if update.message.from_user.username is None:
-        game.message(bot, s.error_no_username)
+        game.message(s.error_no_username)
         return
     p = Player(game, update.message.from_user.id, update.message.from_user.username)
     try:
-        p.message(bot, s.you_joined.format(game=game.name, adminname=game.admin.tusername if game.admin is not None else p.tusername))
+        p.message(s.you_joined.format(game=game.name, adminname=game.admin.tusername if game.admin is not None else p.tusername))
     except Unauthorized:
         # Bot bloccato dall'utente
-        game.message(bot, s.error_chat_unavailable)
+        game.message(s.error_chat_unavailable)
         return
     # Aggiungi il giocatore alla partita
-    game.joinplayer(bot, p)
+    game.joinplayer(p)
     # Salva
-    game.save(bot)
+    game.save()
 
 
 def debugjoin(bot: Bot, update):
@@ -579,13 +575,13 @@ def debugjoin(bot: Bot, update):
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
             return
         if game.phase != 'Join':
-            game.message(bot, s.error_join_phase_ended)
+            game.message(s.error_join_phase_ended)
             return
         arg = update.message.text.split(" ")
         for name in range(1, int(arg[1]) + 1):
             p = Player(game, int(name), str(name), True)
             try:
-                game.joinplayer(bot, p, silent=True)
+                game.joinplayer(p, silent=True)
             except RetryAfter:
                 pass
 
@@ -610,7 +606,7 @@ def status(bot: Bot, update):
             else:
                 text += s.status_basic_player.format(icon="\U0001F610",
                                                      name=player.tusername)
-        game.message(bot, text)
+        game.message(text)
     else:
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -620,10 +616,10 @@ def endjoin(bot: Bot, update):
     game = findgamebyid(update.message.chat.id)
     if game is not None and game.phase == 'Join':
         if update.message.from_user.id == game.admin.tid:
-            game.message(bot, s.join_phase_ended)
-            game.startpreset(bot)
+            game.message(s.join_phase_ended)
+            game.startpreset()
         else:
-            game.message(bot, s.error_not_admin)
+            game.message(s.error_not_admin)
     else:
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -639,7 +635,7 @@ def vote(bot: Bot, update):
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
     elif game.day <= 1:
-        game.message(bot, s.error_no_votes_on_first_day)
+        game.message(s.error_no_votes_on_first_day)
         return
     # Genera la tastiera
     table = list()
@@ -657,11 +653,11 @@ def vote(bot: Bot, update):
     bot.sendMessage(game.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
 
 
-def endday(bot: Bot, update):
+def endday(_: Bot, update):
     """Termina la giornata attuale."""
     game = findgamebyid(update.message.chat.id)
     if game is not None and game.phase is 'Voting' and update.message.from_user.id == game.admin.tid:
-        game.endday(bot)
+        game.endday()
 
 
 def power(bot: Bot, update):
@@ -680,11 +676,11 @@ def power(bot: Bot, update):
             if player is not None:
                 if player.alive:
                     if len(cmd) > 2:
-                        player.role.power(bot, cmd[2])
+                        player.role.power(cmd[2])
                     else:
-                        player.message(bot, s.error_missing_parameters)
+                        player.message(s.error_missing_parameters)
                 else:
-                    player.message(bot, s.error_dead)
+                    player.message(s.error_dead)
             else:
                 bot.sendMessage(update.message.chat.id, s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
         else:
@@ -700,10 +696,10 @@ def role(bot: Bot, update):
         player = game.findplayerbyid(update.message.from_user.id)
         if player is not None:
             if player.alive:
-                player.message(bot, s.role_assigned.format(icon=player.role.icon, name=player.role.name))
-                game.message(bot, s.check_private)
+                player.message(s.role_assigned.format(icon=player.role.icon, name=player.role.name))
+                game.message(s.check_private)
             else:
-                game.message(bot, s.error_dead)
+                game.message(s.error_dead)
         else:
             bot.sendMessage(update.message.chat.id, s.error_not_in_game, parse_mode=ParseMode.MARKDOWN)
     else:
@@ -718,14 +714,14 @@ def kill(bot: Bot, update):
             if update.message.from_user.id == game.admin.tid:
                 target = game.findplayerbyusername(update.message.text.split(' ')[1])
                 if target is not None:
-                    target.kill(bot, game)
-                    game.message(bot, s.admin_killed.format(name=target.tusername,
+                    target.kill()
+                    game.message(s.admin_killed.format(name=target.tusername,
                                                             icon=target.role.icon,
                                                             role=target.role.name))
                 else:
-                    game.message(bot, s.error_username)
+                    game.message(s.error_username)
             else:
-                game.message(bot, s.error_not_admin)
+                game.message(s.error_not_admin)
         else:
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -740,10 +736,10 @@ def delete(bot: Bot, update):
             if game is None:
                 game = findgamebyid(int(cmd[1]))
             if game is not None:
-                game.message(bot, s.owner_ended)
-                game.endgame(bot)
+                game.message(s.owner_ended)
+                game.endgame()
             else:
-                game.message(bot, s.error_no_games_found)
+                game.message(s.error_no_games_found)
         else:
             bot.sendMessage(update.message.chat.id, s.error_not_owner, parse_mode=ParseMode.MARKDOWN)
     else:
@@ -762,7 +758,7 @@ def save(bot: Bot, update):
     """Salva una partita su file."""
     game = findgamebyid(update.message.chat.id)
     if game is not None:
-        game.save(bot)
+        game.save()
     else:
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -772,7 +768,7 @@ def debug(bot: Bot, update):
     if __debug__:
         game = findgamebyid(update.message.chat.id)
         if game is not None:
-            game.revealallroles(bot)
+            game.revealallroles()
         else:
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -783,7 +779,7 @@ def debugchangerole(bot: Bot, update):
         game = findgamebyid(update.message.chat.id)
         if game is not None:
             cmd = update.message.text.split(' ', 2)
-            game.changerole(bot, game.findplayerbyusername(cmd[1]), globals()[cmd[2]])
+            game.changerole(game.findplayerbyusername(cmd[1]), globals()[cmd[2]])
         else:
             bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
@@ -804,7 +800,7 @@ def inlinekeyboard(bot: Bot, update):
         if update.callback_query.from_user.id != game.admin.tid:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_not_admin, show_alert=True)
             return
-        game.loadpreset(bot, update.callback_query.data)
+        game.loadpreset(update.callback_query.data)
         bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data))
     elif game.phase is 'Voting':
         # Trova il giocatore
@@ -818,13 +814,13 @@ def inlinekeyboard(bot: Bot, update):
         if update.callback_query.data == "-":
             # Annulla il voto
             player.votingfor = None
-            game.message(bot, s.vote_none.format(player=player))
+            game.message(s.vote_none.format(player=player))
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_none_fp)
         else:
             # Cambia il voto
             target = game.findplayerbyusername(update.callback_query.data)
             player.votingfor = target
-            game.message(bot, s.vote.format(voting=player.tusername, voted=target.tusername))
+            game.message(s.vote.format(voting=player.tusername, voted=target.tusername))
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
 
 

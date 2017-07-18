@@ -17,17 +17,17 @@ class Derek(Role):
     def __repr__(self) -> str:
         return "<Role: Derek>"
 
-    def power(self, bot, arg):
+    def power(self, arg):
         # Attiva / disattiva la morte alla fine del round
         self.deathwish = not self.deathwish
         if self.deathwish:
-            self.player.message(bot, s.derek_deathwish_unset)
+            self.player.message(s.derek_deathwish_unset)
         else:
 
-            self.player.message(bot, s.derek_deathwish_set)
+            self.player.message(s.derek_deathwish_set)
 
-    def onendday(self, bot):
+    def onendday(self):
         if self.deathwish:
-            self.player.game.message(bot, s.derek_deathwish_successful.format(name=self.player.tusername))
-            self.player.kill(bot, self.player.game)
+            self.player.game.message(s.derek_deathwish_successful.format(name=self.player.tusername))
+            self.player.kill(self.player.game)
             self.chaos = True

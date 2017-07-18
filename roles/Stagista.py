@@ -18,21 +18,21 @@ class Stagista(Role):
     def __repr__(self) -> str:
         return "<Role: Stagista>"
 
-    def power(self, bot, arg):
+    def power(self, arg):
         target = self.player.game.findplayerbyusername(arg)
         if target is not None and target is not self.player and target.alive:
             self.master = target
-            self.player.message(bot, s.intern_started_internship.format(master=self.master.tusername))
+            self.player.message(s.intern_started_internship.format(master=self.master.tusername))
         else:
-            self.player.message(bot, s.error_no_username)
+            self.player.message(s.error_no_username)
 
-    def onendday(self, bot):
+    def onendday(self):
         if self.master is not None:
             if isinstance(self.master.role, Derek) and self.master.role.chaos:
-                self.player.game.message(bot, s.intern_chaos_summoned)
+                self.player.game.message(s.intern_chaos_summoned)
                 self.master.alive = True
-                self.player.game.changerole(bot, self.master, SignoreDelCaos)
-                self.player.game.changerole(bot, self.player, Servitore)
+                self.player.game.changerole(self.master, SignoreDelCaos)
+                self.player.game.changerole(self.player, Servitore)
             else:
-                self.player.game.message(bot, s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
-                self.player.game.changerole(bot, self.player, self.master.role.__class__)
+                self.player.game.message(s.intern_changed_role.format(icon=self.master.role.__class__.icon, role=self.master.role.__class__.name))
+                self.player.game.changerole(self.player, self.master.role.__class__)

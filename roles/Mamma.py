@@ -12,11 +12,9 @@ class Mamma(Role):
     def __repr__(self) -> str:
         return "<Role: Mamma>"
 
-    def onstartgame(self, bot):
+    def onstartgame(self):
         # Scegli un bersaglio casuale che non sia il giocatore stesso
         possibletargets = self.player.game.players.copy()
         possibletargets.remove(self.player)
         target = random.sample(possibletargets, 1)[0]
-        self.player.message(bot, s.mom_discovery.format(target=target.tusername,
-                                                            icon=target.role.icon,
-                                                            role=target.role.name))
+        self.player.message(s.mom_discovery.format(target=target.tusername, icon=target.role.icon, role=target.role.name))

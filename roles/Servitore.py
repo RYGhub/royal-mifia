@@ -13,10 +13,10 @@ class Servitore(Role):
     def __repr__(self) -> str:
         return "<Role: Servitore del Caos>"
 
-    def onendday(self, bot):
+    def onendday(self):
         for chaoslord in self.player.game.playersinrole["SignoreDelCaos"]:
             if chaoslord.alive:
                 break
         else:
-            self.player.game.changerole(bot, self.player, SignoreDelCaos)
-            self.player.game.message(bot, s.chaos_servant_inherited)
+            self.player.game.changerole(self.player, SignoreDelCaos)
+            self.player.game.message(s.chaos_servant_inherited)

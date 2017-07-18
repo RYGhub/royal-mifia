@@ -16,7 +16,7 @@ class Disastro(Role):
     def __repr__(self) -> str:
         return "<Role: Investigatore, {uses} uses left>".format(uses=self.poweruses)
 
-    def power(self, bot, arg):
+    def power(self, arg):
         # Indaga sul vero ruolo di una persona, se sono ancora disponibili usi del potere.
         if self.poweruses > 0:
             target = self.player.game.findplayerbyusername(arg)
@@ -26,19 +26,19 @@ class Disastro(Role):
                 while isinstance(target.role, randomrole):
                     # TODO:  se ci fossero solo disastri in una partita cosa succederebbe?
                     randomrole = self.player.game.getrandomrole()
-                self.player.message(bot, s.detective_discovery.format(target=target.tusername,
+                self.player.message(s.detective_discovery.format(target=target.tusername,
                                                                  icon=randomrole.icon,
                                                                  role=randomrole.name,
                                                                  left=self.poweruses))
             else:
-                self.player.message(bot, s.error_username)
+                self.player.message(s.error_username)
         else:
-            self.player.message(bot, s.error_no_uses)
+            self.player.message(s.error_no_uses)
 
-    def onendday(self, bot):
+    def onendday(self):
         # Ripristina il potere
         self.poweruses = self.refillpoweruses
 
-    def ondeath(self, bot):
+    def ondeath(self):
         self.icon = s.disaster_icon
         self.name = s.disaster_name

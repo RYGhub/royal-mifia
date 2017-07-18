@@ -18,17 +18,17 @@ class Mifioso(Role):
         else:
             return "<Role: Mifioso, targeting {target}>".format(target=self.target.tusername)
 
-    def power(self, bot, arg):
+    def power(self, arg):
         # Imposta una persona come bersaglio da uccidere.
         selected = self.player.game.findplayerbyusername(arg)
         if selected is None:
-            self.player.message(bot, s.error_username)
+            self.player.message(s.error_username)
             return
         self.target = selected
-        self.player.message(bot, s.mifia_target_selected.format(target=self.target.tusername))
+        self.player.message(s.mifia_target_selected.format(target=self.target.tusername))
 
 
-    def onendday(self, bot):
+    def onendday(self):
         if self.player.game.votingmifia:
             # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game
             self.target = None
@@ -37,13 +37,9 @@ class Mifioso(Role):
             if self.target is not None:
                 if self.target.protectedby is None:
                     # Uccisione riuscita
-                    self.target.kill(bot, self)
-                    self.player.game.message(bot, s.mifia_target_killed.format(target=self.target.tusername,
-                                                                   icon=self.target.role.icon,
-                                                                   role=self.target.role.name))
+                    self.target.kill(self)
+                    self.player.game.message(s.mifia_target_killed.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
                 else:
                     # Bersaglio protetto da un angelo
-                    self.player.game.message(bot, s.mifia_target_protected.format(target=self.target.tusername,
-                                                                      icon=self.target.protectedby.role.icon,
-                                                                      protectedby=self.target.protectedby.tusername))
+                    self.player.game.message(s.mifia_target_protected.format(target=self.target.tusername, icon=self.target.protectedby.role.icon, protectedby=self.target.protectedby.tusername))
                 self.target = None

@@ -16,20 +16,20 @@ class SignoreDelCaos(Role):
     def __repr__(self) -> str:
         return "<Role: Signore del Caos>"
 
-    def power(self, bot, arg):
+    def power(self, arg):
         selected = self.player.game.findplayerbyusername(arg)
         if selected is not None and selected is not self.player and selected.alive:
             self.target = selected
-            self.player.message(bot, s.chaos_lord_target_selected.format(target=self.target.tusername))
+            self.player.message(s.chaos_lord_target_selected.format(target=self.target.tusername))
         else:
-            self.player.message(bot, s.error_no_username)
+            self.player.message(s.error_no_username)
 
-    def onendday(self, bot):
+    def onendday(self):
         if self.target is not None:
             if self.target.alive and self.player.alive:
                 if not isinstance(self.target.role, SignoreDelCaos):
                     randomrole = self.player.game.getrandomrole()
-                    self.player.game.changerole(bot, self.target, randomrole)
-                    self.player.game.message(bot, s.chaos_lord_randomized)
+                    self.player.game.changerole(self.target, randomrole)
+                    self.player.game.message(s.chaos_lord_randomized)
                 else:
-                    self.player.game.message(bot, s.chaos_lord_failed)
+                    self.player.game.message(s.chaos_lord_failed)
