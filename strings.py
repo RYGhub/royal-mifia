@@ -277,10 +277,10 @@ end_game_wiped = "Nessuno è più vivo. La specie umana si è estinta.\n"
 end_game_chaos = "Sei un Signore del Caos."
 
 # Generale: scegli per chi votare
-vote_keyboard = "Chi vuoi votare...?"
+vote_keyboard = "Clicca qui per votare!"
 
 # Generale: riga della tastiera del voto
-vote_keyboard_line = "{player} - {votes}"
+vote_keyboard_line = "{status} {votes} - {player}"
 
 # Generale: riga della tastiera per annullare il voto
 vote_keyboard_nobody = "Nessuno"
@@ -317,6 +317,12 @@ status_alive_player = "{icon} @{name} ({votes} voti)\n"
 
 # Status: giocatore morto (deve terminare con \n)
 status_dead_player = "\U0001F480 @{name}\n"
+
+# Status: giocatore più votato della partita
+status_most_voted = "\U0001F534"
+
+# Status: voti giocatore normali
+status_normal_voted = "\u26AA"
 
 # Status: Modalità debug
 debug_mode = "*DEBUG/CHEATS MODE*\n"

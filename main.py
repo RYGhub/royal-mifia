@@ -72,6 +72,7 @@ class Game:
         self.tokill = list()  # type: List['Player']
         self.phase = 'Join'  # type: str
         self.day = 0  # type: int
+        self.votemsg = None  # type: Union["telegram.Message", None]
 
         self.configstep = 0  # type: int
         self.roleconfig = dict()  # type: Dict[int]
@@ -274,6 +275,24 @@ class Game:
         self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
         self.victoryconditions()
+        # Manda la tastiera con i voti e fissala
+        # Genera la tastiera
+        table = list()
+        for player in self.players:
+            if not player.alive:
+                continue
+            row = list()
+            row.append(InlineKeyboardButton(s.vote_keyboard_line.format(status=s.status_normal_voted, player=player, votes=player.votes),
+                                            callback_data=player.tusername))
+            table.append(row)
+        row = list()
+        row.append(InlineKeyboardButton(s.vote_keyboard_nobody, callback_data="-"))
+        table.append(row)
+        keyboard = InlineKeyboardMarkup(table)
+        # Manda la tastiera
+        self.votemsg = self.bot.sendMessage(self.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+        # Fissa la tastiera
+        self.bot.pinChatMessage(self.groupid, self.votemsg.message_id)
 
     def startpreset(self):
         """Inizio della fase di preset"""
@@ -651,26 +670,12 @@ def vote(bot: Bot, update):
     if game is None:
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
-    elif game.phase is not 'Voting':
+    elif game.phase != 'Voting':
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
         return
     elif game.day <= 1:
         game.message(s.error_no_votes_on_first_day)
         return
-    # Genera la tastiera
-    table = list()
-    for player in game.players:
-        if not player.alive:
-            continue
-        row = list()
-        row.append(InlineKeyboardButton(s.vote_keyboard_line.format(player=player, votes=player.votes), callback_data=player.tusername))
-        table.append(row)
-    row = list()
-    row.append(InlineKeyboardButton(s.vote_keyboard_nobody, callback_data="-"))
-    table.append(row)
-    keyboard = InlineKeyboardMarkup(table)
-    # Manda la tastiera
-    bot.sendMessage(game.groupid, s.vote_keyboard, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
 
 
 def endday(_: Bot, update):
@@ -777,10 +782,14 @@ def delete(bot: Bot, update):
 
 def load(bot: Bot, update):
     """Carica una partita salvata."""
+    game = findgamebyid(update.message.chat.id)
+    if game is not None:
+        bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
+        return
     file = open(str(update.message.chat.id) + ".p", "rb")
     game = pickle.load(file)
     inprogress.append(game)
-    game.message(bot, s.game_loaded)
+    game.message(s.game_loaded)
 
 
 def save(bot: Bot, update):
@@ -832,11 +841,16 @@ def inlinekeyboard(bot: Bot, update):
         game.loadpreset(update.callback_query.data)
         bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.preset_selected.format(selected=update.callback_query.data))
     elif game.phase is 'Voting':
+        # Controlla che non sia il primo giorno
+        if game.day <= 1:
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_no_votes_on_first_day, show_alert=True)
+            return
         # Trova il giocatore
         player = game.findplayerbyid(update.callback_query.from_user.id)
         if player is None:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_not_in_game, show_alert=True)
             return
+        # Controlla che sia vivo
         if not player.alive:
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.error_dead, show_alert=True)
             return
@@ -851,6 +865,28 @@ def inlinekeyboard(bot: Bot, update):
             player.votingfor = target
             game.message(s.vote.format(voting=player.tusername, voted=target.tusername))
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text=s.vote_fp.format(voted=target.tusername))
+        # Aggiorna i voti
+        game.updatevotes()
+        mostvoted = game.mostvotedplayers()
+        # Aggiorna la tastiera
+        table = list()
+        for player in game.players:
+            if not player.alive:
+                continue
+            if player in mostvoted:
+                status_icon = s.status_most_voted
+            else:
+                status_icon = s.status_normal_voted
+            row = list()
+            row.append(InlineKeyboardButton(s.vote_keyboard_line.format(status=status_icon, player=player, votes=player.votes),
+                                            callback_data=player.tusername))
+            table.append(row)
+        row = list()
+        row.append(InlineKeyboardButton(s.vote_keyboard_nobody, callback_data="-"))
+        table.append(row)
+        keyboard = InlineKeyboardMarkup(table)
+        # Manda la tastiera
+        bot.editMessageReplyMarkup(game.groupid, game.votemsg.message_id, reply_markup=keyboard)
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
