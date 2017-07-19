@@ -53,6 +53,12 @@ class Player:
         """Uccidi il giocatore."""
         self.role.ondeath()
         self.alive = False
+        # Silenzia il giocatore
+        if self is not self.game.admin:
+            try:
+                self.game.bot.restrictChatMember(self.game.groupid, self.tid, None, False, False, False, False)
+            except Unauthorized:
+                print("Bot is not administrator in group {}".format(self.groupid))
 
 
 class Game:
