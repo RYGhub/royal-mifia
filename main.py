@@ -58,7 +58,7 @@ class Player:
             try:
                 self.game.bot.restrictChatMember(self.game.groupid, self.tid, None, False, False, False, False)
             except Unauthorized:
-                print("Bot is not administrator in group {}".format(self.groupid))
+                print("Bot is not administrator in group {}".format(self.game.groupid))
 
 
 class Game:
