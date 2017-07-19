@@ -324,6 +324,10 @@ debug_mode = "*DEBUG/CHEATS MODE*\n"
 # Ping!
 pong = "Pong!"
 
+# Attenzione: il bot non è amministratore
+warning_bot_not_admin = "\U000026A0 Attenzione! Il bot non è amministratore in questo supergruppo.\n" \
+                        "E' possibile comunque giocare una partita, ma alcune funzioni non saranno disponibili."
+
 # Errore: nome utente inesistente
 error_username = "\U000026A0 Il nome utente specificato non esiste."
 

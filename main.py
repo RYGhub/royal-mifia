@@ -133,7 +133,7 @@ class Game:
         return None
 
     def updategroupname(self):
-        """Cambia il titolo della chat. Per qualche motivo non funziona."""
+        """Aggiorna il titolo della chat."""
         try:
             if self.phase == "Voting":
                 self.bot.set_chat_title(self.groupid, s.group_name.format(phase=s.day.format(day=self.day), name=self.name))
@@ -535,6 +535,13 @@ def newgame(bot: Bot, update):
     if game is not None:
         bot.sendMessage(update.message.chat.id, s.error_game_in_progress, parse_mode=ParseMode.MARKDOWN)
         return
+    # Controlla che il bot sia un amministratore nel supergruppo
+    admins = bot.getChatAdministrators(update.message.chat.id)
+    for admin in admins:
+        if admin.user.id == bot.id:
+            break
+    else:
+        bot.sendMessage(update.message.chat.id, s.warning_bot_not_admin)
     game = Game(bot, update.message.chat.id)
     inprogress.append(game)
     game.message(s.new_game.format(name=game.name))
@@ -736,22 +743,31 @@ def kill(bot: Bot, update):
 def delete(bot: Bot, update):
     """Elimina una partita in corso."""
     if update.message.chat.type == 'private':
-        if update.message.from_user.username == "Steffo":
-            cmd = update.message.text.split(' ', 2)
-            game = findgamebyname(cmd[1])
-            # Se non lo trovi con il nome, prova con l'id
-            if game is None:
-                game = findgamebyid(int(cmd[1]))
-            if game is not None:
-                game.message(s.owner_ended)
-                game.endgame()
-            else:
-                game.message(s.error_no_games_found)
-        else:
+        if update.message.from_user.username != "Steffo":
             bot.sendMessage(update.message.chat.id, s.error_not_owner, parse_mode=ParseMode.MARKDOWN)
+            return
+        cmd = update.message.text.split(' ', 2)
+        game = findgamebyname(cmd[1])
+        # Se non lo trovi con il nome, prova con l'id
+        if game is None:
+            game = findgamebyid(int(cmd[1]))
+            # Ehhh pazienza non c'è neanche con l'id
+            if game is None:
+                bot.sendMessage(update.message.chat.id, s.error_no_games_found)
+        game.message(s.owner_ended)
+        game.endgame()
     else:
-        bot.sendMessage(update.message.chat.id, s.error_chat_type, parse_mode=ParseMode.MARKDOWN)
-
+        # Trova la partita
+        game = findgamebyid(update.message.chat.id)
+        # Controlla che la partita esista
+        if game is None:
+            bot.sendMessage(update.message.chat.id, s.error_no_games_found)
+            return
+        # Controlla se è admin
+        if game.admin.tid != update.message.from_user.id:
+            game.message(s.error_not_admin)
+            return
+        game.endgame()
 
 def load(bot: Bot, update):
     """Carica una partita salvata."""
