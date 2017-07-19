@@ -86,6 +86,10 @@ class Game:
         self.lastlynch = None  # Ultima persona uccisa dai Royal, diventa un player
 
     def __del__(self):
+        # Togli le referenze circolare
+        for player in self.players:
+            player.role.player = None
+            player.game = None
         # Rimetti il nome che si è liberato in disponibili.
         try:
             int(self.name)
@@ -259,9 +263,8 @@ class Game:
         for player in self.players:
             player.votingfor = None
         # Incrementa il giorno
-        self.day += 1
-        self.updategroupname()
-        # Notifica dell'inizi
+        self.nextday()
+        # Notifica del nuovo giorno
         self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
         self.victoryconditions()
@@ -380,10 +383,8 @@ class Game:
         self.message(text)
 
     def endgame(self):
+        self.newphase("End")
         self.revealallroles()
-        for player in self.players:
-            # Togli la referenza circolare
-            player.role.player = None
         inprogress.remove(self)
 
     def save(self):
