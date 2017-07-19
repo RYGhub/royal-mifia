@@ -268,9 +268,7 @@ class Game:
 
     def startpreset(self):
         """Inizio della fase di preset"""
-        self.phase = 'Preset'
-        # Aggiorna il nome del gruppo
-        self.updategroupname()
+        self.newphase("Preset")
         # Crea la tastiera
         kbmarkup = InlineKeyboardMarkup([
             [
@@ -362,12 +360,10 @@ class Game:
         # Se non ce ne sono abbastanza, torna alla fase di join
         if requiredplayers > len(self.players):
             self.message(s.error_not_enough_players)
-            self.phase = "Join"
-            self.updategroupname()
+            self.newphase("Join")
         else:
-            self.phase = 'Voting'
-            self.day += 1
-            self.updategroupname()
+            self.newphase("Voting", silent=True)
+            self.nextday()
             self.players.sort(key=lambda p: p.tusername)
             self.assignroles()
             self.message(s.roles_assigned_successfully)
@@ -494,6 +490,15 @@ class Game:
                 availableroles.append(existingrole)
         return globals()[random.sample(availableroles, 1)[0]]  # EWWW
 
+    def newphase(self, phase: str, silent: bool=False):
+        self.phase = phase
+        if not silent:
+            self.updategroupname()
+
+    def nextday(self, silent: bool=False):
+        self.day += 1
+        if not silent:
+            self.updategroupname()
 
 
 # Partite in corso
