@@ -20,4 +20,4 @@ class Terrorista(Role):
                 # Elimina ogni giocatore che sta votando per sè stesso
                 if selectedplayer.votingfor == self.player:
                     self.player.game.message(s.terrorist_target_killed.format(target=selectedplayer.tusername, icon=selectedplayer.role.icon, role=selectedplayer.role.name))
-                    selectedplayer.kill(self.player.game)
+                    selectedplayer.kill()
