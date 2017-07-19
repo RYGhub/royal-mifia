@@ -385,6 +385,16 @@ error_no_votes_on_first_day = "\U000026A0 I Royal non votano nella prima giornat
 error_missing_parameters = "\U000026A0 Mancano uno o più parametri.\n" \
                            "Controlla la sintassi del comando e riprova."
 
+# Critico: Server di telegram Timed Out
+fatal_bot_timed_out = "\U0001F6D1 **Errore critico:** I server di Telegram non hanno risposto in tempo al messaggio.\n" \
+                      "Se una partita era in corso, potrebbero essersi creati dei bug.\n" \
+                      "E' consigliato cancellarla e ricaricare l'ultimo salvataggio disponibile."
+
+# Critico: Rate limited
+fatal_bot_rate_limited = "\U0001F6D1 **Errore critico:** Il bot ha inviato troppe richieste a Telegram ed è stato bloccato.\n" \
+                         "Se una partita era in corso, potrebbero essersi creati dei bug.\n" \
+                         "E' consigliato attendere 5 minuti, cancellarla e ricaricare l'ultimo salvataggio disponibile."
+
 # Lista dei possibili nomi di una partita
 if __debug__:
     names_list = ["Dev"]

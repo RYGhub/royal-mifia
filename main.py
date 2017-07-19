@@ -849,9 +849,9 @@ updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
 updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
-updater.start_polling()
-print("Bot avviato!")
+
 if __name__ == "__main__":
+    updater.start_polling()
     while True:
         try:
             updater.idle()
