@@ -26,17 +26,17 @@ freenames = s.names_list.copy()
 class Player:
     """Classe di un giocatore. Contiene tutti i dati riguardanti un giocatore all'interno di una partita, come il ruolo,
        e i dati riguardanti telegram, come ID e username."""
-    def __init__(self, game: 'Game', tid: int, tusername: str, dummy=False):
-        self.tid = tid  # ID di Telegram
-        self.tusername = tusername  # Username di Telegram
-        self.role = Role(self)  # Di base, ogni giocatore è un ruolo indefinito
-        self.alive = True  # Il giocatore è vivo?
-        self.votingfor = None  # Diventa un player se ha votato
-        self.votes = 0  # Voti che sta ricevendo questo giocatore. Aggiornato da updatevotes()
-        self.protectedby = None  # Protettore. Oggetto player che protegge questo giocatore dalla mifia. Se è None, la mifia può uccidere questo giocatore
-        self.mifiavotes = 0  # Voti che sta ricevendo questo giocatore dalla mifia. Aggiornato da updatemifiavotes()
-        self.dummy = dummy  # E' un bot? Usato solo per il debug (/debugjoin)
-        self.game = game  # La partita associata al giocatore
+    def __init__(self, game: 'Game', tid: int, tusername: str, dummy: bool=False):
+        self.tid = tid  # type: int
+        self.tusername = tusername  # type: str
+        self.role = Role(self)  # type: Role
+        self.alive = True  # type: bool
+        self.votingfor = None  # type: Union["Player", None]
+        self.votes = 0  # type: int
+        self.protectedby = None  # type: Union["Player", None]
+        self.mifiavotes = 0  # type: int
+        self.dummy = dummy  # type: bool
+        self.game = game  # type: "Game"
 
     def __repr__(self) -> str:
         return "<Player {username}>".format(username=self.tusername)
