@@ -640,14 +640,14 @@ def status(bot: Bot, update):
         # Aggiungi l'elenco dei giocatori
         for player in game.players:
             if not player.alive:
-                text += s.status_dead_player.format(name=player.tusername)
+                text += s.status_dead_player.format(player=player)
             elif game.day > 1 and player.votingfor is not None:
                 text += s.status_alive_player.format(icon="\U0001F610",
                                                      player=player,
                                                      target=player.votingfor)
             else:
                 text += s.status_basic_player.format(icon="\U0001F610",
-                                                     name=player.tusername)
+                                                     player=player)
         game.message(text)
     else:
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
