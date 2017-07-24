@@ -407,7 +407,7 @@ class Game:
         # Aggiungi l'elenco dei giocatori
         for player in self.players:
             text += s.status_basic_player.format(icon=player.role.icon,
-                                                 name=player.tusername)
+                                                 player=player)
         self.message(text)
 
     def endgame(self):
