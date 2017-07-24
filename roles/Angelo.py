@@ -43,3 +43,9 @@ class Angelo(Role):
         if self.protecting is not None:
             self.protecting.protectedby = None
         self.protecting = None
+
+    def ondeath(self):
+        # Resetta la protezione
+        if self.protecting is not None:
+            self.protecting.protectedby = None
+        self.protecting = None
