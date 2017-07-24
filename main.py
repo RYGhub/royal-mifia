@@ -275,6 +275,9 @@ class Game:
         self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
         self.victoryconditions()
+        # Controlla che la partita non sia finita
+        if self.phase == "End":
+            return
         # Manda la tastiera con i voti e fissala
         # Genera la tastiera
         table = list()
@@ -638,10 +641,10 @@ def status(bot: Bot, update):
         for player in game.players:
             if not player.alive:
                 text += s.status_dead_player.format(name=player.tusername)
-            elif game.day > 1:
+            elif game.day > 1 and player.votingfor is not None:
                 text += s.status_alive_player.format(icon="\U0001F610",
-                                                     name=player.tusername,
-                                                     votes=str(player.votes))
+                                                     player=player,
+                                                     target=player.votingfor)
             else:
                 text += s.status_basic_player.format(icon="\U0001F610",
                                                      name=player.tusername)

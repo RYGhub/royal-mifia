@@ -283,7 +283,7 @@ vote_keyboard = "Clicca qui per votare!"
 vote_keyboard_line = "{status} {votes} - {player}"
 
 # Generale: riga della tastiera per annullare il voto
-vote_keyboard_nobody = "Nessuno"
+vote_keyboard_nobody = "\u2796 Nessuno"
 
 # Generale: inizia un nuovo giorno
 new_day = "Sorge l'alba del giorno *{day}*!"
@@ -304,19 +304,19 @@ defeat = "*Hai perso...*"
 tie = "*Pareggio?*"
 
 # Status: parte aggiunta prima dell'elenco dei giocatori (deve terminare con \n)
-status_header = "*ID:* {name}\n" \
+status_header = "*Nome:* {name}\n" \
                 "*Creatore:* {admin}\n" \
                 "*Fase:* {phase}\n" \
                 "*Giocatori partecipanti:*\n" 
 
 # Status: giocatore vivo durante la prima giornata / fase di join (deve terminare con \n)
-status_basic_player = "{icon} @{name}\n"
+status_basic_player = "{icon} {player}\n"
 
 # Status: giocatore vivo (deve terminare con \n)
-status_alive_player = "{icon} @{name} ({votes} voti)\n"
+status_alive_player = "{icon} {player} __(vota per {target})__\n"
 
 # Status: giocatore morto (deve terminare con \n)
-status_dead_player = "\U0001F480 @{name}\n"
+status_dead_player = "\U0001F480 {player}\n"
 
 # Status: giocatore più votato della partita
 status_most_voted = "\U0001F534"
