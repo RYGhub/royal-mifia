@@ -271,8 +271,6 @@ class Game:
             player.votingfor = None
         # Incrementa il giorno
         self.nextday()
-        # Notifica del nuovo giorno
-        self.message(s.new_day.format(day=self.day))
         # Controlla se qualcuno ha vinto
         self.victoryconditions()
         # Controlla che la partita non sia finita
@@ -402,8 +400,7 @@ class Game:
                 player.role.onstartgame()
 
     def revealallroles(self):
-        text = s.status_header.format(name=self.name, admin=self.admin.tusername, phase=self.phase)
-        self.updatevotes()
+        text = s.status_final_header.format(name=self.name)
         # Aggiungi l'elenco dei giocatori
         for player in self.players:
             text += s.status_basic_player.format(icon=player.role.icon,
@@ -527,6 +524,7 @@ class Game:
     def nextday(self, silent: bool=False):
         self.day += 1
         if not silent:
+            self.message(s.new_day.format(day=self.day))
             self.updategroupname()
 
 

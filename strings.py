@@ -277,7 +277,9 @@ end_game_wiped = "Nessuno è più vivo. La specie umana si è estinta.\n"
 end_game_chaos = "Sei un Signore del Caos."
 
 # Generale: scegli per chi votare
-vote_keyboard = "Clicca qui per votare!"
+vote_keyboard = "Scegli chi vuoi linciare!\n" \
+                "Se più giocatori hanno lo stesso numero di voti, uno tra loro verrà selezionato per essere linciato.\n" \
+                "Se nessuno ha votato, "
 
 # Generale: riga della tastiera del voto
 vote_keyboard_line = "{status} {votes} - {player}"
@@ -307,10 +309,15 @@ tie = "*Pareggio?*"
 status_header = "*Nome:* {name}\n" \
                 "*Creatore:* {admin}\n" \
                 "*Fase:* {phase}\n" \
-                "*Giocatori partecipanti:*\n" 
+                "*Giocatori partecipanti:*\n"
+
+# Status: parte aggiunta prima della rivelazione finale dei ruoli
+status_final_header = "*Ruoli della partita {name}:*\n"
 
 # Status: giocatore vivo durante la prima giornata / fase di join (deve terminare con \n)
 status_basic_player = "{icon} {player}\n"
+
+# Status: risultati finali della partita
 
 # Status: giocatore vivo (deve terminare con \n)
 status_alive_player = "{icon} {player} __(vota per {target})__\n"
