@@ -37,7 +37,7 @@ class Mifioso(Role):
             if self.target is not None:
                 if self.target.protectedby is None:
                     # Uccisione riuscita
-                    self.target.kill(self)
+                    self.target.kill()
                     self.player.game.message(s.mifia_target_killed.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
                 else:
                     # Bersaglio protetto da un angelo
