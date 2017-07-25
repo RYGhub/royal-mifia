@@ -24,7 +24,7 @@ class Stagista(Role):
             self.master = target
             self.player.message(s.intern_started_internship.format(master=self.master.tusername))
         else:
-            self.player.message(s.error_no_username)
+            self.player.message(s.error_username)
 
     def onendday(self):
         if self.master is not None:
