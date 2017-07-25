@@ -360,7 +360,10 @@ error_player_already_joined = "\U000026A0 Ti sei già unito alla partita."
 error_no_games_found = "\U000026A0 Non è stata trovata una partita su cui usare il comando."
 
 # Errore: sei morto
-error_dead = "\U000026A0 Sei morto." 
+error_dead = "\U000026A0 Sei morto."
+
+# Errore: il bersaglio è morto
+error_target_is_dead = "\U000026A0 Non puoi bersagliare giocatori morti."
 
 # Errore: azione riservata agli admin
 error_not_admin = "\U000026A0 Questa azione è riservata al creatore della partita."
@@ -374,8 +377,8 @@ error_not_in_game = "\U000026A0 Non fai parte della partita in corso."
 # Errore: fase di join finita
 error_join_phase_ended = "\U000026A0 La fase di unione è finita."
 
-# Errore: angelo non può proteggere sè stesso
-error_angel_no_selfprotect = "\U000026A0 Non puoi proteggere te stesso."
+# Errore: non puoi usare il potere su te stesso
+error_no_selfpower = "\U000026A0 Non puoi usare il potere su te stesso."
 
 # Errore: parametro della configurazione non valido
 error_invalid_config = "\U000026A0 Configurazione non valida."

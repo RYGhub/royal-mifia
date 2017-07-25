@@ -20,11 +20,16 @@ class Stagista(Role):
 
     def power(self, arg):
         target = self.player.game.findplayerbyusername(arg)
-        if target is not None and target is not self.player and target.alive:
-            self.master = target
-            self.player.message(s.intern_started_internship.format(master=self.master.tusername))
-        else:
+        if target is self.player:
+            self.player.message(s.error_no_selfpower)
+            return
+        if target is None:
             self.player.message(s.error_username)
+            return
+        if not target.alive:
+            self.player.message(s.error_target_is_dead)
+        self.master = target
+        self.player.message(s.intern_started_internship.format(master=self.master.tusername))
 
     def onendday(self):
         if self.master is not None:

@@ -36,7 +36,7 @@ class Angelo(Role):
             self.protecting = selected
             self.player.message(s.angel_target_selected.format(target=self.protecting.tusername))
         else:
-            self.player.message(s.error_angel_no_selfprotect)
+            self.player.message(s.error_no_selfpower)
 
     def onendday(self):
         # Resetta la protezione
