@@ -419,7 +419,7 @@ fatal_bot_rate_limited = "\U0001F6D1 **Errore critico:** Il bot ha inviato tropp
 if __debug__:
     names_list = ["Dev"]
 else:
-    names_list = ["Mela", "Pera", "Banana", "Kiwi", "Arancia", "Uva"]
+    names_list = ["Eleven"]
 
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*" 
