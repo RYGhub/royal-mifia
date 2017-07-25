@@ -666,21 +666,6 @@ def endjoin(bot: Bot, update):
         bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
 
 
-def vote(bot: Bot, update):
-    """Vota per uccidere una persona."""
-    # Trova la partita
-    game = findgamebyid(update.message.chat.id)
-    if game is None:
-        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
-        return
-    elif game.phase != 'Voting':
-        bot.sendMessage(update.message.chat.id, s.error_no_games_found, parse_mode=ParseMode.MARKDOWN)
-        return
-    elif game.day <= 1:
-        game.message(s.error_no_votes_on_first_day)
-        return
-
-
 def endday(_: Bot, update):
     """Termina la giornata attuale."""
     game = findgamebyid(update.message.chat.id)
@@ -897,7 +882,6 @@ updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
 updater.dispatcher.add_handler(CommandHandler('debugjoin', debugjoin))
 updater.dispatcher.add_handler(CommandHandler('endjoin', endjoin))
-updater.dispatcher.add_handler(CommandHandler('vote', vote))
 updater.dispatcher.add_handler(CommandHandler('endday', endday))
 updater.dispatcher.add_handler(CommandHandler('power', power))
 updater.dispatcher.add_handler(CommandHandler('status', status))
