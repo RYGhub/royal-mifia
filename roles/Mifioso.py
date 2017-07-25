@@ -27,7 +27,6 @@ class Mifioso(Role):
         self.target = selected
         self.player.message(s.mifia_target_selected.format(target=self.target.tusername))
 
-
     def onendday(self):
         if self.player.game.votingmifia:
             # Se la partita è in modalità votingmifia l'uccisione della mifia viene gestita dalla classe Game

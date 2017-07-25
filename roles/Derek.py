@@ -23,11 +23,10 @@ class Derek(Role):
         if self.deathwish:
             self.player.message(s.derek_deathwish_set)
         else:
-
             self.player.message(s.derek_deathwish_unset)
 
     def onendday(self):
         if self.deathwish:
             self.player.game.message(s.derek_deathwish_successful.format(name=self.player.tusername))
-            self.player.kill(self.player.game)
+            self.player.kill()
             self.chaos = True
