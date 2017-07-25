@@ -21,10 +21,10 @@ class Derek(Role):
         # Attiva / disattiva la morte alla fine del round
         self.deathwish = not self.deathwish
         if self.deathwish:
-            self.player.message(s.derek_deathwish_unset)
+            self.player.message(s.derek_deathwish_set)
         else:
 
-            self.player.message(s.derek_deathwish_set)
+            self.player.message(s.derek_deathwish_unset)
 
     def onendday(self):
         if self.deathwish:
