@@ -354,30 +354,62 @@ class Game:
             self.message(s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
             self.endconfig()
         elif preset == "oneofall":
+            unassignedplayers = len(self.players)
             self.roleconfig = {
-                "Mifioso": 1,
-                "Investigatore": 1,
-                "Corrotto": 1,
-                "Angelo": 1,
-                "Terrorista": 1,
-                "Derek": 1,
-                "Disastro": 1,
-                "Mamma": 1,
-                "Stagista": 1,
+                "Mifioso": 0,
+                "Investigatore": 0,
+                "Corrotto": 0,
+                "Angelo": 0,
+                "Terrorista": 0,
+                "Derek": 0,
+                "Disastro": 0,
+                "Mamma": 0,
+                "Stagista": 0,
                 "SignoreDelCaos": 0,
                 "Servitore": 0,
-                "Vigilante": 1
+                "Vigilante": 0
             }
-            unassignedplayers = len(self.players) - 9
-            availableroles = list() 
-            while unassignedplayers > 0:
-                if len(availableroles) == 0:
-                    availableroles = rolepriority.copy()
-                    availableroles.remove(SignoreDelCaos)
-                    availableroles.remove(Servitore)
-                    random.shuffle(availableroles)
-                self.roleconfig[availableroles.pop().__name__] += 1
-                unassignedplayers -= 1
+            while True:
+                if unassignedplayers > 1:
+                    self.roleconfig["Mifioso"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Investigatore"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Corrotto"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Angelo"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Terrorista"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Derek"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Disastro"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Mamma"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Stagista"] += 1
+                else:
+                    break
+                if unassignedplayers > 1:
+                    self.roleconfig["Vigilante"] += 1
+                else:
+                    break
             self.votingmifia = False
             self.message(s.preset_oneofall_selected)
             self.endconfig()
