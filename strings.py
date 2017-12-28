@@ -45,7 +45,7 @@ detective_discovery = "Sei sicuro al *{target_score}%* che @{target} sia un *{ic
 
 # Investigatore: descrizione del potere
 detective_power_description = "Puoi provare a scoprire il ruolo di una persona ogni giorno.\n" \
-                              "Non è garantito che l'investigazione abbia successo, ma la probabilità è piuttosto alta e ti verrà annunciata." \
+                              "Non è garantito che l'investigazione abbia successo, ma la probabilità è piuttosto alta e ti verrà annunciata.\n" \
                               "Per indagare su qualcuno, scrivi in questa chat:\n" \
                               "`/power {gamename} nomeutentebersaglio`\n"
 
@@ -203,8 +203,10 @@ vigilante_name = "Vigilante"
 vigilante_icon = "🤠"
 
 # Vigilante: descrizione potere
-vigilante_power_description = "In un qualsiasi momento della partita puoi scegliere una persona da uccidere anonimamente ignorando le votazioni.\n" \
-                              "Fai attenzione a non uccidere un tuo alleato Royal: sei in squadra con loro!"
+vigilante_power_description = "Puoi scegliere una persona da uccidere anonimamente alla fine della giornata.\n" \
+                              "Fai attenzione a non uccidere un tuo alleato Royal: sei in squadra con loro!\n" \
+                              "Per uccidere qualcuno, scrivi in questa chat:\n" \
+                              "`/power {gamename} nomeutentebersaglio`"
 
 # Vigilante: bersaglio scelto
 vigilante_target_selected = "Stai puntando la tua pistola contro @{target}."

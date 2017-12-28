@@ -30,13 +30,13 @@ class Disastro(Role):
         # Utilizza il potere su quella persona
         self.power_was_used = True
         # Tira per investigare
-        target = random.randrange(0, 25) + 1
+        target_score = random.randrange(0, 25) + 1
         score = random.randrange(0, 100) + 1
-        if score < target:
+        if score < target_score:
             role = target.role.name
         else:
             role = self.player.game.getrandomrole().name
-        self.player.message(s.detective_discovery.format(target_score=100-target, target=target.tusername, icon=target.role.icon, role=role))
+        self.player.message(s.detective_discovery.format(target_score=100-target_score, target=target.tusername, icon=target.role.icon, role=role))
 
     def onendday(self):
         # Ripristina il potere

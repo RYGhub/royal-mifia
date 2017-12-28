@@ -370,46 +370,15 @@ class Game:
                 "Vigilante": 0
             }
             while True:
-                if unassignedplayers > 1:
-                    self.roleconfig["Mifioso"] += 1
+                for role in [Mifioso, Investigatore, Corrotto, Angelo, Terrorista, Derek, Disastro, Mamma, Stagista, Vigilante]:
+                    if unassignedplayers > 0:
+                        self.roleconfig[role.__name__] += 1
+                        unassignedplayers -= 1
+                    else:
+                        break
                 else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Investigatore"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Corrotto"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Angelo"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Terrorista"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Derek"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Disastro"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Mamma"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Stagista"] += 1
-                else:
-                    break
-                if unassignedplayers > 1:
-                    self.roleconfig["Vigilante"] += 1
-                else:
-                    break
+                    continue
+                break
             self.votingmifia = False
             self.message(s.preset_oneofall_selected)
             self.endconfig()
@@ -910,6 +879,10 @@ def inlinekeyboard(bot: Bot, update):
         bot.editMessageReplyMarkup(game.groupid, game.votemsg.message_id, reply_markup=keyboard)
 
 
+def breakpoint_here(*args, **kwargs):
+    pass
+
+
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
@@ -927,6 +900,7 @@ updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
 updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
+updater.dispatcher.add_error_handler(breakpoint_here)
 
 if __name__ == "__main__":
     updater.start_polling()
