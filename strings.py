@@ -41,11 +41,11 @@ detective_icon = "\U0001F575"
 detective_name = "Investigatore"
 
 # Investigatore: scoperta nuove informazioni
-detective_discovery = "@{target} è un *{icon} {role}*.\n" \
-                      "Puoi usare il tuo potere ancora *{left}* volte oggi."
+detective_discovery = "Sei sicuro al *{target_score}%* che @{target} sia un *{icon} {role}*."
 
 # Investigatore: descrizione del potere
-detective_power_description = "Puoi indagare sul vero ruolo di una persona una volta al giorno.\n" \
+detective_power_description = "Puoi provare a scoprire il ruolo di una persona ogni giorno.\n" \
+                              "Non è garantito che l'investigazione abbia successo, ma la probabilità è piuttosto alta e ti verrà annunciata." \
                               "Per indagare su qualcuno, scrivi in questa chat:\n" \
                               "`/power {gamename} nomeutentebersaglio`\n"
 
