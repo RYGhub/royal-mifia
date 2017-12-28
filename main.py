@@ -326,7 +326,8 @@ class Game:
                 "Mamma":          0,
                 "Stagista":       0,
                 "SignoreDelCaos": 0,
-                "Servitore":      0
+                "Servitore":      0,
+                "Vigilante":      0
             }
             self.votingmifia = True
             self.message(s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
@@ -346,7 +347,8 @@ class Game:
                 "Mamma":          0,
                 "Stagista":       0,
                 "SignoreDelCaos": 0,
-                "Servitore":      0
+                "Servitore":      0,
+                "Vigilante":      0
             }
             self.votingmifia = True
             self.message(s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
@@ -363,7 +365,8 @@ class Game:
                 "Mamma": 1,
                 "Stagista": 1,
                 "SignoreDelCaos": 0,
-                "Servitore": 0
+                "Servitore": 0,
+                "Vigilante": 1
             }
             unassignedplayers = len(self.players) - 9
             availableroles = list() 

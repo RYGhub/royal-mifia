@@ -196,6 +196,23 @@ chaos_servant_icon = "\U0001F468\u200d\U0001F3A4"
 chaos_servant_power_description = "Il Signore del Caos ti cederà i suoi poteri quando sarà morto.\n" \
                                   "Facendo parte della fazione del Caos, hai automaticamente _vinto la partita_!"
 
+# Vigilante: nome ruolo
+vigilante_name = "Vigilante"
+
+# Vigilante: icona
+vigilante_icon = "🤠"
+
+# Vigilante: descrizione potere
+vigilante_power_description = "In un qualsiasi momento della partita puoi scegliere una persona da uccidere anonimamente ignorando le votazioni.\n" \
+                              "Fai attenzione a non uccidere un tuo alleato Royal: sei in squadra con loro!"
+
+# Vigilante: bersaglio scelto
+vigilante_target_selected = "Stai puntando la tua pistola contro @{target}."
+
+# Vigilante: esecuzione
+vigilante_execution = "@{target} è stato eseguito da un Vigilante della Royal Games.\n" \
+                      "Era un *{icon} {role}*."
+
 # Servitore del Caos: ereditato i poteri
 chaos_servant_inherited = "Il servitore ha ereditato i poteri del *\U0001F479 Signore del Caos*."
 
