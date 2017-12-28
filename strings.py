@@ -104,7 +104,7 @@ derek_deathwish_set = "*Morirai* alla fine di questo giorno."
 derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
 
 # Derek: morte
-derek_deathwish_successful = "*SPOILER:* alla fine di questo giorno *\U0001F635 Derek Shepard* (@{name}) è morto schiacciato da un container.\n"
+derek_deathwish_successful = "*SPOILER:* alla fine di questo giorno *\U0001F635 Derek Shepard* (@{name}) è morto schiacciato da un container durante una missione su Ilium.\n"
 
 # Disastro: icona
 disaster_icon = "\U0001F46E"
@@ -119,11 +119,11 @@ mom_icon = "\U0001F917"
 mom_name = "Mamma"
 
 # Mamma: descrizione del potere
-mom_power_description = "All'inizio della partita scoprirai il ruolo di un giocatore casuale.\n" \
-                        "Usalo per sapere di chi (non) fidarti!\n"
+mom_power_description = "Durante la partita scoprirai i ruoli di alcuni giocatori.\n" \
+                        "A differenza dell'Investigatore, sei infallibile.\n"
 
 # Mamma: scoperta di un ruolo
-mom_discovery = "@{target} è un *{icon} {role}*.\n" \
+mom_discovery = "Hai scoperto che @{target} è un *{icon} {role}*.\n" \
 
 # Stagista: icona
 intern_icon = "\U0001F913"
