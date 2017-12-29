@@ -20,7 +20,7 @@ class Mamma(Role):
         self.player.message(s.mom_discovery.format(target=target.tusername, icon=target.role.icon, role=target.role.name))
 
     def onendday(self):
-        if random.randrange(0, 10) > 7:
+        if random.randrange(0, 10) > 5:
             # Scegli un bersaglio casuale che non sia il giocatore stesso
             possibletargets = self.player.game.players.copy()
             possibletargets.remove(self.player)

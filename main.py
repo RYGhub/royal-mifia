@@ -44,17 +44,24 @@ class Player:
     def __str__(self) -> str:
         return "@{}".format(self.tusername)
 
-    def message(self, text: str):
+    def message(self, text: str, *args, **kwargs):
         """Manda un messaggio privato al giocatore."""
         if not self.dummy:
-            self.game.bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+            while True:
+                try:
+                    self.game.bot.sendMessage(self.tid, text, *args, parse_mode=ParseMode.MARKDOWN, **kwargs)
+                except TimedOut:
+                    print("Timed out, pausing for 5 seconds...")
+                    time.sleep(5)
+                else:
+                    break
 
     def kill(self):
         """Uccidi il giocatore."""
         self.role.ondeath()
         self.alive = False
         # Silenzia il giocatore
-        if self is not self.game.admin:
+        if self is not self.game.admin and not self.dummy:
             try:
                 self.game.bot.restrictChatMember(self.game.groupid, self.tid, None, False, False, False, False)
             except Unauthorized:
@@ -110,9 +117,16 @@ class Game:
                 .format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
         return r
 
-    def message(self, text: str):
+    def message(self, text: str, *args, **kwargs):
         """Manda un messaggio nel gruppo."""
-        self.bot.sendMessage(self.groupid, text, parse_mode=ParseMode.MARKDOWN)
+        while True:
+            try:
+                self.bot.sendMessage(self.groupid, text, *args, parse_mode=ParseMode.MARKDOWN, **kwargs)
+            except TimedOut:
+                print("Timed out, pausing for 5 seconds...")
+                time.sleep(5)
+            else:
+                break
 
     def adminmessage(self, text: str):
         """Manda un messaggio privato al creatore della partita."""
@@ -880,7 +894,8 @@ def inlinekeyboard(bot: Bot, update):
 
 
 def breakpoint_here(*args, **kwargs):
-    pass
+    if args[2] == "Timed out":
+        print("Si è buggato tutto. As usual.")
 
 
 updater.dispatcher.add_handler(CommandHandler('ping', ping))

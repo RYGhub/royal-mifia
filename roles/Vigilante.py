@@ -38,6 +38,6 @@ class Vigilante(Role):
         # Resetta la protezione
         if self.target is not None:
             self.target.kill()
-            self.player.game.message()
+            self.player.game.message(s.vigilante_execution.format(target=self.target.tusername, icon=self.target.role.icon, role=self.target.role.name))
             self.power_was_used = True
             self.target = None

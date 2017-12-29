@@ -33,10 +33,10 @@ class Disastro(Role):
         target_score = random.randrange(0, 25) + 1
         score = random.randrange(0, 100) + 1
         if score < target_score:
-            role = target.role.name
+            role = target.role
         else:
-            role = self.player.game.getrandomrole().name
-        self.player.message(s.detective_discovery.format(target_score=100-target_score, target=target.tusername, icon=target.role.icon, role=role))
+            role = self.player.game.getrandomrole()
+        self.player.message(s.detective_discovery.format(target_score=100-target_score, target=target.tusername, icon=role.icon, role=role.name))
 
     def onendday(self):
         # Ripristina il potere

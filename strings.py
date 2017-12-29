@@ -364,7 +364,7 @@ warning_bot_not_admin = "\U000026A0 Attenzione! Il bot non è amministratore in 
 error_username = "\U000026A0 Il nome utente specificato non esiste."
 
 # Errore: usi del potere esauriti
-error_no_uses = "\U000026A0 Non puoi più usare il tuo potere per oggi."
+error_no_uses = "\U000026A0 Hai finito gli utilizzi del tuo potere."
 
 # Errore: numero troppo basso di giocatori
 error_not_enough_players = "\U000026A0 Non ci sono abbastanza giocatori per avviare la partita."
@@ -438,7 +438,7 @@ fatal_bot_rate_limited = "\U0001F6D1 **Errore critico:** Il bot ha inviato tropp
 if __debug__:
     names_list = ["Dev"]
 else:
-    names_list = ["Eleven"]
+    names_list = ["Tredici"]
 
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*" 

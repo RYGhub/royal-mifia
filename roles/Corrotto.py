@@ -29,7 +29,7 @@ class Corrotto(Role):
             return
         # Utilizza il potere su quella persona
         self.poweruses -= 1
-        self.player.message(s.detective_discovery.format(target=target.tusername, icon=target.role.icon, role=target.role.name, left=self.poweruses))
+        self.player.message(s.detective_discovery.format(target_score=100, target=target.tusername, icon=target.role.icon, role=target.role.name))
 
     def onendday(self):
         # Ripristina il potere
