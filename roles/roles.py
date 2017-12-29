@@ -11,4 +11,5 @@ from .Servitore import Servitore
 from .SignoreDelCaos import SignoreDelCaos
 from .Stagista import Stagista
 from .Terrorista import Terrorista
+from .Vigilante import Vigilante
 from .priority import rolepriority

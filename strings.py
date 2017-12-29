@@ -41,11 +41,11 @@ detective_icon = "\U0001F575"
 detective_name = "Investigatore"
 
 # Investigatore: scoperta nuove informazioni
-detective_discovery = "@{target} è un *{icon} {role}*.\n" \
-                      "Puoi usare il tuo potere ancora *{left}* volte oggi."
+detective_discovery = "Sei sicuro al *{target_score}%* che @{target} sia un *{icon} {role}*."
 
 # Investigatore: descrizione del potere
-detective_power_description = "Puoi indagare sul vero ruolo di una persona una volta al giorno.\n" \
+detective_power_description = "Puoi provare a scoprire il ruolo di una persona ogni giorno.\n" \
+                              "Non è garantito che l'investigazione abbia successo, ma la probabilità è piuttosto alta e ti verrà annunciata.\n" \
                               "Per indagare su qualcuno, scrivi in questa chat:\n" \
                               "`/power {gamename} nomeutentebersaglio`\n"
 
@@ -104,7 +104,7 @@ derek_deathwish_set = "*Morirai* alla fine di questo giorno."
 derek_deathwish_unset = "*Vivrai* per morire un altro giorno."
 
 # Derek: morte
-derek_deathwish_successful = "*SPOILER:* alla fine di questo giorno *\U0001F635 Derek Shepard* (@{name}) è morto schiacciato da un container.\n"
+derek_deathwish_successful = "*SPOILER:* alla fine di questo giorno *\U0001F635 Derek Shepard* (@{name}) è morto schiacciato da un container durante una missione su Ilium.\n"
 
 # Disastro: icona
 disaster_icon = "\U0001F46E"
@@ -119,11 +119,11 @@ mom_icon = "\U0001F917"
 mom_name = "Mamma"
 
 # Mamma: descrizione del potere
-mom_power_description = "All'inizio della partita scoprirai il ruolo di un giocatore casuale.\n" \
-                        "Usalo per sapere di chi (non) fidarti!\n"
+mom_power_description = "Durante la partita scoprirai i ruoli di alcuni giocatori.\n" \
+                        "A differenza dell'Investigatore, sei infallibile.\n"
 
 # Mamma: scoperta di un ruolo
-mom_discovery = "@{target} è un *{icon} {role}*.\n" \
+mom_discovery = "Hai scoperto che @{target} è un *{icon} {role}*.\n" \
 
 # Stagista: icona
 intern_icon = "\U0001F913"
@@ -195,6 +195,25 @@ chaos_servant_icon = "\U0001F468\u200d\U0001F3A4"
 # Servitore del Caos: descrizione potere
 chaos_servant_power_description = "Il Signore del Caos ti cederà i suoi poteri quando sarà morto.\n" \
                                   "Facendo parte della fazione del Caos, hai automaticamente _vinto la partita_!"
+
+# Vigilante: nome ruolo
+vigilante_name = "Vigilante"
+
+# Vigilante: icona
+vigilante_icon = "🤠"
+
+# Vigilante: descrizione potere
+vigilante_power_description = "Puoi scegliere una persona da uccidere anonimamente alla fine della giornata.\n" \
+                              "Fai attenzione a non uccidere un tuo alleato Royal: sei in squadra con loro!\n" \
+                              "Per uccidere qualcuno, scrivi in questa chat:\n" \
+                              "`/power {gamename} nomeutentebersaglio`"
+
+# Vigilante: bersaglio scelto
+vigilante_target_selected = "Stai puntando la tua pistola contro @{target}."
+
+# Vigilante: esecuzione
+vigilante_execution = "@{target} è stato eseguito da un Vigilante della Royal Games.\n" \
+                      "Era un *{icon} {role}*."
 
 # Servitore del Caos: ereditato i poteri
 chaos_servant_inherited = "Il servitore ha ereditato i poteri del *\U0001F479 Signore del Caos*."
@@ -345,7 +364,7 @@ warning_bot_not_admin = "\U000026A0 Attenzione! Il bot non è amministratore in 
 error_username = "\U000026A0 Il nome utente specificato non esiste."
 
 # Errore: usi del potere esauriti
-error_no_uses = "\U000026A0 Non puoi più usare il tuo potere per oggi."
+error_no_uses = "\U000026A0 Hai finito gli utilizzi del tuo potere."
 
 # Errore: numero troppo basso di giocatori
 error_not_enough_players = "\U000026A0 Non ci sono abbastanza giocatori per avviare la partita."
@@ -419,7 +438,7 @@ fatal_bot_rate_limited = "\U0001F6D1 **Errore critico:** Il bot ha inviato tropp
 if __debug__:
     names_list = ["Dev"]
 else:
-    names_list = ["Eleven"]
+    names_list = ["Tredici"]
 
 # Scegli il preset
 preset_choose = "*Seleziona un preset per la partita:*" 

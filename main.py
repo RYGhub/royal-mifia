@@ -44,17 +44,24 @@ class Player:
     def __str__(self) -> str:
         return "@{}".format(self.tusername)
 
-    def message(self, text: str):
+    def message(self, text: str, *args, **kwargs):
         """Manda un messaggio privato al giocatore."""
         if not self.dummy:
-            self.game.bot.sendMessage(self.tid, text, parse_mode=ParseMode.MARKDOWN)
+            while True:
+                try:
+                    self.game.bot.sendMessage(self.tid, text, *args, parse_mode=ParseMode.MARKDOWN, **kwargs)
+                except TimedOut:
+                    print("Timed out, pausing for 5 seconds...")
+                    time.sleep(5)
+                else:
+                    break
 
     def kill(self):
         """Uccidi il giocatore."""
         self.role.ondeath()
         self.alive = False
         # Silenzia il giocatore
-        if self is not self.game.admin:
+        if self is not self.game.admin and not self.dummy:
             try:
                 self.game.bot.restrictChatMember(self.game.groupid, self.tid, None, False, False, False, False)
             except Unauthorized:
@@ -110,9 +117,16 @@ class Game:
                 .format(name=self.name, groupid=self.groupid, nplayers=len(self.players), phase=self.phase)
         return r
 
-    def message(self, text: str):
+    def message(self, text: str, *args, **kwargs):
         """Manda un messaggio nel gruppo."""
-        self.bot.sendMessage(self.groupid, text, parse_mode=ParseMode.MARKDOWN)
+        while True:
+            try:
+                self.bot.sendMessage(self.groupid, text, *args, parse_mode=ParseMode.MARKDOWN, **kwargs)
+            except TimedOut:
+                print("Timed out, pausing for 5 seconds...")
+                time.sleep(5)
+            else:
+                break
 
     def adminmessage(self, text: str):
         """Manda un messaggio privato al creatore della partita."""
@@ -326,7 +340,8 @@ class Game:
                 "Mamma":          0,
                 "Stagista":       0,
                 "SignoreDelCaos": 0,
-                "Servitore":      0
+                "Servitore":      0,
+                "Vigilante":      0
             }
             self.votingmifia = True
             self.message(s.preset_simple_selected.format(mifioso=self.roleconfig["Mifioso"],
@@ -346,35 +361,38 @@ class Game:
                 "Mamma":          0,
                 "Stagista":       0,
                 "SignoreDelCaos": 0,
-                "Servitore":      0
+                "Servitore":      0,
+                "Vigilante":      0
             }
             self.votingmifia = True
             self.message(s.preset_classic_selected.format(mifioso=self.roleconfig["Mifioso"], investigatore=self.roleconfig["Investigatore"], angelo=self.roleconfig["Angelo"], royal=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"], royalmenouno=len(self.players) - self.roleconfig["Mifioso"] - self.roleconfig["Investigatore"] - self.roleconfig["Angelo"] - 1))
             self.endconfig()
         elif preset == "oneofall":
+            unassignedplayers = len(self.players)
             self.roleconfig = {
-                "Mifioso": 1,
-                "Investigatore": 1,
-                "Corrotto": 1,
-                "Angelo": 1,
-                "Terrorista": 1,
-                "Derek": 1,
-                "Disastro": 1,
-                "Mamma": 1,
-                "Stagista": 1,
+                "Mifioso": 0,
+                "Investigatore": 0,
+                "Corrotto": 0,
+                "Angelo": 0,
+                "Terrorista": 0,
+                "Derek": 0,
+                "Disastro": 0,
+                "Mamma": 0,
+                "Stagista": 0,
                 "SignoreDelCaos": 0,
-                "Servitore": 0
+                "Servitore": 0,
+                "Vigilante": 0
             }
-            unassignedplayers = len(self.players) - 9
-            availableroles = list() 
-            while unassignedplayers > 0:
-                if len(availableroles) == 0:
-                    availableroles = rolepriority.copy()
-                    availableroles.remove(SignoreDelCaos)
-                    availableroles.remove(Servitore)
-                    random.shuffle(availableroles)
-                self.roleconfig[availableroles.pop().__name__] += 1
-                unassignedplayers -= 1
+            while True:
+                for role in [Mifioso, Investigatore, Corrotto, Angelo, Terrorista, Derek, Disastro, Mamma, Stagista, Vigilante]:
+                    if unassignedplayers > 0:
+                        self.roleconfig[role.__name__] += 1
+                        unassignedplayers -= 1
+                    else:
+                        break
+                else:
+                    continue
+                break
             self.votingmifia = False
             self.message(s.preset_oneofall_selected)
             self.endconfig()
@@ -875,6 +893,11 @@ def inlinekeyboard(bot: Bot, update):
         bot.editMessageReplyMarkup(game.groupid, game.votemsg.message_id, reply_markup=keyboard)
 
 
+def breakpoint_here(*args, **kwargs):
+    if args[2] == "Timed out":
+        print("Si è buggato tutto. As usual.")
+
+
 updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.dispatcher.add_handler(CommandHandler('newgame', newgame))
 updater.dispatcher.add_handler(CommandHandler('join', join))
@@ -892,6 +915,7 @@ updater.dispatcher.add_handler(CommandHandler('load', load))
 updater.dispatcher.add_handler(CommandHandler('delete', delete))
 updater.dispatcher.add_handler(CommandHandler('debugchangerole', debugchangerole))
 updater.dispatcher.add_handler(CallbackQueryHandler(inlinekeyboard))
+updater.dispatcher.add_error_handler(breakpoint_here)
 
 if __name__ == "__main__":
     updater.start_polling()
