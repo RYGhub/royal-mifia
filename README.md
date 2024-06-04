@@ -1,5 +1,7 @@
 <div align="center">
 
+![](.media/icon-128x128_round.png)
+
 # Royal Mifia
 
 Telegram bot social deduction game, a custom version of Mafia playable in a group
