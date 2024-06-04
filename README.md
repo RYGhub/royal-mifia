@@ -1,9 +1,20 @@
-# royal-mifia
+<div align="center">
 
-A Telegram bot to play Mafia in a chat group.
+# Royal Mifia
+
+Telegram bot social deduction game, a custom version of Mafia playable in a group
+
+</div>
+
+## History
+
+This project was iterated upon in various moments between 2016 and 2017 to learn Python. 
+
+14 full games have been played via this bot.
 
 ## Credits
 
-Coding: [Steffo99](https://github.com/Steffo99)
+Coding: @Steffo
 
-Game Design: [Steffo99](https://github.com/Steffo99) and [ObsidianSin](https://github.com/ObsidianSin)
+Game Design: @Steffo and @ObsidianSin
+
